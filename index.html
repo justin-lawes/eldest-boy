@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eldest Boy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gasoek+One&family=Work+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/chicagoflf" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      background: #000;
+      font-family: 'Work Sans', sans-serif;
+    }
+
+    .bouncing-img {
+      position: absolute;
+      width: 180px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 8px;
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    .center-text {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+      color: #fff;
+      pointer-events: none;
+    }
+
+    .center-text h1 {
+      font-family: 'Gasoek One', sans-serif;
+      font-size: clamp(2.5rem, 8vw, 6rem);
+      font-weight: 400;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 0.3em;
+    }
+
+    .bouncing-word {
+      position: absolute;
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.6rem);
+      font-weight: 400;
+      text-transform: uppercase;
+      color: #fff;
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    .center-text a {
+      display: inline-block;
+      margin-top: 1.5em;
+      color: #fff;
+      font-size: clamp(0.85rem, 2vw, 1.1rem);
+      font-weight: 400;
+      text-decoration: none;
+      opacity: 0.5;
+      transition: opacity 0.3s;
+      pointer-events: auto;
+    }
+
+    .center-text a:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+      .bouncing-img {
+        width: 100px;
+      }
+
+      .center-text h1 {
+        font-size: clamp(2rem, 12vw, 3.5rem);
+      }
+
+      .bouncing-word {
+        font-size: clamp(0.75rem, 3.5vw, 1rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <video
+    id="img1"
+    class="bouncing-img"
+    src="TwoPeople_PolyReduce_v03b.mp4"
+    autoplay
+    loop
+    muted
+    playsinline
+  ></video>
+  <video
+    id="img2"
+    class="bouncing-img"
+    src="TwoPeople_PolyReduce_v03.mp4"
+    autoplay
+    loop
+    muted
+    playsinline
+  ></video>
+
+  <div class="center-text">
+    <h1>Eldest Boy</h1>
+    <a href="https://instagram.com/eldestboymusic" target="_blank" aria-label="Instagram">
+      <svg width="28" height="28" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9S160.5 370.9 224.1 370.9 339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1S3.8 127.7 2 163.6c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+    </a>
+  </div>
+
+  <span id="word1" class="bouncing-word">New</span>
+  <span id="word2" class="bouncing-word">Music</span>
+  <span id="word3" class="bouncing-word">Soon</span>
+
+  <script>
+    class Bouncer {
+      constructor(el, vx, vy, rotSpeed) {
+        this.el = el;
+        this.x = Math.random() * (window.innerWidth - el.offsetWidth);
+        this.y = Math.random() * (window.innerHeight - el.offsetHeight);
+        this.vx = vx;
+        this.vy = vy;
+        this.angle = rotSpeed ? Math.random() * 360 : 0;
+        this.rotSpeed = rotSpeed;
+        this.el.style.left = this.x + 'px';
+        this.el.style.top = this.y + 'px';
+      }
+
+      update() {
+        const w = this.el.offsetWidth;
+        const h = this.el.offsetHeight;
+
+        this.x += this.vx;
+        this.y += this.vy;
+        this.angle += this.rotSpeed;
+
+        if (this.x <= 0 || this.x + w >= window.innerWidth) {
+          this.vx *= -1;
+          this.x = Math.max(0, Math.min(this.x, window.innerWidth - w));
+        }
+        if (this.y <= 0 || this.y + h >= window.innerHeight) {
+          this.vy *= -1;
+          this.y = Math.max(0, Math.min(this.y, window.innerHeight - h));
+        }
+
+        this.el.style.left = this.x + 'px';
+        this.el.style.top = this.y + 'px';
+        this.el.style.transform = `rotate(${this.angle}deg)`;
+      }
+    }
+
+    const img1 = document.getElementById('img1');
+    const img2 = document.getElementById('img2');
+    const word1 = document.getElementById('word1');
+    const word2 = document.getElementById('word2');
+    const word3 = document.getElementById('word3');
+
+    let b1, b2, w1, w2, w3;
+
+    function randRange(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function init() {
+      const speed1 = randRange(0.3, 0.6);
+      const speed2 = randRange(0.3, 0.6);
+      b1 = new Bouncer(img1, speed1, randRange(0.3, 0.5), randRange(0.1, 0.2));
+      b2 = new Bouncer(img2, -speed2, randRange(0.3, 0.5), -randRange(0.1, 0.2));
+
+      // Place images in opposite quadrants
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      b1.x = randRange(0, vw * 0.3);
+      b1.y = randRange(0, vh * 0.3);
+      b2.x = randRange(vw * 0.5, vw - img2.offsetWidth);
+      b2.y = randRange(vh * 0.5, vh - img2.offsetHeight);
+
+      // Bouncing words (no rotation)
+      w1 = new Bouncer(word1, randRange(0.3, 0.7), randRange(0.2, 0.5), 0);
+      w2 = new Bouncer(word2, -randRange(0.3, 0.7), randRange(0.3, 0.6), 0);
+      w3 = new Bouncer(word3, randRange(0.2, 0.5), -randRange(0.3, 0.6), 0);
+    }
+
+    function collidePair(a, b) {
+      const aw = a.el.offsetWidth;
+      const ah = a.el.offsetHeight;
+      const bw = b.el.offsetWidth;
+      const bh = b.el.offsetHeight;
+      const cx1 = a.x + aw / 2;
+      const cy1 = a.y + ah / 2;
+      const cx2 = b.x + bw / 2;
+      const cy2 = b.y + bh / 2;
+      const dx = cx2 - cx1;
+      const dy = cy2 - cy1;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const minDist = (Math.max(aw, ah) + Math.max(bw, bh)) / 2;
+
+      if (dist < minDist && dist > 0) {
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const relVx = a.vx - b.vx;
+        const relVy = a.vy - b.vy;
+        const dot = relVx * nx + relVy * ny;
+
+        if (dot > 0) {
+          a.vx -= dot * nx;
+          a.vy -= dot * ny;
+          b.vx += dot * nx;
+          b.vy += dot * ny;
+        }
+
+        const overlap = (minDist - dist) / 2;
+        a.x -= nx * overlap;
+        a.y -= ny * overlap;
+        b.x += nx * overlap;
+        b.y += ny * overlap;
+      }
+    }
+
+    function collideAll() {
+      const all = [b1, b2, w1, w2, w3];
+      for (let i = 0; i < all.length; i++) {
+        for (let j = i + 1; j < all.length; j++) {
+          collidePair(all[i], all[j]);
+        }
+      }
+    }
+
+    function animate() {
+      collideAll();
+      b1.update();
+      b2.update();
+      w1.update();
+      w2.update();
+      w3.update();
+      requestAnimationFrame(animate);
+    }
+
+    // Wait for images/video to load so offsetWidth/Height are correct
+    Promise.all([
+      img1.readyState >= 1 ? Promise.resolve() : new Promise(r => img1.addEventListener('loadedmetadata', r, { once: true })),
+      img2.readyState >= 1 ? Promise.resolve() : new Promise(r => img2.addEventListener('loadedmetadata', r, { once: true })),
+    ]).then(() => {
+      // Offset the second video's playback time
+      img2.addEventListener('loadedmetadata', () => {
+        img2.currentTime = img2.duration / 2;
+      }, { once: true });
+      init();
+      animate();
+    });
+
+    window.addEventListener('resize', () => {
+      b1.x = Math.min(b1.x, window.innerWidth - img1.offsetWidth);
+      b1.y = Math.min(b1.y, window.innerHeight - img1.offsetHeight);
+      b2.x = Math.min(b2.x, window.innerWidth - img2.offsetWidth);
+      b2.y = Math.min(b2.y, window.innerHeight - img2.offsetHeight);
+    });
+  </script>
+</body>
+</html>

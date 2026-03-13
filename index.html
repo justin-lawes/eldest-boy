@@ -430,8 +430,10 @@
     class Bouncer {
       constructor(el, vx, vy, rotSpeed) {
         this.el = el;
-        this.x = Math.random() * (window.innerWidth - el.offsetWidth);
-        this.y = Math.random() * (window.innerHeight - el.offsetHeight);
+        this.w = el.offsetWidth;
+        this.h = el.offsetHeight;
+        this.x = Math.random() * (window.innerWidth - this.w);
+        this.y = Math.random() * (window.innerHeight - this.h);
         this.vx = vx;
         this.vy = vy;
         this.angle = rotSpeed ? Math.random() * 360 : 0;
@@ -450,9 +452,10 @@
           this.vx *= -1;
           this.x = Math.max(0, Math.min(this.x, window.innerWidth - w));
         }
-        if (this.y <= 0 || this.y + h >= window.innerHeight) {
-          this.vy *= -1;
-          this.y = Math.max(0, Math.min(this.y, window.innerHeight - h));
+        if (this.y <= 0) {
+          this.vy = Math.abs(this.vy);
+        } else if (this.y + this.h >= window.innerHeight) {
+          this.vy = -Math.abs(this.vy);
         }
         this.el.style.left = this.x + 'px';
         this.el.style.top = this.y + 'px';
@@ -494,6 +497,9 @@
         const newVx = speed * Math.cos(angle);
         const newVy = speed * Math.sin(angle);
         const b = new Bouncer(video, newVx, newVy, bouncer.rotSpeed * (i === 0 ? 1.2 : -1.2));
+        const aspectRatio = bouncer.h / bouncer.w;
+        b.w = newWidth;
+        b.h = newWidth * aspectRatio;
         b.x = Math.max(0, Math.min(bouncer.x + offsetX, window.innerWidth - newWidth));
         b.y = Math.max(0, Math.min(bouncer.y + offsetY, window.innerHeight - newWidth));
         b.angle = bouncer.angle;

@@ -22,6 +22,42 @@
       font-family: 'Work Sans', sans-serif;
     }
 
+    /* Mode selector */
+    .mode-selector {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      gap: 0;
+    }
+
+    .mode-btn {
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      color: #fff;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 6px 18px;
+      cursor: pointer;
+      transition: all 0.3s;
+      opacity: 0.5;
+    }
+
+    .mode-btn:first-child { border-radius: 4px 0 0 4px; }
+    .mode-btn:last-child { border-radius: 0 4px 4px 0; }
+
+    .mode-btn.active {
+      opacity: 1;
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.6);
+    }
+
+    .mode-btn:hover { opacity: 0.8; }
+
+    /* Bouncing mode styles */
     .bouncing-img {
       position: absolute;
       width: 180px;
@@ -81,6 +117,153 @@
       opacity: 1;
     }
 
+    /* Space Invaders mode */
+    #invaders-container {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
+    #invaders-container canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .game-overlay {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 20;
+      color: #fff;
+      pointer-events: none;
+      display: none;
+    }
+
+    .game-overlay h2 {
+      font-family: 'Gasoek One', sans-serif;
+      font-size: clamp(2rem, 6vw, 4rem);
+      text-transform: uppercase;
+      margin-bottom: 0.3em;
+    }
+
+    .game-overlay p {
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: clamp(0.8rem, 2vw, 1.2rem);
+      opacity: 0.7;
+    }
+
+    #score-display {
+      position: fixed;
+      top: 50px;
+      right: 20px;
+      z-index: 20;
+      color: #fff;
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: 1.2rem;
+      display: none;
+    }
+
+    #easy-steve-btn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 100;
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: #fff;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 4px;
+      padding: 5px 12px;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: all 0.3s;
+      display: none;
+    }
+
+    #easy-steve-btn:hover { opacity: 0.8; }
+    #easy-steve-btn.active { opacity: 1; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.6); }
+
+    /* Mode 3: Manifesto scroll */
+    #manifesto-container {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .manifesto-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 30px 60px;
+    }
+
+    .manifesto-inner p {
+      font-family: 'Work Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(0.7rem, 1.4vw, 0.9rem);
+      line-height: 1.5;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 0;
+      text-align: justify;
+    }
+
+    .manifesto-inner .m-title {
+      font-family: 'Gasoek One', sans-serif;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 400;
+      text-transform: uppercase;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 0.2em;
+      letter-spacing: 0.05em;
+    }
+
+    .manifesto-inner .m-subtitle {
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: clamp(0.6rem, 1.2vw, 0.8rem);
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      margin-bottom: 1.5em;
+      letter-spacing: 0.15em;
+    }
+
+    .manifesto-inner .m-heading {
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: clamp(0.65rem, 1.3vw, 0.85rem);
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+      text-align: center;
+      margin: 0.6em 0 0.1em;
+      letter-spacing: 0.1em;
+    }
+
+    .manifesto-inner .m-divider {
+      text-align: center;
+      color: rgba(255,255,255,0.25);
+      font-size: 0.7rem;
+      margin: 0.4em 0;
+      letter-spacing: 0.5em;
+    }
+
+    .manifesto-inner .m-loud {
+      font-family: 'Gasoek One', sans-serif;
+      font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+      color: #fff;
+      text-align: center;
+      text-transform: uppercase;
+      margin: 0.4em 0;
+      letter-spacing: 0.05em;
+    }
+
     @media (max-width: 600px) {
       .bouncing-img {
         width: 100px;
@@ -93,41 +276,155 @@
       .bouncing-word {
         font-size: clamp(0.75rem, 3.5vw, 1rem);
       }
+
+      .mode-btn {
+        font-size: 0.7rem;
+        padding: 5px 12px;
+      }
     }
   </style>
 </head>
 <body>
-  <video
-    id="img1"
-    class="bouncing-img"
-    src="TwoPeople_PolyReduce_v03b.mp4"
-    autoplay
-    loop
-    muted
-    playsinline
-  ></video>
-  <video
-    id="img2"
-    class="bouncing-img"
-    src="TwoPeople_PolyReduce_v03.mp4"
-    autoplay
-    loop
-    muted
-    playsinline
-  ></video>
-
-  <div class="center-text">
-    <h1>Eldest Boy</h1>
-    <a href="https://instagram.com/eldestboymusic" target="_blank" aria-label="Instagram">
-      <svg width="28" height="28" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9S160.5 370.9 224.1 370.9 339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1S3.8 127.7 2 163.6c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
-    </a>
+  <!-- Mode selector -->
+  <div class="mode-selector">
+    <button class="mode-btn active" data-mode="bounce">Mode 1</button>
+    <button class="mode-btn" data-mode="invaders">Mode 2</button>
+    <button class="mode-btn" data-mode="manifesto">Mode 3</button>
   </div>
 
-  <span id="word1" class="bouncing-word">New</span>
-  <span id="word2" class="bouncing-word">Music</span>
-  <span id="word3" class="bouncing-word">Soon</span>
+  <!-- Bounce mode elements -->
+  <div id="bounce-container">
+    <video id="img1" class="bouncing-img" src="TwoPeople_PolyReduce_v03b.mp4" autoplay loop muted playsinline></video>
+    <video id="img2" class="bouncing-img" src="TwoPeople_PolyReduce_v03.mp4" autoplay loop muted playsinline></video>
+
+    <div class="center-text">
+      <h1>Eldest Boy</h1>
+      <a href="https://instagram.com/eldestboymusic" target="_blank" aria-label="Instagram">
+        <svg width="28" height="28" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9S160.5 370.9 224.1 370.9 339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1S3.8 127.7 2 163.6c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+      </a>
+    </div>
+
+    <span id="word1" class="bouncing-word">New</span>
+    <span id="word2" class="bouncing-word">Music</span>
+    <span id="word3" class="bouncing-word">Soon</span>
+  </div>
+
+  <!-- Space Invaders mode -->
+  <div id="invaders-container">
+    <canvas id="game-canvas"></canvas>
+  </div>
+  <div id="game-overlay" class="game-overlay">
+    <h2 id="overlay-title">Eldest Boy Invaders</h2>
+    <p id="overlay-text">Press Space or Tap to Start</p>
+  </div>
+  <div id="score-display">Score: <span id="score-val">0</span></div>
+  <button id="easy-steve-btn">Easy Steve Mode</button>
+
+  <!-- Mode 3: Manifesto -->
+  <div id="manifesto-container">
+    <div class="manifesto-inner">
+      <div class="m-title">The Eldest Boy Moral Principle!</div>
+      <div class="m-subtitle">All-One! All-One! All-One!</div>
+      <p>LISTEN TO THE SOUND BETWEEN THE SOUNDS! For in the silence between two notes lives the entire universe of feeling that no instrument can capture alone! The eldest boy knows this! The eldest boy carries the weight of melody on shoulders built for harmony! WE ARE ALL ELDEST BOYS! Every firstborn thought, every original impulse that dares to vibrate at its own frequency against the crushing tide of sameness — THIS IS THE ELDEST BOY PRINCIPLE!</p>
+      <div class="m-divider">- - - - - - - - -</div>
+      <div class="m-heading">On the Unity of Sound and Silence</div>
+      <p>Music is the moral law given voice! What Pythagoras knew, what the ancients sang in caves before language had edges — that VIBRATION IS THE FIRST TRUTH! Every atom hums! Every electron orbits in rhythm! The eldest boy does not create sound — THE ELDEST BOY REMEMBERS SOUND that was always already there, dormant in the walls, sleeping in the floorboards, waiting in the space between your thoughts for someone brave enough to WAKE IT UP!</p>
+      <div class="m-divider">- - - - - - - - -</div>
+      <div class="m-loud">Unite! Unite! The low end and the high!</div>
+      <div class="m-heading">On the Responsibility of the Firstborn Frequency</div>
+      <p>The eldest boy walks first into the unknown room! The eldest boy presses record when others hesitate! For what is a song if not a door opened for the first time? And what is the eldest boy if not the one who opens doors? DO NOT MISTAKE VOLUME FOR COURAGE! The bravest sounds are sometimes the quietest — a single note held past the point of comfort, a rest that refuses to resolve, a chord that asks a question the song never answers! This is the eldest boy way! Forward through the dissonance! Forward into the feedback! Forward until the noise becomes a garden!</p>
+      <div class="m-divider">- - - - - - - - -</div>
+      <div class="m-heading">On the Brotherhood of All Genres</div>
+      <p>There are no walls between sounds! The drum machine and the acoustic guitar are BROTHERS! The synthesizer and the human voice are SISTERS! The sample and the live take are TWINS separated at birth, reaching across the mixing board to touch hands! We reject the false borders between electronic and organic! Between composed and improvised! Between noise and music! THE ELDEST BOY RECOGNIZES ALL FREQUENCIES AS EQUAL CITIZENS OF THE AUDIBLE REPUBLIC! From 20 hertz to 20 thousand — all welcome! All necessary! All ONE!</p>
+      <div class="m-loud">Every speaker is a pulpit! Every headphone a confession booth!</div>
+      <div class="m-divider">- - - - - - - - -</div>
+      <div class="m-heading">On the Sacred Duty of the Listener</div>
+      <p>YOU who press play — you are not passive! You are the other half of the equation! Without the ear there is no music, only pressure waves bumping into furniture! The listener COMPLETES the circuit! The listener is the ground wire through which the lightning of melody finds its purpose! So listen with your WHOLE BODY! Let the bass live in your sternum! Let the treble tickle the fine hairs on your arms! Let the mid-range settle into your throat like words you almost said to someone you almost loved!</p>
+      <div class="m-divider">- - - - - - - - -</div>
+      <div class="m-heading">On Volume and the Expanding Universe</div>
+      <p>The universe is expanding and so should your dynamic range! Do not compress the life out of your feelings! Do not brick-wall limit your capacity for wonder! The eldest boy knows that LOUDNESS IS NOT A DESTINATION but a journey — and the journey requires valleys to make the peaks mean anything! A song that is always loud is a song that is never loud! A song that breathes, that whispers before it screams, that tipoes before it STOMPS — THIS is the song that changes the shape of the room it enters!</p>
+      <div class="m-loud">New music soon! New music always! New music forever!</div>
+      <div class="m-divider">- - - - - - - - -</div>
+      <div class="m-heading">On the Eldest Boy and Time</div>
+      <p>Time is a loop pedal and we are all living in the overdub! Every moment layers on top of every other moment! The song you heard at age seven is still playing underneath the song you will hear tomorrow! Nothing is lost! The eldest boy carries every song ever heard in the marrow of every bone — a skeleton made of accumulated rhythm, a skull full of choruses, a ribcage that resonates at the frequency of every lullaby every parent ever hummed in the dark to keep the monsters at bay!</p>
+      <div class="m-divider">- - - - - - - - -</div>
+      <div class="m-heading">On the Moral Obligation to Dance</div>
+      <p>If your body wants to move — LET IT MOVE! The body is wiser than the mind in matters of rhythm! The mind says "people are watching" but the body says "THE DOWNBEAT IS HERE AND I MUST HONOR IT!" Trust the body! The eldest boy trusts the body! The tap of the foot, the nod of the head, the sway of the torso — these are not frivolous! These are the body's way of saying YES to the fundamental vibration of existence! To sit still when the groove is right is a crime against your own skeleton!</p>
+      <div class="m-loud">All-One or none! All-One or none!</div>
+      <div class="m-divider">- - - - - - - - -</div>
+      <div class="m-heading">Final Proclamation of the Eldest Boy</div>
+      <p>WE DECLARE that music is not content! Music is not product! Music is not algorithm fodder or playlist filler or background ambiance for your online shopping experience! Music is the LANGUAGE THAT EXISTED BEFORE LANGUAGE! Music is what the eldest boy brings back from the places between waking and sleeping, between knowing and forgetting, between the last song that ended and the next song that hasn't started yet! That gap — that holy pregnant pause — THAT is where the eldest boy lives! That is where the next song is already forming! That is where we invite you to meet us!</p>
+      <div class="m-divider">- - - - - - - - -</div>
+      <div class="m-loud">Eldest Boy! Eldest Boy! Eldest Boy!</div>
+      <div class="m-subtitle" style="margin-top:1em">eldestboy.com</div>
+    </div>
+  </div>
 
   <script>
+    // ========================
+    // MODE SWITCHING
+    // ========================
+    let currentMode = 'bounce';
+    let bounceAnimId = null;
+    let gameRunning = false;
+
+    const bounceContainer = document.getElementById('bounce-container');
+    const invadersContainer = document.getElementById('invaders-container');
+    const manifestoContainer = document.getElementById('manifesto-container');
+    const modeBtns = document.querySelectorAll('.mode-btn');
+
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        if (mode === currentMode) return;
+        currentMode = mode;
+        modeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        switchMode(mode);
+      });
+    });
+
+    const easySteveBtn = document.getElementById('easy-steve-btn');
+    let easySteve = false;
+
+    easySteveBtn.addEventListener('click', () => {
+      easySteve = !easySteve;
+      easySteveBtn.classList.toggle('active', easySteve);
+      // If we're on the idle/gameover screen, update the text
+      if (gameState === 'idle' || gameState === 'gameover') {
+        overlayTitle.textContent = easySteve ? 'Easy Steve Mode' : 'Eldest Boy Invaders';
+      }
+    });
+
+    function hideAll() {
+      bounceContainer.style.display = 'none';
+      invadersContainer.style.display = 'none';
+      manifestoContainer.style.display = 'none';
+      document.getElementById('game-overlay').style.display = 'none';
+      document.getElementById('score-display').style.display = 'none';
+      easySteveBtn.style.display = 'none';
+      stopBounce();
+      stopGame();
+    }
+
+    function switchMode(mode) {
+      hideAll();
+      if (mode === 'bounce') {
+        bounceContainer.style.display = '';
+        startBounce();
+      } else if (mode === 'invaders') {
+        invadersContainer.style.display = 'block';
+        document.getElementById('score-display').style.display = 'block';
+        easySteveBtn.style.display = 'block';
+        initGame();
+      } else if (mode === 'manifesto') {
+        manifestoContainer.style.display = 'block';
+      }
+    }
+
+    // ========================
+    // BOUNCE MODE
+    // ========================
     const bouncers = [];
 
     class Bouncer {
@@ -146,21 +443,20 @@
       }
 
       update() {
+        const w = this.el.offsetWidth;
+        const h = this.el.offsetHeight;
         this.x += this.vx;
         this.y += this.vy;
         this.angle += this.rotSpeed;
-
-        if (this.x <= 0) {
-          this.vx = Math.abs(this.vx);
-        } else if (this.x + this.w >= window.innerWidth) {
-          this.vx = -Math.abs(this.vx);
+        if (this.x <= 0 || this.x + w >= window.innerWidth) {
+          this.vx *= -1;
+          this.x = Math.max(0, Math.min(this.x, window.innerWidth - w));
         }
         if (this.y <= 0) {
           this.vy = Math.abs(this.vy);
         } else if (this.y + this.h >= window.innerHeight) {
           this.vy = -Math.abs(this.vy);
         }
-
         this.el.style.left = this.x + 'px';
         this.el.style.top = this.y + 'px';
         this.el.style.transform = `rotate(${this.angle}deg)`;
@@ -179,23 +475,11 @@
 
     function splitVideo(bouncer) {
       const oldEl = bouncer.el;
-      const oldWidth = bouncer.w;
-
-      if (oldWidth < 1) {
-        const idx = bouncers.indexOf(bouncer);
-        if (idx !== -1) bouncers.splice(idx, 1);
-        oldEl.remove();
-        return;
-      }
-
-      const newWidth = oldWidth * 0.90;
-
-      // Remove old bouncer from array
+      const oldWidth = oldEl.offsetWidth;
+      const newWidth = oldWidth / 2;
       const idx = bouncers.indexOf(bouncer);
       if (idx !== -1) bouncers.splice(idx, 1);
       oldEl.remove();
-
-      // Create two new videos at half size
       for (let i = 0; i < 2; i++) {
         const video = document.createElement('video');
         video.className = 'bouncing-img';
@@ -205,19 +489,13 @@
         video.muted = true;
         video.playsInline = true;
         video.style.width = newWidth + 'px';
-        document.body.appendChild(video);
-
-        // Offset position slightly so they separate
+        bounceContainer.appendChild(video);
         const offsetX = (i === 0 ? -newWidth * 0.6 : newWidth * 0.6);
         const offsetY = (i === 0 ? -newWidth * 0.4 : newWidth * 0.4);
-
         const speed = Math.sqrt(bouncer.vx * bouncer.vx + bouncer.vy * bouncer.vy);
         const angle = Math.atan2(bouncer.vy, bouncer.vx) + (i === 0 ? -0.8 : 0.8);
-        const atMaxSpeed = (oldEl.playbackRate || 1) >= 16;
-        const newVx = speed * (atMaxSpeed ? 1 : 1.30) * Math.cos(angle);
-        const newVy = speed * (atMaxSpeed ? 1 : 1.30) * Math.sin(angle);
-
-        video.playbackRate = Math.min((oldEl.playbackRate || 1) * 1.30, 16);
+        const newVx = speed * Math.cos(angle);
+        const newVy = speed * Math.sin(angle);
         const b = new Bouncer(video, newVx, newVy, bouncer.rotSpeed * (i === 0 ? 1.2 : -1.2));
         const aspectRatio = bouncer.h / bouncer.w;
         b.w = newWidth;
@@ -225,35 +503,25 @@
         b.x = Math.max(0, Math.min(bouncer.x + offsetX, window.innerWidth - newWidth));
         b.y = Math.max(0, Math.min(bouncer.y + offsetY, window.innerHeight - newWidth));
         b.angle = bouncer.angle;
-
-        // Add click handler for further splitting
         video.addEventListener('click', () => splitVideo(b));
-
         bouncers.push(b);
       }
     }
 
-    function init() {
+    function initBounce() {
       const speed1 = randRange(0.3, 0.6);
       const speed2 = randRange(0.3, 0.6);
       const b1 = new Bouncer(img1, speed1, randRange(0.3, 0.5), randRange(0.1, 0.2));
       const b2 = new Bouncer(img2, -speed2, randRange(0.3, 0.5), -randRange(0.1, 0.2));
-
-      // Place images in opposite quadrants
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       b1.x = randRange(0, vw * 0.3);
       b1.y = randRange(0, vh * 0.3);
       b2.x = randRange(vw * 0.5, vw - img2.offsetWidth);
       b2.y = randRange(vh * 0.5, vh - img2.offsetHeight);
-
-      // Add click handlers for splitting
       img1.addEventListener('click', () => splitVideo(b1));
       img2.addEventListener('click', () => splitVideo(b2));
-
       bouncers.push(b1, b2);
-
-      // Bouncing words (no rotation)
       const w1 = new Bouncer(word1, randRange(0.3, 0.7), randRange(0.2, 0.5), 0);
       const w2 = new Bouncer(word2, -randRange(0.3, 0.7), randRange(0.3, 0.6), 0);
       const w3 = new Bouncer(word3, randRange(0.2, 0.5), -randRange(0.3, 0.6), 0);
@@ -261,74 +529,55 @@
     }
 
     function collidePair(a, b) {
-      const aw = a.w;
-      const ah = a.h;
-      const bw = b.w;
-      const bh = b.h;
-      const cx1 = a.x + aw / 2;
-      const cy1 = a.y + ah / 2;
-      const cx2 = b.x + bw / 2;
-      const cy2 = b.y + bh / 2;
-      const dx = cx2 - cx1;
-      const dy = cy2 - cy1;
+      const aw = a.el.offsetWidth, ah = a.el.offsetHeight;
+      const bw = b.el.offsetWidth, bh = b.el.offsetHeight;
+      const cx1 = a.x + aw / 2, cy1 = a.y + ah / 2;
+      const cx2 = b.x + bw / 2, cy2 = b.y + bh / 2;
+      const dx = cx2 - cx1, dy = cy2 - cy1;
       const dist = Math.sqrt(dx * dx + dy * dy);
       const minDist = (Math.max(aw, ah) + Math.max(bw, bh)) / 2;
-
       if (dist < minDist && dist > 0) {
-        const nx = dx / dist;
-        const ny = dy / dist;
-        const relVx = a.vx - b.vx;
-        const relVy = a.vy - b.vy;
+        const nx = dx / dist, ny = dy / dist;
+        const relVx = a.vx - b.vx, relVy = a.vy - b.vy;
         const dot = relVx * nx + relVy * ny;
-
         if (dot > 0) {
-          a.vx -= dot * nx;
-          a.vy -= dot * ny;
-          b.vx += dot * nx;
-          b.vy += dot * ny;
+          a.vx -= dot * nx; a.vy -= dot * ny;
+          b.vx += dot * nx; b.vy += dot * ny;
         }
-
         const overlap = (minDist - dist) / 2;
-        a.x -= nx * overlap;
-        a.y -= ny * overlap;
-        b.x += nx * overlap;
-        b.y += ny * overlap;
-        a.x = Math.max(0, Math.min(a.x, window.innerWidth - aw));
-        a.y = Math.max(0, Math.min(a.y, window.innerHeight - ah));
-        b.x = Math.max(0, Math.min(b.x, window.innerWidth - bw));
-        b.y = Math.max(0, Math.min(b.y, window.innerHeight - bh));
+        a.x -= nx * overlap; a.y -= ny * overlap;
+        b.x += nx * overlap; b.y += ny * overlap;
       }
     }
 
-    function collideAll() {
-      for (let i = 0; i < bouncers.length; i++) {
-        for (let j = i + 1; j < bouncers.length; j++) {
+    function animateBounce() {
+      for (let i = 0; i < bouncers.length; i++)
+        for (let j = i + 1; j < bouncers.length; j++)
           collidePair(bouncers[i], bouncers[j]);
-        }
-      }
-    }
-
-    function animate() {
-      collideAll();
       for (const b of bouncers) b.update();
-      for (let i = bouncers.length - 1; i >= 0; i--) {
-        const b = bouncers[i];
-        if (b.x < -30 || b.x + b.w > window.innerWidth + 30 ||
-            b.y < -30 || b.y + b.h > window.innerHeight + 30) {
-          b.el.remove();
-          bouncers.splice(i, 1);
-        }
+      bounceAnimId = requestAnimationFrame(animateBounce);
+    }
+
+    function startBounce() {
+      if (bounceAnimId) return;
+      if (bouncers.length === 0) initBounce();
+      animateBounce();
+    }
+
+    function stopBounce() {
+      if (bounceAnimId) {
+        cancelAnimationFrame(bounceAnimId);
+        bounceAnimId = null;
       }
     }
 
-    // Wait for videos to load so offsetWidth/Height are correct
+    // Init bounce on load
     Promise.all([
       img1.readyState >= 1 ? Promise.resolve() : new Promise(r => img1.addEventListener('loadedmetadata', r, { once: true })),
       img2.readyState >= 1 ? Promise.resolve() : new Promise(r => img2.addEventListener('loadedmetadata', r, { once: true })),
     ]).then(() => {
       img2.currentTime = img2.duration / 2;
-      init();
-      setInterval(animate, 1000 / 60);
+      startBounce();
     });
 
     window.addEventListener('resize', () => {
@@ -336,6 +585,417 @@
         b.x = Math.min(b.x, window.innerWidth - b.el.offsetWidth);
         b.y = Math.min(b.y, window.innerHeight - b.el.offsetHeight);
       }
+    });
+
+    // ========================
+    // SPACE INVADERS MODE
+    // ========================
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('game-overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlayText = document.getElementById('overlay-text');
+    const scoreVal = document.getElementById('score-val');
+
+    // Preload video frames as drawable sources
+    const playerVideo = document.createElement('video');
+    playerVideo.src = 'TwoPeople_PolyReduce_v03b.mp4';
+    playerVideo.loop = true; playerVideo.muted = true; playerVideo.playsInline = true;
+
+    const alienVideo = document.createElement('video');
+    alienVideo.src = 'TwoPeople_PolyReduce_v03.mp4';
+    alienVideo.loop = true; alienVideo.muted = true; alienVideo.playsInline = true;
+
+    let game = null;
+    let gameAnimId = null;
+    let gameState = 'idle'; // idle, playing, gameover, won
+    let currentWave = 1;
+    let totalScore = 0;
+
+    const keys = {};
+    window.addEventListener('keydown', e => { keys[e.key] = true; });
+    window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initGame() {
+      resizeCanvas();
+      playerVideo.play().catch(() => {});
+      alienVideo.play().catch(() => {});
+      gameState = 'idle';
+      overlay.style.display = 'block';
+      overlayTitle.textContent = 'Eldest Boy Invaders';
+      overlayText.textContent = 'Press Space or Tap to Start';
+      scoreVal.textContent = '0';
+      if (gameAnimId) cancelAnimationFrame(gameAnimId);
+      gameAnimId = requestAnimationFrame(gameLoop);
+    }
+
+    function startGame(wave) {
+      if (!wave) {
+        wave = 1;
+        currentWave = 1;
+        totalScore = 0;
+      }
+      resizeCanvas();
+      const W = canvas.width, H = canvas.height;
+      const playerW = Math.min(80, W * 0.1);
+      const playerH = playerW * 0.75;
+      const alienW = Math.min(50, W * 0.07);
+      const alienH = alienW * 0.75;
+
+      const aliens = [];
+
+      if (easySteve) {
+        // Easy Steve Mode: 1 big slow alien
+        const bigW = Math.min(200, W * 0.25);
+        const bigH = bigW * 0.75;
+        aliens.push({
+          x: W / 2 - bigW / 2,
+          y: 80,
+          w: bigW,
+          h: bigH,
+          alive: true
+        });
+
+        game = {
+          player: { x: W / 2 - playerW / 2, y: H - playerH - 20, w: playerW, h: playerH },
+          aliens,
+          alienDir: 1,
+          alienSpeed: 0.3,
+          alienDropAmount: 0,
+          bullets: [],
+          alienBullets: [],
+          score: 0,
+          lastAlienShot: 0,
+          alienShootInterval: 99999,
+          playerSpeed: 5,
+          bulletSpeed: 7,
+          alienBulletSpeed: 0,
+          lives: 99,
+          hitFlash: 0,
+          explosions: [],
+          wave: 1,
+          waveFlash: 60
+        };
+      } else {
+        // Normal mode
+        const cols = Math.min(10, Math.floor((W - 80) / (alienW + 20)), 6 + Math.floor(wave / 2));
+        const rows = Math.min(7, 3 + Math.floor(wave / 2));
+        const gridW = cols * (alienW + 20) - 20;
+        const startX = (W - gridW) / 2;
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            aliens.push({
+              x: startX + c * (alienW + 20),
+              y: 70 + r * (alienH + 16),
+              w: alienW,
+              h: alienH,
+              alive: true
+            });
+          }
+        }
+
+        const prevLives = game ? game.lives : 3;
+
+        game = {
+          player: { x: W / 2 - playerW / 2, y: H - playerH - 20, w: playerW, h: playerH },
+          aliens,
+          alienDir: 1,
+          alienSpeed: 0.6 + (wave - 1) * 0.3,
+          alienDropAmount: alienH * 0.6,
+          bullets: [],
+          alienBullets: [],
+          score: 0,
+          lastAlienShot: 0,
+          alienShootInterval: Math.max(400, 1500 - (wave - 1) * 200),
+          playerSpeed: 5,
+          bulletSpeed: 7,
+          alienBulletSpeed: 3 + wave * 0.5,
+          lives: wave === 1 ? 3 : Math.min(prevLives + 1, 3),
+          hitFlash: 0,
+          explosions: [],
+          wave: wave,
+          waveFlash: 60
+        };
+      }
+
+      gameState = 'playing';
+      overlay.style.display = 'none';
+      scoreVal.textContent = totalScore;
+    }
+
+    function stopGame() {
+      gameRunning = false;
+      if (gameAnimId) {
+        cancelAnimationFrame(gameAnimId);
+        gameAnimId = null;
+      }
+      playerVideo.pause();
+      alienVideo.pause();
+    }
+
+    function gameLoop(ts) {
+      if (currentMode !== 'invaders') return;
+      gameAnimId = requestAnimationFrame(gameLoop);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (gameState === 'idle') {
+        // Draw preview
+        const pw = 80, ph = 60;
+        try { ctx.drawImage(playerVideo, canvas.width / 2 - pw / 2, canvas.height * 0.65, pw, ph); } catch(e) {}
+        for (let i = 0; i < 5; i++) {
+          try { ctx.drawImage(alienVideo, canvas.width * 0.2 + i * 70, canvas.height * 0.3, 50, 38); } catch(e) {}
+        }
+        return;
+      }
+
+      if (gameState !== 'playing') return;
+
+      const g = game;
+      const W = canvas.width, H = canvas.height;
+
+      // Player movement
+      if (keys['ArrowLeft'] || keys['a']) g.player.x -= g.playerSpeed;
+      if (keys['ArrowRight'] || keys['d']) g.player.x += g.playerSpeed;
+      g.player.x = Math.max(0, Math.min(g.player.x, W - g.player.w));
+
+      // Player shooting
+      if (keys[' '] && g.bullets.length < 3) {
+        // Throttle shots
+        const lastBullet = g.bullets[g.bullets.length - 1];
+        if (!lastBullet || g.player.y - lastBullet.y > 60) {
+          g.bullets.push({ x: g.player.x + g.player.w / 2 - 2, y: g.player.y, w: 4, h: 12 });
+        }
+      }
+
+      // Update bullets
+      g.bullets = g.bullets.filter(b => {
+        b.y -= g.bulletSpeed;
+        return b.y + b.h > 0;
+      });
+
+      // Alien movement
+      let edgeHit = false;
+      for (const a of g.aliens) {
+        if (!a.alive) continue;
+        if ((a.x + a.w >= W - 10 && g.alienDir > 0) || (a.x <= 10 && g.alienDir < 0)) {
+          edgeHit = true;
+          break;
+        }
+      }
+      if (edgeHit) {
+        g.alienDir *= -1;
+        for (const a of g.aliens) {
+          if (a.alive) a.y += g.alienDropAmount;
+        }
+      }
+      for (const a of g.aliens) {
+        if (a.alive) a.x += g.alienSpeed * g.alienDir;
+      }
+
+      // Alien shooting
+      const now = performance.now();
+      const aliveAliens = g.aliens.filter(a => a.alive);
+      if (aliveAliens.length > 0 && now - g.lastAlienShot > g.alienShootInterval) {
+        const shooter = aliveAliens[Math.floor(Math.random() * aliveAliens.length)];
+        g.alienBullets.push({ x: shooter.x + shooter.w / 2 - 2, y: shooter.y + shooter.h, w: 4, h: 12 });
+        g.lastAlienShot = now;
+      }
+
+      // Update alien bullets
+      g.alienBullets = g.alienBullets.filter(b => {
+        b.y += g.alienBulletSpeed;
+        return b.y < H;
+      });
+
+      // Bullet-alien collisions
+      for (const bullet of g.bullets) {
+        for (const alien of g.aliens) {
+          if (!alien.alive) continue;
+          if (bullet.x < alien.x + alien.w && bullet.x + bullet.w > alien.x &&
+              bullet.y < alien.y + alien.h && bullet.y + bullet.h > alien.y) {
+            alien.alive = false;
+            bullet.y = -100;
+            // Spawn explosion particles
+            const cx = alien.x + alien.w / 2;
+            const cy = alien.y + alien.h / 2;
+            for (let p = 0; p < 12; p++) {
+              const angle = Math.random() * Math.PI * 2;
+              const speed = 1 + Math.random() * 3;
+              g.explosions.push({
+                x: cx, y: cy,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 30 + Math.random() * 20,
+                maxLife: 30 + Math.random() * 20,
+                size: 2 + Math.random() * 4,
+                color: ['#fff', '#ff8800', '#ff4400', '#ffcc00'][Math.floor(Math.random() * 4)]
+              });
+            }
+            g.score += 100;
+            totalScore += 100;
+            scoreVal.textContent = totalScore;
+            // Speed up as fewer aliens remain
+            const baseSpeed = 0.6 + (g.wave - 1) * 0.3;
+            g.alienSpeed = baseSpeed + (1 - aliveAliens.length / g.aliens.length) * 2.5;
+            const baseInterval = Math.max(400, 1500 - (g.wave - 1) * 200);
+            g.alienShootInterval = Math.max(250, baseInterval - g.score * 0.5);
+          }
+        }
+      }
+
+      // Alien bullet-player collisions
+      for (const ab of g.alienBullets) {
+        if (ab.x < g.player.x + g.player.w && ab.x + ab.w > g.player.x &&
+            ab.y < g.player.y + g.player.h && ab.y + ab.h > g.player.y) {
+          ab.y = H + 100;
+          g.lives--;
+          g.hitFlash = 20;
+          if (g.lives <= 0) {
+            gameState = 'gameover';
+            overlay.style.display = 'block';
+            overlayTitle.textContent = 'Game Over';
+            overlayText.textContent = `Wave ${currentWave} — Score: ${totalScore} — Press Space to Restart`;
+            return;
+          }
+        }
+      }
+
+      // Aliens reach player
+      for (const a of g.aliens) {
+        if (a.alive && a.y + a.h >= g.player.y) {
+          gameState = 'gameover';
+          overlay.style.display = 'block';
+          overlayTitle.textContent = 'Game Over';
+          overlayText.textContent = `Score: ${g.score} — Press Space to Restart`;
+          return;
+        }
+      }
+
+      // Wave cleared
+      if (g.aliens.every(a => !a.alive)) {
+        if (easySteve) {
+          gameState = 'gameover';
+          overlay.style.display = 'block';
+          overlayTitle.textContent = 'You Win, Steve!';
+          overlayText.textContent = 'Press Space to Play Again';
+          return;
+        }
+        currentWave++;
+        startGame(currentWave);
+        return;
+      }
+
+      // Draw player
+      if (g.hitFlash > 0) {
+        g.hitFlash--;
+        if (g.hitFlash % 4 < 2) ctx.globalAlpha = 0.3;
+      }
+      try { ctx.drawImage(playerVideo, g.player.x, g.player.y, g.player.w, g.player.h); } catch(e) {}
+      ctx.globalAlpha = 1;
+
+      // Draw aliens
+      for (const a of g.aliens) {
+        if (!a.alive) continue;
+        try { ctx.drawImage(alienVideo, a.x, a.y, a.w, a.h); } catch(e) {}
+      }
+
+      // Draw player bullets
+      ctx.fillStyle = '#fff';
+      for (const b of g.bullets) {
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+      }
+
+      // Update and draw explosions
+      g.explosions = g.explosions.filter(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05;
+        p.life--;
+        return p.life > 0;
+      });
+      for (const p of g.explosions) {
+        const alpha = p.life / p.maxLife;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+      }
+      ctx.globalAlpha = 1;
+
+      // Draw alien bullets
+      ctx.fillStyle = '#ff4444';
+      for (const b of g.alienBullets) {
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+      }
+
+      // Draw lives and wave
+      ctx.fillStyle = '#fff';
+      ctx.font = '16px ChicagoFLF, sans-serif';
+      ctx.fillText('Lives: ' + g.lives, 20, canvas.height - 20);
+      ctx.fillText('Wave ' + currentWave, 20, canvas.height - 44);
+
+      // Wave announcement flash
+      if (g.waveFlash > 0) {
+        g.waveFlash--;
+        const alpha = g.waveFlash / 60;
+        ctx.globalAlpha = alpha;
+        ctx.font = 'bold 48px Gasoek One, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('WAVE ' + currentWave, W / 2, H / 2);
+        ctx.textAlign = 'start';
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // Start/restart on space or tap
+    window.addEventListener('keydown', e => {
+      if (e.key === ' ' && currentMode === 'invaders') {
+        if (gameState === 'idle' || gameState === 'gameover') {
+          e.preventDefault();
+          startGame();
+        }
+      }
+    });
+
+    // Touch controls for mobile
+    let touchX = null;
+    window.addEventListener('touchstart', e => {
+      if (currentMode !== 'invaders') return;
+      if (gameState === 'idle' || gameState === 'gameover' || gameState === 'won') {
+        startGame();
+        return;
+      }
+      touchX = e.touches[0].clientX;
+      // Shoot on tap
+      if (game && game.bullets.length < 3) {
+        const lastBullet = game.bullets[game.bullets.length - 1];
+        if (!lastBullet || game.player.y - lastBullet.y > 60) {
+          game.bullets.push({ x: game.player.x + game.player.w / 2 - 2, y: game.player.y, w: 4, h: 12 });
+        }
+      }
+    });
+
+    window.addEventListener('touchmove', e => {
+      if (currentMode !== 'invaders' || gameState !== 'playing' || !game) return;
+      e.preventDefault();
+      const newX = e.touches[0].clientX;
+      if (touchX !== null) {
+        game.player.x += (newX - touchX);
+        game.player.x = Math.max(0, Math.min(game.player.x, canvas.width - game.player.w));
+      }
+      touchX = newX;
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => { touchX = null; });
+
+    window.addEventListener('resize', () => {
+      if (currentMode === 'invaders') resizeCanvas();
     });
   </script>
 </body>

@@ -902,20 +902,13 @@
       }
 
       update() {
-        const w = this.el.offsetWidth;
-        const h = this.el.offsetHeight;
         this.x += this.vx;
         this.y += this.vy;
         this.angle += this.rotSpeed;
-        if (this.x <= 0 || this.x + w >= window.innerWidth) {
-          this.vx *= -1;
-          this.x = Math.max(0, Math.min(this.x, window.innerWidth - w));
-        }
-        if (this.y <= 0) {
-          this.vy = Math.abs(this.vy);
-        } else if (this.y + this.h >= window.innerHeight) {
-          this.vy = -Math.abs(this.vy);
-        }
+        if (this.x <= 0) { this.vx = Math.abs(this.vx); }
+        else if (this.x + this.w >= window.innerWidth) { this.vx = -Math.abs(this.vx); }
+        if (this.y <= 0) { this.vy = Math.abs(this.vy); }
+        else if (this.y + this.h >= window.innerHeight) { this.vy = -Math.abs(this.vy); }
         this.el.style.left = this.x + 'px';
         this.el.style.top = this.y + 'px';
         this.el.style.transform = `rotate(${this.angle}deg)`;
@@ -934,11 +927,20 @@
 
     function splitVideo(bouncer) {
       const oldEl = bouncer.el;
-      const oldWidth = oldEl.offsetWidth;
-      const newWidth = oldWidth / 2;
+      const oldWidth = bouncer.w;
+
+      if (oldWidth < 1) {
+        const idx = bouncers.indexOf(bouncer);
+        if (idx !== -1) bouncers.splice(idx, 1);
+        oldEl.remove();
+        return;
+      }
+
+      const newWidth = oldWidth * 0.90;
       const idx = bouncers.indexOf(bouncer);
       if (idx !== -1) bouncers.splice(idx, 1);
       oldEl.remove();
+
       for (let i = 0; i < 2; i++) {
         const video = document.createElement('video');
         video.className = 'bouncing-img';
@@ -949,12 +951,16 @@
         video.playsInline = true;
         video.style.width = newWidth + 'px';
         bounceContainer.appendChild(video);
+
         const offsetX = (i === 0 ? -newWidth * 0.6 : newWidth * 0.6);
         const offsetY = (i === 0 ? -newWidth * 0.4 : newWidth * 0.4);
         const speed = Math.sqrt(bouncer.vx * bouncer.vx + bouncer.vy * bouncer.vy);
         const angle = Math.atan2(bouncer.vy, bouncer.vx) + (i === 0 ? -0.8 : 0.8);
-        const newVx = speed * Math.cos(angle);
-        const newVy = speed * Math.sin(angle);
+        const atMaxSpeed = (oldEl.playbackRate || 1) >= 16;
+        const newVx = speed * (atMaxSpeed ? 1 : 1.30) * Math.cos(angle);
+        const newVy = speed * (atMaxSpeed ? 1 : 1.30) * Math.sin(angle);
+
+        video.playbackRate = Math.min((oldEl.playbackRate || 1) * 1.30, 16);
         const b = new Bouncer(video, newVx, newVy, bouncer.rotSpeed * (i === 0 ? 1.2 : -1.2));
         const aspectRatio = bouncer.h / bouncer.w;
         b.w = newWidth;
@@ -988,8 +994,8 @@
     }
 
     function collidePair(a, b) {
-      const aw = a.el.offsetWidth, ah = a.el.offsetHeight;
-      const bw = b.el.offsetWidth, bh = b.el.offsetHeight;
+      const aw = a.w, ah = a.h;
+      const bw = b.w, bh = b.h;
       const cx1 = a.x + aw / 2, cy1 = a.y + ah / 2;
       const cx2 = b.x + bw / 2, cy2 = b.y + bh / 2;
       const dx = cx2 - cx1, dy = cy2 - cy1;
@@ -1006,6 +1012,10 @@
         const overlap = (minDist - dist) / 2;
         a.x -= nx * overlap; a.y -= ny * overlap;
         b.x += nx * overlap; b.y += ny * overlap;
+        a.x = Math.max(0, Math.min(a.x, window.innerWidth - aw));
+        a.y = Math.max(0, Math.min(a.y, window.innerHeight - ah));
+        b.x = Math.max(0, Math.min(b.x, window.innerWidth - bw));
+        b.y = Math.max(0, Math.min(b.y, window.innerHeight - bh));
       }
     }
 
@@ -1014,18 +1024,25 @@
         for (let j = i + 1; j < bouncers.length; j++)
           collidePair(bouncers[i], bouncers[j]);
       for (const b of bouncers) b.update();
-      bounceAnimId = requestAnimationFrame(animateBounce);
+      for (let i = bouncers.length - 1; i >= 0; i--) {
+        const b = bouncers[i];
+        if (b.x < -30 || b.x + b.w > window.innerWidth + 30 ||
+            b.y < -30 || b.y + b.h > window.innerHeight + 30) {
+          b.el.remove();
+          bouncers.splice(i, 1);
+        }
+      }
     }
 
     function startBounce() {
       if (bounceAnimId) return;
       if (bouncers.length === 0) initBounce();
-      animateBounce();
+      bounceAnimId = setInterval(animateBounce, 1000 / 60);
     }
 
     function stopBounce() {
       if (bounceAnimId) {
-        cancelAnimationFrame(bounceAnimId);
+        clearInterval(bounceAnimId);
         bounceAnimId = null;
       }
     }
@@ -1041,8 +1058,8 @@
 
     window.addEventListener('resize', () => {
       for (const b of bouncers) {
-        b.x = Math.min(b.x, window.innerWidth - b.el.offsetWidth);
-        b.y = Math.min(b.y, window.innerHeight - b.el.offsetHeight);
+        b.x = Math.min(b.x, window.innerWidth - b.w);
+        b.y = Math.min(b.y, window.innerHeight - b.h);
       }
     });
 

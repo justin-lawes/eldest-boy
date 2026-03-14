@@ -12,8 +12,11 @@ const MIME = {
   '.mp4': 'video/mp4',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
+  '.wav': 'audio/wav',
 };
 
 http.createServer((req, res) => {

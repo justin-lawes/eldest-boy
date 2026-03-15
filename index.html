@@ -2328,8 +2328,8 @@
         soapPopupIncentives.appendChild(li);
       });
 
-      // After all 8 incentives have been shown, add the disable nudge
-      if (soapPopupCount >= soapIncentives.length) {
+      // Only add the disable nudge once ALL 8 have been shown (count strictly > 8)
+      if (soapPopupCount > soapIncentives.length) {
         const disableLi = document.createElement('li');
         disableLi.classList.add('disable-incentive');
         disableLi.textContent = 'Enter your email below to disable this pop-up';
@@ -2338,14 +2338,15 @@
 
       soapPopupIncentives.style.display = soapPopupCount > 0 ? 'block' : 'none';
       soapPopupOverlay.classList.add('active');
-      soapPopupCount = Math.min(soapPopupCount + 1, soapIncentives.length);
+      // Cap at length+1 so we can distinguish "showing incentive 8" from "showing nudge"
+      soapPopupCount = Math.min(soapPopupCount + 1, soapIncentives.length + 1);
     }
 
     // Delay after closing, based on incentives shown so far:
     // close after popup 1 (count=1) → 12s, each subsequent incentive 1s faster,
-    // down to 5s for incentive 8, then back to 15s for the final disable nudge.
+    // down to 5s for incentive 8 (count=8), then back to 15s for the final disable nudge (count=9).
     function getNextDelay() {
-      if (soapPopupCount >= soapIncentives.length) return 15000;
+      if (soapPopupCount > soapIncentives.length) return 15000;
       return (13 - soapPopupCount) * 1000;
     }
 

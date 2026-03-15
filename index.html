@@ -653,6 +653,405 @@
         padding: 5px 12px;
       }
     }
+
+    /* ======================== Mode 7: Firstbörn Soap ======================== */
+    #soap-container {
+      position: fixed;
+      inset: 0;
+      background: #faf9f7;
+      overflow-y: auto;
+      display: none;
+      padding-top: 58px;
+      font-family: 'Work Sans', sans-serif;
+      color: #1a1a1a;
+    }
+
+    .soap-body {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 0 28px 100px;
+    }
+
+    /* Hero */
+    .soap-hero {
+      display: flex;
+      align-items: center;
+      gap: 64px;
+      padding: 56px 0 72px;
+    }
+
+    .soap-hero-text { flex: 1; }
+
+    .soap-eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #8a6a3a;
+      margin-bottom: 16px;
+    }
+
+    .soap-hero-title {
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 800;
+      line-height: 1.08;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .soap-hero-title em {
+      font-style: italic;
+      color: #8a6a3a;
+    }
+
+    .soap-hero-sub {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: #555;
+      margin-bottom: 36px;
+      max-width: 440px;
+    }
+
+    .soap-cta {
+      display: inline-block;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      padding: 15px 38px;
+      font-family: 'Work Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-radius: 1px;
+    }
+
+    .soap-cta:hover { background: #8a6a3a; }
+
+    .soap-hero-img {
+      flex: 0 0 260px;
+    }
+
+    .soap-hero-img img {
+      width: 100%;
+      display: block;
+      border-radius: 6px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.14);
+    }
+
+    /* Sections */
+    .soap-section {
+      padding: 60px 0;
+      border-top: 1px solid #e6e0d6;
+    }
+
+    .soap-section-title {
+      font-size: clamp(1.5rem, 2.8vw, 2rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+      color: #1a1a1a;
+    }
+
+    .soap-section-sub {
+      font-size: 0.95rem;
+      color: #777;
+      margin-bottom: 40px;
+      line-height: 1.6;
+      max-width: 560px;
+    }
+
+    /* How It Works */
+    .hiw-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .hiw-card {
+      background: #fff;
+      border: 1px solid #e6e0d6;
+      border-radius: 4px;
+      padding: 28px 22px;
+    }
+
+    .hiw-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #e6e0d6;
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+
+    .hiw-card-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .hiw-card-desc {
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: #666;
+    }
+
+    .hiw-callout {
+      background: #fdf5e4;
+      border-left: 3px solid #8a6a3a;
+      padding: 20px 24px;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: #555;
+      border-radius: 0 3px 3px 0;
+    }
+
+    .hiw-callout strong { color: #8a6a3a; }
+
+    /* Pyramid */
+    .pyramid-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      margin: 0 auto 12px;
+    }
+
+    .p-tier {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 14px 20px;
+    }
+
+    .p-tier:nth-child(1) { width: 18%; background: #1a1a1a; color: #fff; }
+    .p-tier:nth-child(2) { width: 34%; background: #8a6a3a; color: #fff; }
+    .p-tier:nth-child(3) { width: 52%; background: #c49a52; color: #fff; }
+    .p-tier:nth-child(4) { width: 70%; background: #dfc68c; color: #1a1a1a; }
+    .p-tier:nth-child(5) { width: 88%; background: #f2e8cc; color: #1a1a1a; }
+
+    .p-role {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 2px;
+    }
+
+    .p-income {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .p-note {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+    .pyramid-caption {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #aaa;
+      font-style: italic;
+      margin-top: 14px;
+    }
+
+    /* Founder */
+    .soap-founder {
+      display: flex;
+      gap: 52px;
+      align-items: flex-start;
+    }
+
+    .founder-badge {
+      flex: 0 0 120px;
+      text-align: center;
+    }
+
+    .founder-badge-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #e6e0d6;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+    }
+
+    .founder-badge-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .founder-badge-title {
+      font-size: 0.7rem;
+      color: #8a6a3a;
+      margin-top: 2px;
+    }
+
+    .founder-copy h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
+
+    .founder-copy p {
+      font-size: 0.92rem;
+      line-height: 1.85;
+      color: #555;
+      margin-bottom: 16px;
+    }
+
+    /* Popup */
+    #soap-popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,26,26,0.5);
+      z-index: 400;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #soap-popup-overlay.active { display: flex; }
+
+    .soap-popup {
+      background: #fff;
+      max-width: 420px;
+      width: 90%;
+      padding: 44px 40px 36px;
+      position: relative;
+      border-radius: 2px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.25);
+      font-family: 'Work Sans', sans-serif;
+    }
+
+    .soap-popup-close {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #bbb;
+      line-height: 1;
+    }
+
+    .soap-popup-close:hover { color: #1a1a1a; }
+
+    .soap-popup-eyebrow {
+      text-transform: uppercase;
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      font-weight: 700;
+      color: #8a6a3a;
+      margin-bottom: 10px;
+    }
+
+    .soap-popup-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .soap-popup-offer {
+      font-size: 0.95rem;
+      color: #8a6a3a;
+      font-weight: 600;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .soap-popup-incentives {
+      list-style: none;
+      margin-bottom: 24px;
+      border-top: 1px solid #f0ebe2;
+    }
+
+    .soap-popup-incentives li {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0ebe2;
+      font-size: 0.85rem;
+      color: #444;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      line-height: 1.5;
+    }
+
+    .soap-popup-incentives li::before {
+      content: '✦';
+      color: #8a6a3a;
+      flex-shrink: 0;
+    }
+
+    .soap-popup-form {
+      display: flex;
+    }
+
+    .soap-popup-form input {
+      flex: 1;
+      border: 1.5px solid #d0c9bd;
+      border-right: none;
+      padding: 12px 14px;
+      font-family: 'Work Sans', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      background: #faf9f7;
+    }
+
+    .soap-popup-form input:focus { border-color: #8a6a3a; }
+
+    .soap-popup-form button {
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      font-family: 'Work Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .soap-popup-form button:hover { background: #8a6a3a; }
+
+    .soap-popup-legal {
+      font-size: 0.67rem;
+      color: #bbb;
+      margin-top: 10px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 680px) {
+      .soap-hero { flex-direction: column; gap: 32px; padding: 40px 0 48px; }
+      .soap-hero-img { flex: none; width: 200px; margin: 0 auto; }
+      .soap-founder { flex-direction: column; gap: 24px; }
+      .p-tier:nth-child(1) { width: 30%; }
+      .p-tier:nth-child(2) { width: 48%; }
+      .p-tier:nth-child(3) { width: 66%; }
+      .p-tier:nth-child(4) { width: 82%; }
+      .p-tier:nth-child(5) { width: 98%; }
+    }
   </style>
 </head>
 <body>
@@ -664,6 +1063,7 @@
     <button class="mode-btn" data-mode="legal">Mode 4</button>
     <button class="mode-btn" data-mode="poll">Mode 5</button>
     <button class="mode-btn" data-mode="opinions">Mode 6</button>
+    <button class="mode-btn" data-mode="soap">Mode 7</button>
   </div>
 
   <!-- Bounce mode elements -->
@@ -807,6 +1207,132 @@
     </div>
   </div>
 
+  <!-- Mode 7: Firstbörn Soap -->
+  <div id="soap-container">
+    <div class="soap-body">
+
+      <!-- Hero -->
+      <div class="soap-hero">
+        <div class="soap-hero-text">
+          <div class="soap-eyebrow">Firstbörn Soap Club &mdash; Est. 1967</div>
+          <h1 class="soap-hero-title">Soap so pure,<br><em>it changes lives.</em></h1>
+          <p class="soap-hero-sub">Firstbörn is more than soap. It is a 47-in-1 cleansing system rooted in sustainable ingredients, community values, and a once-in-a-lifetime business opportunity that anyone can join.</p>
+          <button class="soap-cta" onclick="document.getElementById('soap-popup-overlay').classList.add('active')">Join the Club &rarr;</button>
+        </div>
+        <div class="soap-hero-img">
+          <img src="firstborn-soap.jpg" alt="Firstbörn 47-in-1 Real Soap" onerror="this.style.background='#e6e0d6';this.style.height='340px';this.alt='';this.style.display='block'">
+        </div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="soap-section">
+        <div class="soap-eyebrow">The Opportunity</div>
+        <div class="soap-section-title">How the Soap Club works</div>
+        <p class="soap-section-sub">We have designed the simplest, most elegant path to financial independence ever put into a bottle. Here is exactly how it works.</p>
+        <div class="hiw-grid">
+          <div class="hiw-card">
+            <div class="hiw-num">01</div>
+            <div class="hiw-card-title">Invest in your future</div>
+            <div class="hiw-card-desc">Begin your journey with our $12,000 Founding Member Starter Pack. This is your inventory, your toolkit, and your official entry into the Soap Club family. Your business. Your rules.</div>
+          </div>
+          <div class="hiw-card">
+            <div class="hiw-num">02</div>
+            <div class="hiw-card-title">Sell soap to your circle</div>
+            <div class="hiw-card-desc">Share Firstbörn with everyone you know — friends, neighbors, coworkers, family members, acquaintances from the past. Every bar you sell earns you a direct commission. It sells itself.</div>
+          </div>
+          <div class="hiw-card">
+            <div class="hiw-num">03</div>
+            <div class="hiw-card-title">Invite others to join</div>
+            <div class="hiw-card-desc">When a friend joins the Soap Club under you, they become part of your team. You earn a percentage of every sale they make. For as long as they are members. Automatically.</div>
+          </div>
+          <div class="hiw-card">
+            <div class="hiw-num">04</div>
+            <div class="hiw-card-title">Watch your network grow</div>
+            <div class="hiw-card-desc">Your team members will naturally want to grow their own teams. When they do, you earn from their networks too. Then from their networks' networks. Income compounds beautifully.</div>
+          </div>
+          <div class="hiw-card">
+            <div class="hiw-num">05</div>
+            <div class="hiw-card-title">Ascend to freedom</div>
+            <div class="hiw-card-desc">As your network expands beneath you, your passive income grows in direct proportion. The larger and deeper your downline, the greater the flow of wealth that rises to you each month.</div>
+          </div>
+        </div>
+        <div class="hiw-callout">
+          <strong>A note on the math:</strong> The beauty of the Soap Club model is that your personal sales effort actually matters less and less over time. The real wealth is built below you — by the people you invite, who invite others, who invite others still. You simply grow the network, and the network provides.
+        </div>
+      </div>
+
+      <!-- Income Pyramid -->
+      <div class="soap-section">
+        <div class="soap-eyebrow">Income Levels</div>
+        <div class="soap-section-title">Your earning potential</div>
+        <p class="soap-section-sub">Firstbörn members are organized into achievement tiers. Where you land depends entirely on the size of your network. The structure rewards those at the top most generously.</p>
+        <div class="pyramid-wrap">
+          <div class="p-tier">
+            <div class="p-role">Founding Elder</div>
+            <div class="p-income">$500,000+ / yr</div>
+            <div class="p-note">Network of 5,000+ members beneath you</div>
+          </div>
+          <div class="p-tier">
+            <div class="p-role">Community Shepherd</div>
+            <div class="p-income">$150,000–$499,999 / yr</div>
+            <div class="p-note">Recruit &amp; retain 5+ Elders below you</div>
+          </div>
+          <div class="p-tier">
+            <div class="p-role">Soap Steward</div>
+            <div class="p-income">$35,000–$149,999 / yr</div>
+            <div class="p-note">Recruit &amp; retain 5+ Shepherds below you</div>
+          </div>
+          <div class="p-tier">
+            <div class="p-role">Lather Captain</div>
+            <div class="p-income">$8,000–$34,999 / yr</div>
+            <div class="p-note">Recruit &amp; retain 5+ Stewards below you</div>
+          </div>
+          <div class="p-tier">
+            <div class="p-role">Soap Friend</div>
+            <div class="p-income">$0–$7,999 / yr</div>
+            <div class="p-note">New member &mdash; begin building your team</div>
+          </div>
+        </div>
+        <p class="pyramid-caption">Income level attainment is based on active downline recruitment and monthly sales volume. Results not typical. Most members remain at the Soap Friend level.</p>
+      </div>
+
+      <!-- Founder Story -->
+      <div class="soap-section">
+        <div class="soap-eyebrow">Our Story</div>
+        <div class="soap-section-title">The inspiring journey of Firstbörn</div>
+        <div class="soap-founder">
+          <div class="founder-badge">
+            <div class="founder-badge-circle">🧼</div>
+            <div class="founder-badge-name">Dr. D.J. James</div>
+            <div class="founder-badge-title">Founder &amp; Spiritual Husband</div>
+          </div>
+          <div class="founder-copy">
+            <p>In 1967, David Jonathan James started a small commune of people on unoccupied land in the Maine countryside. After David was self-awarded a doctorate and pronounced the spiritual husband of all inhabitants in the commune, a problem presented itself.</p>
+            <p>The physical manifestation of divine love can become overpowering at times, and so David invented Firstbörn — a soap first designed as both a ritualistic post-coital scrub, a source of fuel, and also an internal elixir for troubled hearts.</p>
+            <p>Firstbörn exists today as an ephemeral memory of Dr. D.J. James' love for the natural earth and as a testament to the settlers of Commune 1, many of whom gave their lives to the early soap explorations of Dr. James.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mode 7 Popup -->
+  <div id="soap-popup-overlay">
+    <div class="soap-popup">
+      <button class="soap-popup-close" id="soap-popup-close">&times;</button>
+      <div class="soap-popup-eyebrow">Limited-time Soap Club offer</div>
+      <div class="soap-popup-title">Join our list.<br>Get 2% off.</div>
+      <div class="soap-popup-offer">Buy more than 4 cases of Firstbörn and we'll take 2% right off the top. No questions.</div>
+      <ul class="soap-popup-incentives" id="soap-popup-incentives"></ul>
+      <div class="soap-popup-form">
+        <input type="email" placeholder="your@email.com" id="soap-email-input">
+        <button onclick="document.getElementById('soap-popup-overlay').classList.remove('active')">Claim offer</button>
+      </div>
+      <div class="soap-popup-legal">By submitting you agree to receive Soap Club communications. You also agree that Firstbörn is not responsible for outcomes related to internal elixir use.</div>
+    </div>
+  </div>
+
   <script>
     // ========================
     // MODE SWITCHING
@@ -821,6 +1347,7 @@
     const legalContainer = document.getElementById('legal-container');
     const pollContainer = document.getElementById('poll-container');
     const opinionsContainer = document.getElementById('opinions-container');
+    const soapContainer = document.getElementById('soap-container');
     const modeBtns = document.querySelectorAll('.mode-btn');
 
     modeBtns.forEach(btn => {
@@ -853,11 +1380,13 @@
       legalContainer.style.display = 'none';
       pollContainer.style.display = 'none';
       opinionsContainer.style.display = 'none';
+      soapContainer.style.display = 'none';
       document.getElementById('game-overlay').style.display = 'none';
       document.getElementById('score-display').style.display = 'none';
       easySteveBtn.style.display = 'none';
       stopBounce();
       stopGame();
+      stopSoapPopupCycle();
     }
 
     function switchMode(mode) {
@@ -878,6 +1407,9 @@
         pollContainer.style.display = 'block';
       } else if (mode === 'opinions') {
         opinionsContainer.style.display = 'block';
+      } else if (mode === 'soap') {
+        soapContainer.style.display = 'block';
+        startSoapPopupCycle();
       }
     }
 
@@ -1722,6 +2254,62 @@
 
     // Start the first bonus cycle
     startBonusCycle();
+
+    // ========================
+    // MODE 7: SOAP POPUP
+    // ========================
+    let soapPopupCount = 0;
+    let soapPopupTimer = null;
+
+    const soapPopupOverlay = document.getElementById('soap-popup-overlay');
+    const soapPopupClose = document.getElementById('soap-popup-close');
+    const soapPopupIncentives = document.getElementById('soap-popup-incentives');
+
+    const soapIncentives = [
+      'Free natural hair scrub cloth (a $24 value) included with your first case order',
+      'Exclusive e-guide: <em>The Art of Guide Making</em> — Dr. James\' complete instructional philosophy, digitally preserved',
+      'A genuine piece of toweling from Dr. James\' original Commune 1 — authenticated by the Firstbörn Community Foundation'
+    ];
+
+    function showSoapPopup() {
+      // Build incentive list up to current count
+      soapPopupIncentives.innerHTML = '';
+      const itemsToShow = soapIncentives.slice(0, soapPopupCount);
+      itemsToShow.forEach(text => {
+        const li = document.createElement('li');
+        li.innerHTML = text;
+        soapPopupIncentives.appendChild(li);
+      });
+      soapPopupIncentives.style.display = soapPopupCount > 0 ? 'block' : 'none';
+
+      soapPopupOverlay.classList.add('active');
+      soapPopupCount = Math.min(soapPopupCount + 1, soapIncentives.length);
+    }
+
+    function startSoapPopupCycle() {
+      soapPopupCount = 0;
+      showSoapPopup();
+      soapPopupTimer = setInterval(() => {
+        showSoapPopup();
+      }, 30000);
+    }
+
+    function stopSoapPopupCycle() {
+      clearInterval(soapPopupTimer);
+      soapPopupTimer = null;
+      soapPopupOverlay.classList.remove('active');
+    }
+
+    soapPopupClose.addEventListener('click', () => {
+      soapPopupOverlay.classList.remove('active');
+    });
+
+    // Close on overlay click (not modal click)
+    soapPopupOverlay.addEventListener('click', (e) => {
+      if (e.target === soapPopupOverlay) {
+        soapPopupOverlay.classList.remove('active');
+      }
+    });
   </script>
 </body>
 </html>

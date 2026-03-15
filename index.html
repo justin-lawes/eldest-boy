@@ -1041,6 +1041,40 @@
       line-height: 1.4;
     }
 
+    .soap-popup-incentives li.new-incentive {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .soap-popup-incentives li.new-incentive::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -80%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 210, 60, 0.45), transparent);
+      animation: incentiveShimmer 1.4s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes incentiveShimmer {
+      0%   { left: -80%; }
+      100% { left: 120%; }
+    }
+
+    .soap-popup-incentives li.disable-incentive {
+      font-style: italic;
+      color: #8a6a3a;
+      font-weight: 600;
+      border-bottom: none;
+    }
+
+    .soap-popup-incentives li.disable-incentive::before {
+      content: '→';
+      color: #8a6a3a;
+    }
+
     @media (max-width: 680px) {
       .soap-hero { flex-direction: column; gap: 32px; padding: 40px 0 48px; }
       .soap-hero-img { flex: none; width: 200px; margin: 0 auto; }
@@ -1326,7 +1360,7 @@
       <ul class="soap-popup-incentives" id="soap-popup-incentives"></ul>
       <div class="soap-popup-form">
         <input type="email" placeholder="your@email.com" id="soap-email-input">
-        <button onclick="document.getElementById('soap-popup-overlay').classList.remove('active')">Claim offer</button>
+        <button id="soap-popup-submit">Claim offer</button>
       </div>
       <div class="soap-popup-legal">By submitting you agree to receive Soap Club communications. You also agree that Firstbörn is not responsible for outcomes related to internal elixir use.</div>
     </div>
@@ -2259,10 +2293,13 @@
     // ========================
     let soapPopupCount = 0;
     let soapPopupTimer = null;
+    let soapPopupDisabled = false;
 
     const soapPopupOverlay = document.getElementById('soap-popup-overlay');
     const soapPopupClose = document.getElementById('soap-popup-close');
     const soapPopupIncentives = document.getElementById('soap-popup-incentives');
+    const soapEmailInput = document.getElementById('soap-email-input');
+    const soapPopupSubmit = document.getElementById('soap-popup-submit');
 
     const soapIncentives = [
       'Free natural hair scrub cloth (a $24 value) included with your first case order',
@@ -2276,22 +2313,37 @@
     ];
 
     function showSoapPopup() {
+      if (soapPopupDisabled) return;
+
       // Build incentive list up to current count
       soapPopupIncentives.innerHTML = '';
       const itemsToShow = soapIncentives.slice(0, soapPopupCount);
-      itemsToShow.forEach(text => {
+      itemsToShow.forEach((text, i) => {
         const li = document.createElement('li');
         li.innerHTML = text;
+        // Shimmer only on the newest item
+        if (i === itemsToShow.length - 1 && soapPopupCount > 0) {
+          li.classList.add('new-incentive');
+        }
         soapPopupIncentives.appendChild(li);
       });
-      soapPopupIncentives.style.display = soapPopupCount > 0 ? 'block' : 'none';
 
+      // After all 8 incentives have been shown, add the disable nudge
+      if (soapPopupCount >= soapIncentives.length) {
+        const disableLi = document.createElement('li');
+        disableLi.classList.add('disable-incentive');
+        disableLi.textContent = 'Enter your email below to disable this pop-up';
+        soapPopupIncentives.appendChild(disableLi);
+      }
+
+      soapPopupIncentives.style.display = soapPopupCount > 0 ? 'block' : 'none';
       soapPopupOverlay.classList.add('active');
       soapPopupCount = Math.min(soapPopupCount + 1, soapIncentives.length);
     }
 
     function startSoapPopupCycle() {
       soapPopupCount = 0;
+      soapPopupDisabled = false;
       showSoapPopup();
       soapPopupTimer = setInterval(() => {
         showSoapPopup();
@@ -2303,6 +2355,15 @@
       soapPopupTimer = null;
       soapPopupOverlay.classList.remove('active');
     }
+
+    soapPopupSubmit.addEventListener('click', () => {
+      if (soapEmailInput.value.trim().length > 0) {
+        soapPopupDisabled = true;
+        stopSoapPopupCycle();
+      } else {
+        soapPopupOverlay.classList.remove('active');
+      }
+    });
 
     soapPopupClose.addEventListener('click', () => {
       soapPopupOverlay.classList.remove('active');

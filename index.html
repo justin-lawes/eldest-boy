@@ -2355,6 +2355,10 @@
 
       soapPopupIncentives.style.display = soapPopupCount > 0 ? 'block' : 'none';
       soapPopupOverlay.classList.add('active');
+      // Scroll to bottom so the newest incentive is immediately visible
+      requestAnimationFrame(() => {
+        soapPopupIncentives.scrollTop = soapPopupIncentives.scrollHeight;
+      });
       // Cap at length+1 so we can distinguish "showing incentive 8" from "showing nudge"
       soapPopupCount = Math.min(soapPopupCount + 1, soapIncentives.length + 1);
     }

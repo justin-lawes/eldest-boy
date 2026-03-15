@@ -2341,17 +2341,33 @@
       soapPopupCount = Math.min(soapPopupCount + 1, soapIncentives.length);
     }
 
+    // Delay after closing, based on incentives shown so far:
+    // close after popup 1 (count=1) → 12s, each subsequent incentive 1s faster,
+    // down to 5s for incentive 8, then back to 15s for the final disable nudge.
+    function getNextDelay() {
+      if (soapPopupCount >= soapIncentives.length) return 15000;
+      return (13 - soapPopupCount) * 1000;
+    }
+
+    function scheduleNextPopup() {
+      clearTimeout(soapPopupTimer);
+      if (soapPopupDisabled) return;
+      soapPopupTimer = setTimeout(showSoapPopup, getNextDelay());
+    }
+
+    function closeSoapPopup() {
+      soapPopupOverlay.classList.remove('active');
+      scheduleNextPopup();
+    }
+
     function startSoapPopupCycle() {
       soapPopupCount = 0;
       soapPopupDisabled = false;
       showSoapPopup();
-      soapPopupTimer = setInterval(() => {
-        showSoapPopup();
-      }, 15000);
     }
 
     function stopSoapPopupCycle() {
-      clearInterval(soapPopupTimer);
+      clearTimeout(soapPopupTimer);
       soapPopupTimer = null;
       soapPopupOverlay.classList.remove('active');
     }
@@ -2361,19 +2377,15 @@
         soapPopupDisabled = true;
         stopSoapPopupCycle();
       } else {
-        soapPopupOverlay.classList.remove('active');
+        closeSoapPopup();
       }
     });
 
-    soapPopupClose.addEventListener('click', () => {
-      soapPopupOverlay.classList.remove('active');
-    });
+    soapPopupClose.addEventListener('click', closeSoapPopup);
 
     // Close on overlay click (not modal click)
     soapPopupOverlay.addEventListener('click', (e) => {
-      if (e.target === soapPopupOverlay) {
-        soapPopupOverlay.classList.remove('active');
-      }
+      if (e.target === soapPopupOverlay) closeSoapPopup();
     });
   </script>
 </body>

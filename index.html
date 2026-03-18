@@ -2936,71 +2936,82 @@
     // ========================
     let newsLoaded = false;
 
+    function fetchWithTimeout(url, ms) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ms);
+      return fetch(url, { signal: controller.signal })
+        .finally(() => clearTimeout(timer));
+    }
+
+    function parseNewsXml(xmlText) {
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, 'text/xml');
+      const items = Array.from(xml.querySelectorAll('item')).slice(0, 25);
+      if (!items.length) throw new Error('No items');
+
+      return items.map(item => {
+        const title   = item.querySelector('title')?.textContent || '';
+        const pubDate = item.querySelector('pubDate')?.textContent || '';
+        const desc    = (item.querySelector('description')?.textContent || '')
+                          .replace(/<[^>]+>/g, '').trim();
+
+        // In RSS, <link> is often a text node sibling because DOMParser treats it
+        // like HTML — grab it via nextSibling trick or getElementsByTagName
+        let link = '#';
+        try {
+          const linkNodes = item.getElementsByTagName('link');
+          if (linkNodes.length) {
+            link = linkNodes[0].textContent ||
+                   linkNodes[0].nextSibling?.nodeValue || '#';
+          }
+        } catch(e) {}
+
+        const date = pubDate ? new Date(pubDate).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        }) : '';
+
+        return `<a class="news-article" href="${link.trim()}" target="_blank" rel="noopener noreferrer">
+          <div class="news-article-title">${title}</div>
+          ${desc ? `<div class="news-article-desc">${desc}</div>` : ''}
+          <div class="news-article-meta">BBC World News${date ? ' &middot; ' + date : ''}</div>
+        </a>`;
+      }).join('');
+    }
+
     async function loadNews() {
       if (newsLoaded) return;
       const feed = document.getElementById('news-feed');
       feed.innerHTML = '<div class="news-loading">Loading headlines…</div>';
 
-      // Try multiple RSS proxies in order
       const rssUrl = 'https://feeds.bbci.co.uk/news/world/rss.xml';
+      // allorigins /raw returns the content directly (no JSON wrapper)
       const proxies = [
-        `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`,
-        `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+        `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`
       ];
 
-      let xmlText = null;
+      let html = null;
       for (const proxy of proxies) {
         try {
-          const resp = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+          const resp = await fetchWithTimeout(proxy, 9000);
           if (!resp.ok) continue;
-          // allorigins wraps in JSON; corsproxy returns raw XML
-          const text = await resp.text();
-          if (text.trim().startsWith('{')) {
-            const json = JSON.parse(text);
-            xmlText = json.contents;
-          } else {
-            xmlText = text;
+          let text = await resp.text();
+          // allorigins /get returns JSON with a .contents field
+          if (text.trimStart().startsWith('{')) {
+            text = JSON.parse(text).contents || '';
           }
-          if (xmlText && xmlText.includes('<item>')) break;
-          xmlText = null;
+          if (!text.includes('<item>')) continue;
+          html = parseNewsXml(text);
+          break;
         } catch(e) { continue; }
       }
 
-      if (!xmlText) {
-        feed.innerHTML = '<p class="news-loading">Could not load news. Try visiting <a href="https://bbc.com/news" target="_blank" style="color:rgba(255,255,255,0.5)">bbc.com/news</a> directly.</p>';
-        return;
-      }
-
-      try {
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(xmlText, 'text/xml');
-        const items = Array.from(xml.querySelectorAll('item')).slice(0, 25);
-        if (!items.length) throw new Error('No items');
-
-        feed.innerHTML = items.map(item => {
-          const title   = item.querySelector('title')?.textContent || '';
-          const pubDate = item.querySelector('pubDate')?.textContent || '';
-          const desc    = (item.querySelector('description')?.textContent || '')
-                            .replace(/<[^>]+>/g, '').trim();
-          // <link> in RSS XML comes as text node after the element in some parsers
-          let link = '#';
-          const linkEl = item.querySelector('link');
-          if (linkEl) link = linkEl.textContent || linkEl.nextSibling?.textContent || '#';
-
-          const date = pubDate ? new Date(pubDate).toLocaleDateString('en-US', {
-            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-          }) : '';
-
-          return `<a class="news-article" href="${link.trim()}" target="_blank" rel="noopener noreferrer">
-            <div class="news-article-title">${title}</div>
-            ${desc ? `<div class="news-article-desc">${desc}</div>` : ''}
-            <div class="news-article-meta">BBC World News${date ? ' &middot; ' + date : ''}</div>
-          </a>`;
-        }).join('');
-
+      if (html) {
+        feed.innerHTML = html;
         newsLoaded = true;
-      } catch(e) {
-        feed.innerHTML = '<p class="news-loading">Could not parse news feed. Try visiting <a href="https://bbc.com/news" target="_blank" style="color:rgba(255,255,255,0.5)">bbc.com/news</a> directly.</p>';
+      } else {
+        feed.innerHTML = '<p class="news-loading">Could not load news. Try visiting <a href="https://bbc.com/news" target="_blank" style="color:rgba(255,255,255,0.5)">bbc.com/news</a> directly.</p>';
       }
     }
 

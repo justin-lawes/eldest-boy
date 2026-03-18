@@ -3010,114 +3010,17 @@
 
     // Vibe Barometer
     // ========================
-    // FART SYNTHESIZER
+    // FART SOUNDS
     // ========================
-    let fartCtx = null;
-    function getFartCtx() {
-      if (!fartCtx) fartCtx = new (window.AudioContext || window.webkitAudioContext)();
-      return fartCtx;
-    }
-
-    function makeNoise(ctx, duration) {
-      const size = Math.ceil(ctx.sampleRate * (duration + 0.1));
-      const buf  = ctx.createBuffer(1, size, ctx.sampleRate);
-      const data = buf.getChannelData(0);
-      for (let i = 0; i < size; i++) data[i] = Math.random() * 2 - 1;
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      return src;
-    }
-
-    const fartFns = [
-      // 0 — The Classic: mid-range, drops in pitch
-      function(ctx) {
-        const t = ctx.currentTime, dur = 0.32 + Math.random() * 0.18;
-        const noise = makeNoise(ctx, dur);
-        const f = ctx.createBiquadFilter();
-        f.type = 'bandpass';
-        f.frequency.setValueAtTime(220, t);
-        f.frequency.exponentialRampToValueAtTime(72, t + dur);
-        f.Q.setValueAtTime(1.3, t);
-        f.Q.linearRampToValueAtTime(0.5, t + dur);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(1.1, t + 0.025);
-        g.gain.setValueAtTime(1.1, t + dur * 0.55);
-        g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-        noise.connect(f); f.connect(g); g.connect(ctx.destination);
-        noise.start(t); noise.stop(t + dur + 0.05);
-      },
-      // 1 — The Squeaker: short, high, indignant
-      function(ctx) {
-        const t = ctx.currentTime, dur = 0.1 + Math.random() * 0.1;
-        const noise = makeNoise(ctx, dur);
-        const f = ctx.createBiquadFilter();
-        f.type = 'bandpass';
-        f.frequency.setValueAtTime(700 + Math.random() * 200, t);
-        f.frequency.exponentialRampToValueAtTime(380, t + dur);
-        f.Q.value = 3.5;
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(0.75, t + 0.008);
-        g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-        noise.connect(f); f.connect(g); g.connect(ctx.destination);
-        noise.start(t); noise.stop(t + dur + 0.05);
-      },
-      // 2 — The Wet One: low, long, bubbling LFO
-      function(ctx) {
-        const t = ctx.currentTime, dur = 0.65 + Math.random() * 0.35;
-        const noise = makeNoise(ctx, dur);
-        const f = ctx.createBiquadFilter();
-        f.type = 'lowpass';
-        f.frequency.setValueAtTime(160, t);
-        f.frequency.exponentialRampToValueAtTime(55, t + dur);
-        f.Q.value = 0.5;
-        const lfo = ctx.createOscillator();
-        const lfoG = ctx.createGain();
-        lfo.frequency.value = 16 + Math.random() * 10;
-        lfoG.gain.value = 45;
-        lfo.connect(lfoG); lfoG.connect(f.frequency);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(1.3, t + 0.04);
-        g.gain.setValueAtTime(1.3, t + dur * 0.45);
-        g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-        noise.connect(f); f.connect(g); g.connect(ctx.destination);
-        lfo.start(t); lfo.stop(t + dur + 0.1);
-        noise.start(t); noise.stop(t + dur + 0.1);
-      },
-      // 3 — The Sputter: 2–4 rapid bursts, descending
-      function(ctx) {
-        const t = ctx.currentTime;
-        const count = 2 + Math.floor(Math.random() * 3);
-        for (let i = 0; i < count; i++) {
-          const offset   = i * (0.1 + Math.random() * 0.08);
-          const burstDur = 0.07 + Math.random() * 0.07;
-          const noise = makeNoise(ctx, burstDur);
-          const f = ctx.createBiquadFilter();
-          f.type = 'bandpass';
-          f.frequency.setValueAtTime(190 - i * 22, t + offset);
-          f.frequency.exponentialRampToValueAtTime(95 - i * 12, t + offset + burstDur);
-          f.Q.value = 1.6;
-          const g = ctx.createGain();
-          g.gain.setValueAtTime(0, t + offset);
-          g.gain.linearRampToValueAtTime(0.9 - i * 0.08, t + offset + 0.012);
-          g.gain.exponentialRampToValueAtTime(0.001, t + offset + burstDur);
-          noise.connect(f); f.connect(g); g.connect(ctx.destination);
-          noise.start(t + offset); noise.stop(t + offset + burstDur + 0.05);
-        }
-      }
-    ];
-
+    const fartSounds = ['fart1.mp3', 'fart2.mp3', 'fart3.mp3'];
     let lastFartIdx = -1;
+
     function playRandomFart() {
-      try {
-        if (!fartCtx) return;
-        let idx;
-        do { idx = Math.floor(Math.random() * fartFns.length); } while (idx === lastFartIdx);
-        lastFartIdx = idx;
-        fartFns[idx](fartCtx);
-      } catch(e) {}
+      let idx;
+      do { idx = Math.floor(Math.random() * fartSounds.length); } while (idx === lastFartIdx && fartSounds.length > 1);
+      lastFartIdx = idx;
+      const audio = new Audio(fartSounds[idx]);
+      audio.play().catch(() => {});
     }
 
     // ========================
@@ -3129,13 +3032,6 @@
     ];
 
     document.getElementById('vibe-btn').addEventListener('click', () => {
-      // Init/resume AudioContext HERE inside the click handler — browsers require
-      // a direct user gesture; setTimeout callbacks don't count on some browsers
-      if (!fartCtx) {
-        fartCtx = new (window.AudioContext || window.webkitAudioContext)();
-      } else if (fartCtx.state === 'suspended') {
-        fartCtx.resume();
-      }
 
       const needle  = document.getElementById('vibe-needle');
       const result  = document.getElementById('vibe-result');

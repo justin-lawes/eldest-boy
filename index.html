@@ -1102,6 +1102,215 @@
       .p-tier:nth-child(4) { width: 82%; }
       .p-tier:nth-child(5) { width: 98%; }
     }
+
+    /* ======================== Mode 8: News ======================== */
+    #news-container {
+      position: fixed;
+      inset: 0;
+      background: #08080f;
+      overflow-y: auto;
+      display: none;
+      padding-top: 58px;
+      font-family: 'Work Sans', sans-serif;
+      color: #e8e8f0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .news-ticker-wrap {
+      height: 46px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .news-body {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .news-columns {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 52px;
+      padding-top: 36px;
+      align-items: start;
+    }
+
+    .news-section-label {
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.32);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .news-article {
+      display: block;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 16px 0;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .news-article:hover { opacity: 0.65; }
+
+    .news-article-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: #e8e8f0;
+      margin-bottom: 5px;
+    }
+
+    .news-article-desc {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.48);
+      line-height: 1.55;
+      margin-bottom: 5px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .news-article-meta {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.28);
+      letter-spacing: 0.03em;
+    }
+
+    .news-loading {
+      color: rgba(255,255,255,0.3);
+      font-size: 0.85rem;
+      padding: 16px 0;
+    }
+
+    /* Vibe Barometer */
+    .news-vibe-section { position: sticky; top: 24px; }
+
+    .vibe-gauge-wrap {
+      position: relative;
+      width: 210px;
+      height: 115px;
+      margin: 0 auto 18px;
+    }
+
+    .vibe-gauge-track {
+      width: 210px;
+      height: 105px;
+      border-radius: 105px 105px 0 0;
+      background: conic-gradient(from 180deg at 50% 100%,
+        #c0392b 0deg,
+        #e67e22 50deg,
+        #f1c40f 90deg,
+        #2ecc71 140deg,
+        #27ae60 180deg
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .vibe-gauge-track::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 70px;
+      background: #08080f;
+      border-radius: 70px 70px 0 0;
+    }
+
+    .vibe-needle {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform-origin: bottom center;
+      width: 3px;
+      height: 95px;
+      background: linear-gradient(to bottom, #fff 60%, rgba(255,255,255,0.2));
+      transform: translateX(-50%) rotate(-90deg);
+      border-radius: 2px 2px 0 0;
+      transition: transform 0.7s cubic-bezier(0.34, 1.4, 0.64, 1);
+      z-index: 2;
+    }
+
+    .vibe-needle.measuring {
+      animation: vibeNeedleSpin 0.45s ease-in-out infinite;
+      transition: none;
+    }
+
+    @keyframes vibeNeedleSpin {
+      0%   { transform: translateX(-50%) rotate(-82deg); }
+      50%  { transform: translateX(-50%) rotate(82deg); }
+      100% { transform: translateX(-50%) rotate(-82deg); }
+    }
+
+    .vibe-center-dot {
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px; height: 10px;
+      background: #fff;
+      border-radius: 50%;
+      z-index: 3;
+    }
+
+    .vibe-result {
+      text-align: center;
+      min-height: 2.8em;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #e8e8f0;
+      line-height: 1.45;
+      margin-bottom: 16px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .vibe-btn {
+      display: block;
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.75);
+      font-family: 'Work Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 12px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .vibe-btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.11);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .vibe-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    @media (max-width: 720px) {
+      .news-columns {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+      .news-vibe-section {
+        position: static;
+        order: -1;
+      }
+      .vibe-gauge-wrap { width: 180px; height: 98px; }
+      .vibe-gauge-track { width: 180px; height: 90px; border-radius: 90px 90px 0 0; }
+      .vibe-gauge-track::after { width: 120px; height: 60px; border-radius: 60px 60px 0 0; }
+      .vibe-needle { height: 80px; }
+    }
   </style>
 </head>
 <body>
@@ -1114,6 +1323,7 @@
     <button class="mode-btn" data-mode="poll">Mode 5</button>
     <button class="mode-btn" data-mode="opinions">Mode 6</button>
     <button class="mode-btn" data-mode="soap">Mode 7</button>
+    <button class="mode-btn" data-mode="news">News</button>
   </div>
 
   <!-- Bounce mode elements -->
@@ -1383,6 +1593,62 @@
     </div>
   </div>
 
+  <!-- Mode 8: News -->
+  <div id="news-container">
+
+    <!-- TradingView Ticker Tape -->
+    <div class="news-ticker-wrap">
+      <div class="tradingview-widget-container" style="height:46px;overflow:hidden">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {
+          "symbols": [
+            {"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},
+            {"proName":"FOREXCOM:NSXUSD","title":"Nasdaq 100"},
+            {"proName":"FX_IDC:EURUSD","title":"EUR/USD"},
+            {"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},
+            {"proName":"BITSTAMP:ETHUSD","title":"Ethereum"},
+            {"proName":"NYSE:GME","title":"GameStop"},
+            {"proName":"NASDAQ:TSLA","title":"Tesla"},
+            {"proName":"NASDAQ:AAPL","title":"Apple"},
+            {"proName":"NASDAQ:NVDA","title":"NVIDIA"},
+            {"proName":"NASDAQ:MSFT","title":"Microsoft"}
+          ],
+          "showSymbolLogo": false,
+          "isTransparent": true,
+          "displayMode": "adaptive",
+          "colorTheme": "dark",
+          "locale": "en"
+        }
+        </script>
+      </div>
+    </div>
+
+    <div class="news-body">
+      <div class="news-columns">
+
+        <!-- Left: News Feed -->
+        <div class="news-feed-col">
+          <div class="news-section-label">World News</div>
+          <div id="news-feed"><div class="news-loading">Loading headlines…</div></div>
+        </div>
+
+        <!-- Right: Vibe Barometer -->
+        <div class="news-vibe-section">
+          <div class="news-section-label">Global Vibe Check</div>
+          <div class="vibe-gauge-wrap">
+            <div class="vibe-gauge-track"></div>
+            <div class="vibe-needle" id="vibe-needle"></div>
+            <div class="vibe-center-dot"></div>
+          </div>
+          <div class="vibe-result" id="vibe-result"></div>
+          <button class="vibe-btn" id="vibe-btn">Check Global Vibe</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <script>
     // ========================
     // MODE SWITCHING
@@ -1398,6 +1664,7 @@
     const pollContainer = document.getElementById('poll-container');
     const opinionsContainer = document.getElementById('opinions-container');
     const soapContainer = document.getElementById('soap-container');
+    const newsContainer = document.getElementById('news-container');
     const modeBtns = document.querySelectorAll('.mode-btn');
 
     modeBtns.forEach(btn => {
@@ -1431,6 +1698,7 @@
       pollContainer.style.display = 'none';
       opinionsContainer.style.display = 'none';
       soapContainer.style.display = 'none';
+      newsContainer.style.display = 'none';
       document.getElementById('game-overlay').style.display = 'none';
       document.getElementById('score-display').style.display = 'none';
       easySteveBtn.style.display = 'none';
@@ -1460,6 +1728,9 @@
       } else if (mode === 'soap') {
         soapContainer.style.display = 'block';
         startSoapPopupCycle();
+      } else if (mode === 'news') {
+        newsContainer.style.display = 'block';
+        loadNews();
       }
     }
 
@@ -2408,6 +2679,71 @@
     // Close on overlay click (not modal click)
     soapPopupOverlay.addEventListener('click', (e) => {
       if (e.target === soapPopupOverlay) closeSoapPopup();
+    });
+
+    // ========================
+    // NEWS MODE
+    // ========================
+    let newsLoaded = false;
+
+    async function loadNews() {
+      if (newsLoaded) return;
+      const feed = document.getElementById('news-feed');
+      try {
+        const rssUrl = encodeURIComponent('https://feeds.bbci.co.uk/news/world/rss.xml');
+        const resp = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=25`);
+        const data = await resp.json();
+        if (!data.items || !data.items.length) throw new Error('No items');
+
+        feed.innerHTML = data.items.map(item => {
+          const date = new Date(item.pubDate).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+          });
+          const desc = item.description
+            ? item.description.replace(/<[^>]+>/g, '').trim()
+            : '';
+          return `<a class="news-article" href="${item.link}" target="_blank" rel="noopener noreferrer">
+            <div class="news-article-title">${item.title}</div>
+            ${desc ? `<div class="news-article-desc">${desc}</div>` : ''}
+            <div class="news-article-meta">BBC World News &middot; ${date}</div>
+          </a>`;
+        }).join('');
+
+        newsLoaded = true;
+      } catch(e) {
+        feed.innerHTML = '<p class="news-loading">Could not load news. Try visiting <a href="https://bbc.com/news" target="_blank" style="color:rgba(255,255,255,0.5)">bbc.com/news</a> directly.</p>';
+      }
+    }
+
+    // Vibe Barometer
+    const vibeOutcomes = [
+      { text: 'Not looking great',                               angle: -76 },
+      { text: 'Meh',                                             angle: -26 },
+      { text: 'Better than other points in human history I guess', angle: 10 },
+      { text: 'If less than billionaire = Not great',            angle: -50 },
+      { text: '😐',                                              angle: -12 }
+    ];
+
+    document.getElementById('vibe-btn').addEventListener('click', () => {
+      const needle  = document.getElementById('vibe-needle');
+      const result  = document.getElementById('vibe-result');
+      const btn     = document.getElementById('vibe-btn');
+      const outcome = vibeOutcomes[Math.floor(Math.random() * vibeOutcomes.length)];
+
+      btn.disabled = true;
+      result.style.opacity = '0';
+      result.textContent = '';
+      needle.classList.add('measuring');
+
+      setTimeout(() => {
+        needle.classList.remove('measuring');
+        needle.style.transform = `translateX(-50%) rotate(${outcome.angle}deg)`;
+        setTimeout(() => {
+          result.textContent = outcome.text;
+          result.style.opacity = '1';
+          btn.disabled = false;
+        }, 700);
+      }, 2200);
     });
   </script>
 </body>

@@ -1286,14 +1286,14 @@
     }
 
     .news-section-label {
-      font-family: 'ChicagoFLF', sans-serif;
-      font-size: 0.7rem;
+      font-family: 'Gasoek One', sans-serif;
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
       text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: rgba(255,255,255,0.32);
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
     }
 
     .news-article {
@@ -1389,14 +1389,7 @@
     }
 
     .vibe-needle.measuring {
-      animation: vibeNeedleSpin 0.45s ease-in-out infinite;
       transition: none;
-    }
-
-    @keyframes vibeNeedleSpin {
-      0%   { transform: translateX(-50%) rotate(-82deg); }
-      50%  { transform: translateX(-50%) rotate(82deg); }
-      100% { transform: translateX(-50%) rotate(-82deg); }
     }
 
     .vibe-center-dot {
@@ -3017,11 +3010,10 @@
 
     // Vibe Barometer
     const vibeOutcomes = [
-      { text: 'Not looking great',                               angle: -76 },
-      { text: 'Meh',                                             angle: -26 },
-      { text: 'Better than other points in human history I guess', angle: 10 },
-      { text: 'If less than billionaire = Not great',            angle: -50 },
-      { text: '😐',                                              angle: -12 }
+      { text: 'Not looking great',              angle: -76 },
+      { text: 'Meh',                            angle: -26 },
+      { text: 'if_less_than_billionaire=not_great', angle: -50 },
+      { text: '😐',                             angle: -12 }
     ];
 
     document.getElementById('vibe-btn').addEventListener('click', () => {
@@ -3035,15 +3027,68 @@
       result.textContent = '';
       needle.classList.add('measuring');
 
-      setTimeout(() => {
-        needle.classList.remove('measuring');
-        needle.style.transform = `translateX(-50%) rotate(${outcome.angle}deg)`;
-        setTimeout(() => {
-          result.textContent = outcome.text;
-          result.style.opacity = '1';
-          btn.disabled = false;
-        }, 700);
-      }, 2200);
+      // Animate needle with random wandering that slowly converges on the target
+      let currentAngle = -90;
+      let velocity = 0;
+      const totalDuration = 3800; // ms
+      const startTime = performance.now();
+
+      // Generate a series of random waypoints to visit before settling
+      const waypoints = [];
+      const waypointCount = 6 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < waypointCount; i++) {
+        waypoints.push(-85 + Math.random() * 170);
+      }
+      // Last waypoint is the actual target
+      waypoints.push(outcome.angle);
+
+      let waypointIdx = 0;
+      let waypointStartTime = startTime;
+      // First few waypoints get more time, last one (target) gets proportionally less
+      const waypointDuration = (i) => {
+        if (i >= waypointCount) return 600; // settle fast
+        const progress = i / waypointCount;
+        // Early waypoints: 500-900ms, later ones shrink as we "home in"
+        return 900 - progress * 400 + (Math.random() * 200 - 100);
+      };
+
+      const durations = waypoints.map((_, i) => waypointDuration(i));
+
+      function animateNeedle(now) {
+        const elapsed = now - waypointStartTime;
+        const dur = durations[waypointIdx];
+        const t = Math.min(elapsed / dur, 1);
+        // Ease in-out with a slight overshoot feel
+        const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+        const fromAngle = waypointIdx === 0 ? -90 : waypoints[waypointIdx - 1];
+        const toAngle = waypoints[waypointIdx];
+        currentAngle = fromAngle + (toAngle - fromAngle) * eased;
+
+        needle.style.transform = `translateX(-50%) rotate(${currentAngle}deg)`;
+
+        if (t >= 1) {
+          waypointIdx++;
+          waypointStartTime = now;
+          if (waypointIdx >= waypoints.length) {
+            // Done — snap to final and reveal result
+            needle.classList.remove('measuring');
+            needle.style.transition = 'transform 0.4s cubic-bezier(0.34,1.4,0.64,1)';
+            needle.style.transform = `translateX(-50%) rotate(${outcome.angle}deg)`;
+            setTimeout(() => {
+              result.textContent = outcome.text;
+              result.style.opacity = '1';
+              btn.disabled = false;
+              needle.style.transition = 'transform 0.7s cubic-bezier(0.34,1.4,0.64,1)';
+            }, 450);
+            return;
+          }
+        }
+
+        requestAnimationFrame(animateNeedle);
+      }
+
+      requestAnimationFrame(animateNeedle);
     });
 
     // ========================

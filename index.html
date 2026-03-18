@@ -3112,12 +3112,11 @@
     let lastFartIdx = -1;
     function playRandomFart() {
       try {
-        const ctx = getFartCtx();
-        if (ctx.state === 'suspended') ctx.resume();
+        if (!fartCtx) return;
         let idx;
         do { idx = Math.floor(Math.random() * fartFns.length); } while (idx === lastFartIdx);
         lastFartIdx = idx;
-        fartFns[idx](ctx);
+        fartFns[idx](fartCtx);
       } catch(e) {}
     }
 
@@ -3130,6 +3129,14 @@
     ];
 
     document.getElementById('vibe-btn').addEventListener('click', () => {
+      // Init/resume AudioContext HERE inside the click handler — browsers require
+      // a direct user gesture; setTimeout callbacks don't count on some browsers
+      if (!fartCtx) {
+        fartCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } else if (fartCtx.state === 'suspended') {
+        fartCtx.resume();
+      }
+
       const needle  = document.getElementById('vibe-needle');
       const result  = document.getElementById('vibe-result');
       const btn     = document.getElementById('vibe-btn');

@@ -59,6 +59,16 @@
 
     .mode-btn:hover { opacity: 0.8; }
 
+    .mode-selector.soap-active .mode-btn {
+      color: #8a6a3a;
+      border-color: rgba(138,106,58,0.3);
+    }
+
+    .mode-selector.soap-active .mode-btn.active {
+      background: rgba(138,106,58,0.15);
+      border-color: rgba(138,106,58,0.6);
+    }
+
     /* Bouncing mode styles */
     .bouncing-img {
       position: absolute;
@@ -654,6 +664,77 @@
       }
     }
 
+    /* Soap bubbles */
+    .soap-bubble {
+      position: fixed;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 0%, transparent 40%),
+        radial-gradient(circle at 70% 70%, rgba(200,170,100,0.25) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255,240,200,0.15) 0%, rgba(220,200,160,0.08) 100%);
+      border: 1px solid rgba(210,190,140,0.4);
+      box-shadow:
+        inset 0 -6px 12px rgba(180,160,120,0.15),
+        inset 4px 2px 8px rgba(255,200,100,0.1),
+        inset -3px -3px 10px rgba(180,140,200,0.1),
+        0 2px 12px rgba(0,0,0,0.05);
+      cursor: pointer;
+      z-index: 50;
+      pointer-events: auto;
+      transition: transform 0.1s;
+      overflow: hidden;
+    }
+
+    .soap-bubble::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 0deg,
+        rgba(255,200,100,0.12),
+        rgba(200,160,220,0.1),
+        rgba(150,220,200,0.08),
+        rgba(255,180,120,0.1),
+        rgba(220,180,255,0.08),
+        rgba(255,220,150,0.12)
+      );
+    }
+
+    .soap-bubble::after {
+      content: '';
+      position: absolute;
+      top: 12%;
+      left: 18%;
+      width: 30%;
+      height: 20%;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.6);
+      filter: blur(2px);
+      transform: rotate(-30deg);
+    }
+
+    .soap-bubble:hover {
+      transform: scale(1.05);
+    }
+
+    .gold-coin {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at 35% 30%, #fff5a0 0%, #f0c430 25%, #c9961a 60%, #8a6a1a 100%);
+      border: 1.5px solid #9a7a10;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35), inset 0 1px 2px rgba(255,240,150,0.6);
+      pointer-events: none;
+      z-index: 51;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      color: #7a5a10;
+      text-shadow: 0 0.5px 0 rgba(255,240,150,0.5);
+    }
+
     /* ======================== Mode 7: Firstbörn Soap ======================== */
     #soap-container {
       position: fixed;
@@ -733,12 +814,52 @@
 
     .soap-hero-img {
       flex: 0 0 260px;
+      position: relative;
+      animation: bottleHover 3s ease-in-out infinite;
+    }
+
+    @keyframes bottleHover {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+
+    .soap-god-rays {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 220%;
+      height: 220%;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+      pointer-events: none;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg, rgba(210,180,80,0.18) 8deg, transparent 16deg,
+        transparent 30deg, rgba(220,190,90,0.14) 38deg, transparent 46deg,
+        transparent 60deg, rgba(200,170,70,0.16) 68deg, transparent 76deg,
+        transparent 95deg, rgba(215,185,85,0.12) 103deg, transparent 111deg,
+        transparent 130deg, rgba(210,175,75,0.17) 138deg, transparent 146deg,
+        transparent 165deg, rgba(220,190,80,0.13) 173deg, transparent 181deg,
+        transparent 200deg, rgba(205,175,70,0.15) 208deg, transparent 216deg,
+        transparent 240deg, rgba(215,185,85,0.18) 248deg, transparent 256deg,
+        transparent 275deg, rgba(210,180,75,0.12) 283deg, transparent 291deg,
+        transparent 310deg, rgba(220,190,90,0.16) 318deg, transparent 326deg,
+        transparent 345deg, rgba(210,180,80,0.14) 353deg, transparent 360deg
+      );
+      filter: blur(8px);
+      animation: godRaysSpin 30s linear infinite;
+    }
+
+    @keyframes godRaysSpin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
     .soap-hero-img img {
       width: 100%;
       display: block;
-      mix-blend-mode: multiply;
+      position: relative;
+      z-index: 1;
     }
 
     /* Sections */
@@ -1048,6 +1169,34 @@
     }
 
     .soap-popup-form button:hover { background: #8a6a3a; }
+
+    @keyframes wiggle {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      15% { transform: translateX(calc(-1 * var(--wiggle-px))) rotate(calc(-1 * var(--wiggle-deg))); }
+      30% { transform: translateX(var(--wiggle-px)) rotate(var(--wiggle-deg)); }
+      45% { transform: translateX(calc(-1 * var(--wiggle-px))) rotate(calc(-1 * var(--wiggle-deg))); }
+      60% { transform: translateX(var(--wiggle-px)) rotate(var(--wiggle-deg)); }
+      75% { transform: translateX(calc(-1 * var(--wiggle-px))) rotate(calc(-1 * var(--wiggle-deg))); }
+      90% { transform: translateX(calc(0.5 * var(--wiggle-px))) rotate(calc(0.5 * var(--wiggle-deg))); }
+    }
+
+    @keyframes wiggleFlash {
+      0%, 100% { transform: translateX(0) rotate(0deg); background: #1a1a1a; }
+      15% { transform: translateX(calc(-1 * var(--wiggle-px))) rotate(calc(-1 * var(--wiggle-deg))); background: var(--flash-gold); }
+      30% { transform: translateX(var(--wiggle-px)) rotate(var(--wiggle-deg)); background: #1a1a1a; }
+      45% { transform: translateX(calc(-1 * var(--wiggle-px))) rotate(calc(-1 * var(--wiggle-deg))); background: var(--flash-gold); }
+      60% { transform: translateX(var(--wiggle-px)) rotate(var(--wiggle-deg)); background: #1a1a1a; }
+      75% { transform: translateX(calc(-1 * var(--wiggle-px))) rotate(calc(-1 * var(--wiggle-deg))); background: var(--flash-gold); }
+      90% { transform: translateX(calc(0.5 * var(--wiggle-px))) rotate(calc(0.5 * var(--wiggle-deg))); background: #1a1a1a; }
+    }
+
+    .soap-popup-form button.wiggling {
+      animation: wiggle 0.5s ease-in-out;
+    }
+
+    .soap-popup-form button.wiggling.gold-flash {
+      animation: wiggleFlash 0.5s ease-in-out;
+    }
 
     .soap-popup-legal {
       font-size: 0.67rem;
@@ -1480,6 +1629,7 @@
           <button class="soap-cta" onclick="document.getElementById('soap-popup-overlay').classList.add('active')">Join the Club &rarr;</button>
         </div>
         <div class="soap-hero-img">
+          <div class="soap-god-rays"></div>
           <img src="firstborn-soap.jpg" alt="Firstbörn 47-in-1 Real Soap" onerror="this.style.background='#e6e0d6';this.style.height='340px';this.alt='';this.style.display='block'">
         </div>
       </div>
@@ -1709,6 +1859,7 @@
 
     function switchMode(mode) {
       hideAll();
+      document.querySelector('.mode-selector').classList.toggle('soap-active', mode === 'soap');
       if (mode === 'bounce') {
         bounceContainer.style.display = '';
         startBounce();
@@ -2600,6 +2751,48 @@
       '30% family pass to SOAP! — our wax museum located in St. Barts. Travel not included.'
     ];
 
+    let wiggleInterval = null;
+    let wiggleIntensity = 1;
+
+    // Gold colors from subtle to intense
+    const goldLevels = [
+      '#6b5a2a', // muted dark gold
+      '#8a7030', // medium gold
+      '#b8942e', // warm gold
+      '#d4aa30', // bright gold
+      '#f0c020', // vivid gold
+    ];
+
+    function startWiggle() {
+      clearInterval(wiggleInterval);
+      const btn = soapPopupSubmit;
+      if (!btn) return;
+      const px = Math.min(2 + wiggleIntensity * 3, 30);
+      const deg = Math.min(1 + wiggleIntensity * 1.5, 15);
+      btn.style.setProperty('--wiggle-px', px + 'px');
+      btn.style.setProperty('--wiggle-deg', deg + 'deg');
+      // Start gold flashing from popup 5+
+      const shouldFlash = wiggleIntensity >= 5;
+      if (shouldFlash) {
+        const goldIndex = Math.min(wiggleIntensity - 5, goldLevels.length - 1);
+        btn.style.setProperty('--flash-gold', goldLevels[goldIndex]);
+      }
+      function doWiggle() {
+        btn.classList.remove('wiggling', 'gold-flash');
+        void btn.offsetWidth;
+        btn.classList.add('wiggling');
+        if (shouldFlash) btn.classList.add('gold-flash');
+      }
+      doWiggle();
+      wiggleInterval = setInterval(doWiggle, 3000);
+    }
+
+    function stopWiggle() {
+      clearInterval(wiggleInterval);
+      wiggleInterval = null;
+      if (soapPopupSubmit) soapPopupSubmit.classList.remove('wiggling');
+    }
+
     function showSoapPopup() {
       if (soapPopupDisabled) return;
 
@@ -2632,6 +2825,10 @@
       });
       // Cap at length+1 so we can distinguish "showing incentive 8" from "showing nudge"
       soapPopupCount = Math.min(soapPopupCount + 1, soapIncentives.length + 1);
+
+      // Start wiggling the Claim offer button, more intense each time
+      wiggleIntensity++;
+      startWiggle();
     }
 
     // Delay after closing, based on incentives shown so far:
@@ -2648,13 +2845,66 @@
       soapPopupTimer = setTimeout(showSoapPopup, getNextDelay());
     }
 
+    function spawnBurstBubbles(rect, count) {
+      for (let i = 0; i < count; i++) {
+        const size = 15 + Math.random() * 35;
+        const bubble = document.createElement('div');
+        bubble.className = 'soap-bubble';
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        bubble.style.pointerEvents = 'none';
+        // Start from random position across the entire popup area
+        const startX = rect.left + Math.random() * rect.width;
+        const startY = rect.top + Math.random() * rect.height;
+        bubble.style.left = startX + 'px';
+        bubble.style.top = startY + 'px';
+        document.body.appendChild(bubble);
+
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = startX - cx;
+        const dy = startY - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const vel = 8 + Math.random() * 6;
+        let bx = startX, by = startY;
+        let bvx = (dx / dist) * vel + (Math.random() - 0.5) * 3;
+        let bvy = (dy / dist) * vel + (Math.random() - 0.5) * 3 - 2;
+        let blife = 70 + Math.random() * 40;
+
+        function animBurst() {
+          bvx *= 0.92;
+          bvy *= 0.92;
+          bvy += 0.03;
+          bx += bvx;
+          by += bvy;
+          blife--;
+          bubble.style.left = bx + 'px';
+          bubble.style.top = by + 'px';
+          bubble.style.opacity = Math.max(0, blife / 30);
+          if (blife > 0) {
+            requestAnimationFrame(animBurst);
+          } else {
+            bubble.remove();
+          }
+        }
+        requestAnimationFrame(animBurst);
+      }
+    }
+
     function closeSoapPopup() {
+      stopWiggle();
+      const popup = soapPopupOverlay.querySelector('.soap-popup');
+      if (popup) {
+        const rect = popup.getBoundingClientRect();
+        spawnBurstBubbles(rect, 16);
+      }
       soapPopupOverlay.classList.remove('active');
       scheduleNextPopup();
     }
 
     function startSoapPopupCycle() {
       soapPopupCount = 0;
+      wiggleIntensity = 0;
       soapPopupDisabled = false;
       showSoapPopup();
     }
@@ -2745,6 +2995,209 @@
         }, 700);
       }, 2200);
     });
+
+    // ========================
+    // SOAP BUBBLES
+    // ========================
+    let bubbleInterval = null;
+    const activeBubbles = [];
+
+    const MAX_BUBBLES = 15;
+
+    function spawnBubble() {
+      if (currentMode !== 'soap') return;
+      if (activeBubbles.length >= MAX_BUBBLES) return;
+      const size = 20 + Math.random() * 50;
+      const bubble = document.createElement('div');
+      bubble.className = 'soap-bubble';
+      bubble.style.width = size + 'px';
+      bubble.style.height = size + 'px';
+      bubble.style.left = (Math.random() * (window.innerWidth - size)) + 'px';
+      bubble.style.bottom = '-' + (size + 10) + 'px';
+      document.body.appendChild(bubble);
+
+      const speed = 0.3 + Math.random() * 0.6;
+      const wobbleAmp = 20 + Math.random() * 30;
+      const wobbleFreq = 0.002 + Math.random() * 0.003;
+      const startX = parseFloat(bubble.style.left);
+      let y = -(size + 10);
+      let t = Math.random() * 1000;
+      const entry = { bubble, y, speed, wobbleAmp, wobbleFreq, startX, t, size };
+      activeBubbles.push(entry);
+
+      bubble.addEventListener('click', (e) => {
+        e.stopPropagation();
+        burstBubble(entry);
+      });
+    }
+
+    function burstBubble(entry) {
+      const rect = entry.bubble.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      entry.bubble.remove();
+      const idx = activeBubbles.indexOf(entry);
+      if (idx !== -1) activeBubbles.splice(idx, 1);
+
+      const coinCount = 3 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < coinCount; i++) {
+        const coin = document.createElement('div');
+        coin.className = 'gold-coin';
+        const coinSize = 12 + Math.random() * 14;
+        coin.style.width = coinSize + 'px';
+        coin.style.height = coinSize + 'px';
+        coin.style.fontSize = Math.max(6, coinSize * 0.45) + 'px';
+        coin.textContent = '$';
+        coin.style.left = cx + 'px';
+        coin.style.top = cy + 'px';
+        document.body.appendChild(coin);
+
+        const angle = Math.random() * Math.PI * 2;
+        const vel = 2 + Math.random() * 4;
+        let vx = Math.cos(angle) * vel;
+        let vy = Math.sin(angle) * vel - 2;
+        let coinX = cx, coinY = cy;
+        let life = 60 + Math.random() * 30;
+        let spinAngle = Math.random() * 360;
+        const spinSpeed = 8 + Math.random() * 12;
+        const spinDir = Math.random() > 0.5 ? 1 : -1;
+
+        function animCoin() {
+          vy += 0.15;
+          coinX += vx;
+          coinY += vy;
+          life--;
+          spinAngle += spinSpeed * spinDir;
+          const scaleX = Math.cos(spinAngle * Math.PI / 180);
+          coin.style.left = coinX + 'px';
+          coin.style.top = coinY + 'px';
+          coin.style.transform = `scaleX(${scaleX})`;
+          coin.style.opacity = Math.max(0, life / 40);
+          if (life > 0) {
+            requestAnimationFrame(animCoin);
+          } else {
+            coin.remove();
+          }
+        }
+        requestAnimationFrame(animCoin);
+      }
+
+      // Sparkles
+      const sparkleCount = 4 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < sparkleCount; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.textContent = '✦';
+        sparkle.style.cssText = `position:fixed;pointer-events:none;z-index:52;font-size:${8 + Math.random() * 10}px;color:#f0c430;text-shadow:0 0 4px rgba(240,196,48,0.8);left:${cx}px;top:${cy}px;`;
+        document.body.appendChild(sparkle);
+
+        const sAngle = Math.random() * Math.PI * 2;
+        const sVel = 1.5 + Math.random() * 3.5;
+        let sx = cx, sy = cy;
+        let svx = Math.cos(sAngle) * sVel;
+        let svy = Math.sin(sAngle) * sVel - 1;
+        let slife = 30 + Math.random() * 25;
+
+        function animSparkle() {
+          sx += svx;
+          sy += svy;
+          svy += 0.05;
+          svx *= 0.98;
+          slife--;
+          sparkle.style.left = sx + 'px';
+          sparkle.style.top = sy + 'px';
+          sparkle.style.opacity = Math.max(0, slife / 20);
+          sparkle.style.transform = `scale(${slife / 40}) rotate(${slife * 8}deg)`;
+          if (slife > 0) {
+            requestAnimationFrame(animSparkle);
+          } else {
+            sparkle.remove();
+          }
+        }
+        requestAnimationFrame(animSparkle);
+      }
+    }
+
+    function animateBubbles() {
+      if (currentMode !== 'soap') return;
+      for (let i = activeBubbles.length - 1; i >= 0; i--) {
+        const b = activeBubbles[i];
+        b.y -= b.speed;
+        b.t++;
+        const wobble = Math.sin(b.t * b.wobbleFreq) * b.wobbleAmp;
+        b.bubble.style.bottom = -b.y + 'px';
+        b.bubble.style.left = (b.startX + wobble) + 'px';
+        if (-b.y > window.innerHeight + b.size + 20) {
+          b.bubble.remove();
+          activeBubbles.splice(i, 1);
+        }
+      }
+      requestAnimationFrame(animateBubbles);
+    }
+
+    function startBubbles() {
+      if (bubbleInterval) return;
+      bubbleInterval = setInterval(spawnBubble, 1200);
+      animateBubbles();
+    }
+
+    function stopBubbles() {
+      clearInterval(bubbleInterval);
+      bubbleInterval = null;
+      for (const b of activeBubbles) b.bubble.remove();
+      activeBubbles.length = 0;
+    }
+
+    // Hook into switchMode
+    const origSwitchMode = switchMode;
+    switchMode = function(mode) {
+      stopBubbles();
+      origSwitchMode(mode);
+      if (mode === 'soap') startBubbles();
+    };
+    // Start bubbles if already on soap
+    if (currentMode === 'soap') startBubbles();
+
+    // Remove white background from soap bottle image
+    (function() {
+      var img = document.querySelector('.soap-hero-img img');
+      if (!img) return;
+      function removeWhiteBG() {
+        var c = document.createElement('canvas');
+        c.width = img.naturalWidth;
+        c.height = img.naturalHeight;
+        var ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        var data = ctx.getImageData(0, 0, c.width, c.height);
+        var px = data.data;
+        var w = c.width, h = c.height;
+        for (var i = 0; i < px.length; i += 4) {
+          var r = px[i], g = px[i+1], b = px[i+2];
+          var pixelIndex = i / 4;
+          var y = Math.floor(pixelIndex / w);
+          var yRatio = y / h;
+          // In the bottom 20% of the image, also remove grey shadow pixels
+          var threshold = 220;
+          if (yRatio > 0.8) {
+            threshold = 140; // catch darker shadow pixels at the bottom
+          } else if (yRatio > 0.7) {
+            threshold = 180;
+          }
+          // Check if pixel is near-white or shadow grey
+          if (r > threshold && g > threshold && b > threshold) {
+            var dist = Math.sqrt((255-r)*(255-r) + (255-g)*(255-g) + (255-b)*(255-b));
+            var alpha = Math.min(255, dist * (255 / 60));
+            px[i+3] = Math.round(alpha);
+          }
+        }
+        ctx.putImageData(data, 0, 0);
+        img.src = c.toDataURL('image/png');
+      }
+      if (img.complete && img.naturalWidth > 0) {
+        removeWhiteBG();
+      } else {
+        img.addEventListener('load', removeWhiteBG);
+      }
+    })();
   </script>
 </body>
 </html>

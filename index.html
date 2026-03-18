@@ -2939,29 +2939,68 @@
     async function loadNews() {
       if (newsLoaded) return;
       const feed = document.getElementById('news-feed');
-      try {
-        const rssUrl = encodeURIComponent('https://feeds.bbci.co.uk/news/world/rss.xml');
-        const resp = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=25`);
-        const data = await resp.json();
-        if (!data.items || !data.items.length) throw new Error('No items');
+      feed.innerHTML = '<div class="news-loading">Loading headlines…</div>';
 
-        feed.innerHTML = data.items.map(item => {
-          const date = new Date(item.pubDate).toLocaleDateString('en-US', {
+      // Try multiple RSS proxies in order
+      const rssUrl = 'https://feeds.bbci.co.uk/news/world/rss.xml';
+      const proxies = [
+        `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`,
+        `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`
+      ];
+
+      let xmlText = null;
+      for (const proxy of proxies) {
+        try {
+          const resp = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+          if (!resp.ok) continue;
+          // allorigins wraps in JSON; corsproxy returns raw XML
+          const text = await resp.text();
+          if (text.trim().startsWith('{')) {
+            const json = JSON.parse(text);
+            xmlText = json.contents;
+          } else {
+            xmlText = text;
+          }
+          if (xmlText && xmlText.includes('<item>')) break;
+          xmlText = null;
+        } catch(e) { continue; }
+      }
+
+      if (!xmlText) {
+        feed.innerHTML = '<p class="news-loading">Could not load news. Try visiting <a href="https://bbc.com/news" target="_blank" style="color:rgba(255,255,255,0.5)">bbc.com/news</a> directly.</p>';
+        return;
+      }
+
+      try {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, 'text/xml');
+        const items = Array.from(xml.querySelectorAll('item')).slice(0, 25);
+        if (!items.length) throw new Error('No items');
+
+        feed.innerHTML = items.map(item => {
+          const title   = item.querySelector('title')?.textContent || '';
+          const pubDate = item.querySelector('pubDate')?.textContent || '';
+          const desc    = (item.querySelector('description')?.textContent || '')
+                            .replace(/<[^>]+>/g, '').trim();
+          // <link> in RSS XML comes as text node after the element in some parsers
+          let link = '#';
+          const linkEl = item.querySelector('link');
+          if (linkEl) link = linkEl.textContent || linkEl.nextSibling?.textContent || '#';
+
+          const date = pubDate ? new Date(pubDate).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-          });
-          const desc = item.description
-            ? item.description.replace(/<[^>]+>/g, '').trim()
-            : '';
-          return `<a class="news-article" href="${item.link}" target="_blank" rel="noopener noreferrer">
-            <div class="news-article-title">${item.title}</div>
+          }) : '';
+
+          return `<a class="news-article" href="${link.trim()}" target="_blank" rel="noopener noreferrer">
+            <div class="news-article-title">${title}</div>
             ${desc ? `<div class="news-article-desc">${desc}</div>` : ''}
-            <div class="news-article-meta">BBC World News &middot; ${date}</div>
+            <div class="news-article-meta">BBC World News${date ? ' &middot; ' + date : ''}</div>
           </a>`;
         }).join('');
 
         newsLoaded = true;
       } catch(e) {
-        feed.innerHTML = '<p class="news-loading">Could not load news. Try visiting <a href="https://bbc.com/news" target="_blank" style="color:rgba(255,255,255,0.5)">bbc.com/news</a> directly.</p>';
+        feed.innerHTML = '<p class="news-loading">Could not parse news feed. Try visiting <a href="https://bbc.com/news" target="_blank" style="color:rgba(255,255,255,0.5)">bbc.com/news</a> directly.</p>';
       }
     }
 

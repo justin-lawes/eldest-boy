@@ -1453,6 +1453,99 @@
       .vibe-gauge-track::after { width: 120px; height: 60px; border-radius: 60px 60px 0 0; }
       .vibe-needle { height: 80px; }
     }
+
+    /* Fake banner ad */
+    .news-banner-ad {
+      margin: 48px auto 0;
+      max-width: 728px;
+      border: 2px solid #f90;
+      background: linear-gradient(135deg, #fff8e1 0%, #fffde7 50%, #fff3e0 100%);
+      padding: 0;
+      text-align: center;
+      position: relative;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      overflow: hidden;
+    }
+
+    .news-banner-ad::before {
+      content: 'ADVERTISEMENT';
+      display: block;
+      background: #f90;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      padding: 3px 0;
+    }
+
+    .news-banner-ad-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 14px 20px 16px;
+    }
+
+    .news-banner-ad-img {
+      font-size: 3rem;
+      line-height: 1;
+      flex-shrink: 0;
+      animation: adPulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes adPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
+    .news-banner-ad-text {
+      text-align: left;
+    }
+
+    .news-banner-ad-headline {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #c0392b;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+
+    .news-banner-ad-sub {
+      font-size: 0.82rem;
+      color: #555;
+      margin-top: 3px;
+    }
+
+    .news-banner-ad-cta {
+      display: inline-block;
+      margin-top: 8px;
+      background: #c0392b;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 6px 14px;
+      border-radius: 2px;
+      animation: ctaBlink 1.1s step-start infinite;
+    }
+
+    @keyframes ctaBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    .news-banner-ad-fine {
+      font-size: 0.55rem;
+      color: #aaa;
+      padding: 4px 12px 8px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -1790,6 +1883,21 @@
 
       </div>
     </div>
+
+    <!-- Banner Ad -->
+    <div class="news-banner-ad" onclick="return false;">
+      <div class="news-banner-ad-inner">
+        <div class="news-banner-ad-img">💪</div>
+        <div class="news-banner-ad-text">
+          <div class="news-banner-ad-headline">Get the body of your dreams<br>with Body Juice!™</div>
+          <div class="news-banner-ad-sub">The #1 doctor-recommended<sup>*</sup> body solution. Results in as little as 2 weeks.<sup>**</sup></div>
+          <span class="news-banner-ad-cta">CLAIM YOUR FREE TRIAL →</span>
+        </div>
+        <div class="news-banner-ad-img">💪</div>
+      </div>
+      <div class="news-banner-ad-fine">*Doctor not a licensed physician. **Results not typical. Body Juice LLC is not responsible for any bodily outcomes. Individual results may vary. Not evaluated by the FDA. Body Juice should not be consumed.</div>
+    </div>
+
   </div>
 
   <script>
@@ -3000,27 +3108,35 @@
         } catch(e) { continue; }
       }
 
+      const fakeArticles = {
+        djjames: `<a class="news-article fake-article" href="#" onclick="return false;">
+          <div class="news-article-title">'The Soap Murders': New documentary revisits the dark legacy of David Jonathan James and Commune 1</div>
+          <div class="news-article-desc">Thirty years after the events that shocked rural Maine, a new film examines how a self-anointed "spiritual husband" turned a small commune's soap-making operation into something far more sinister. Survivors speak out.</div>
+          <div class="news-article-meta">BBC World News &middot; Mar 17, 9:14 AM</div>
+        </a>`,
+        eldestboy: `<a class="news-article fake-article" href="#" onclick="return false;">
+          <div class="news-article-title">Eldest Boy: Inside the rise of 2026's most talked-about indie act — the fights, the fashion, and the feuds</div>
+          <div class="news-article-desc">They came out of nowhere, sold out three continents, and haven't given a single coherent interview. We got access. Here's everything.</div>
+          <div class="news-article-meta">BBC World News &middot; Mar 17, 11:02 AM</div>
+        </a>`
+      };
+
       if (html) {
-        feed.innerHTML = html;
+        // Parse into an array of article HTML strings, splice in fakes
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        const articles = Array.from(div.querySelectorAll('.news-article'));
+        const articleStrings = articles.map(a => a.outerHTML);
+        // Insert DJ James article at position 0, Eldest Boy at position 4
+        articleStrings.splice(0, 0, fakeArticles.djjames);
+        articleStrings.splice(4, 0, fakeArticles.eldestboy);
+        feed.innerHTML = articleStrings.join('');
         newsLoaded = true;
       } else {
-        feed.innerHTML = '<p class="news-loading">Could not load news. Try visiting <a href="https://bbc.com/news" target="_blank" style="color:rgba(255,255,255,0.5)">bbc.com/news</a> directly.</p>';
+        // Even if real news fails, show the fakes
+        feed.innerHTML = fakeArticles.djjames + fakeArticles.eldestboy;
+        newsLoaded = true;
       }
-    }
-
-    // Vibe Barometer
-    // ========================
-    // FART SOUNDS
-    // ========================
-    const fartSounds = ['fart1.mp3', 'fart2.mp3', 'fart3.mp3'];
-    let lastFartIdx = -1;
-
-    function playRandomFart() {
-      let idx;
-      do { idx = Math.floor(Math.random() * fartSounds.length); } while (idx === lastFartIdx && fartSounds.length > 1);
-      lastFartIdx = idx;
-      const audio = new Audio(fartSounds[idx]);
-      audio.play().catch(() => {});
     }
 
     // ========================
@@ -3095,7 +3211,6 @@
               result.style.opacity = '1';
               btn.disabled = false;
               needle.style.transition = 'transform 0.7s cubic-bezier(0.34,1.4,0.64,1)';
-              playRandomFart();
             }, 450);
             return;
           }

@@ -1456,7 +1456,7 @@
 
     /* Fake banner ad */
     .news-banner-ad {
-      margin: 48px auto 0;
+      margin: 0;
       max-width: 728px;
       border: 2px solid #f90;
       background: linear-gradient(135deg, #fff8e1 0%, #fffde7 50%, #fff3e0 100%);
@@ -1860,6 +1860,20 @@
       </div>
     </div>
 
+    <!-- Banner Ad — immediately below the ticker -->
+    <div class="news-banner-ad" onclick="return false;">
+      <div class="news-banner-ad-inner">
+        <div class="news-banner-ad-img">💪</div>
+        <div class="news-banner-ad-text">
+          <div class="news-banner-ad-headline">Get the body of your dreams<br>with Body Juice!™</div>
+          <div class="news-banner-ad-sub">The #1 doctor-recommended<sup>*</sup> body solution. Results in as little as 2 weeks.<sup>**</sup></div>
+          <span class="news-banner-ad-cta">CLAIM YOUR FREE TRIAL →</span>
+        </div>
+        <div class="news-banner-ad-img">💪</div>
+      </div>
+      <div class="news-banner-ad-fine">*Doctor not a licensed physician. **Results not typical. Body Juice LLC is not responsible for any bodily outcomes. Individual results may vary. Not evaluated by the FDA. Body Juice should not be consumed.</div>
+    </div>
+
     <div class="news-body">
       <div class="news-columns">
 
@@ -1882,20 +1896,6 @@
         </div>
 
       </div>
-    </div>
-
-    <!-- Banner Ad -->
-    <div class="news-banner-ad" onclick="return false;">
-      <div class="news-banner-ad-inner">
-        <div class="news-banner-ad-img">💪</div>
-        <div class="news-banner-ad-text">
-          <div class="news-banner-ad-headline">Get the body of your dreams<br>with Body Juice!™</div>
-          <div class="news-banner-ad-sub">The #1 doctor-recommended<sup>*</sup> body solution. Results in as little as 2 weeks.<sup>**</sup></div>
-          <span class="news-banner-ad-cta">CLAIM YOUR FREE TRIAL →</span>
-        </div>
-        <div class="news-banner-ad-img">💪</div>
-      </div>
-      <div class="news-banner-ad-fine">*Doctor not a licensed physician. **Results not typical. Body Juice LLC is not responsible for any bodily outcomes. Individual results may vary. Not evaluated by the FDA. Body Juice should not be consumed.</div>
     </div>
 
   </div>
@@ -3128,8 +3128,8 @@
         const articles = Array.from(div.querySelectorAll('.news-article'));
         const articleStrings = articles.map(a => a.outerHTML);
         // Insert DJ James article at position 0, Eldest Boy at position 4
-        articleStrings.splice(0, 0, fakeArticles.djjames);
-        articleStrings.splice(4, 0, fakeArticles.eldestboy);
+        articleStrings.splice(8, 0, fakeArticles.djjames);
+        articleStrings.splice(14, 0, fakeArticles.eldestboy);
         feed.innerHTML = articleStrings.join('');
         newsLoaded = true;
       } else {

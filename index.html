@@ -64,6 +64,34 @@
       border-color: rgba(138,106,58,0.3);
     }
 
+    @media (max-width: 600px) {
+      .mode-selector {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        transform: none;
+        width: 100%;
+        flex-wrap: wrap;
+        background: rgba(0,0,0,0.85);
+        padding: 6px 4px;
+        justify-content: center;
+        gap: 4px;
+      }
+
+      .mode-btn {
+        font-size: 0.65rem;
+        padding: 5px 10px;
+        border-radius: 4px !important;
+        flex: 0 0 auto;
+      }
+
+      .mode-btn:first-child,
+      .mode-btn:last-child {
+        border-radius: 4px !important;
+      }
+    }
+
     .mode-selector.soap-active .mode-btn.active {
       background: rgba(138,106,58,0.15);
       border-color: rgba(138,106,58,0.6);
@@ -3130,11 +3158,11 @@
       feed.innerHTML = '<div class="news-loading">Loading headlines…</div>';
 
       const rssUrl = 'https://feeds.bbci.co.uk/news/world/rss.xml';
-      // allorigins /raw returns the content directly (no JSON wrapper)
       const proxies = [
         `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`,
         `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
-        `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`
       ];
 
       let html = null;
@@ -3178,9 +3206,15 @@
         feed.innerHTML = articleStrings.join('');
         newsLoaded = true;
       } else {
-        // Even if real news fails, show the fakes
-        feed.innerHTML = fakeArticles.djjames + fakeArticles.eldestboy;
-        newsLoaded = true;
+        // Real news failed — show fakes + retry link
+        feed.innerHTML = `<p class="news-loading">Could not load headlines. <a href="#" id="news-retry" style="color:rgba(255,255,255,0.5)">Tap to retry</a></p>`
+          + fakeArticles.djjames + fakeArticles.eldestboy;
+        document.getElementById('news-retry')?.addEventListener('click', e => {
+          e.preventDefault();
+          newsLoaded = false;
+          loadNews();
+        });
+        newsLoaded = true; // prevent auto-retry loop; manual only
       }
     }
 

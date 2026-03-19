@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 3457;
+const PORT = process.env.PORT || 3457;
 const DIR = __dirname;
 
 const MIME = {
@@ -17,6 +17,7 @@ const MIME = {
   '.ico': 'image/x-icon',
   '.webp': 'image/webp',
   '.wav': 'audio/wav',
+  '.mp3': 'audio/mpeg',
 };
 
 http.createServer((req, res) => {

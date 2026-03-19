@@ -1592,6 +1592,127 @@
     @media (max-width: 720px) {
       .news-ad-tile:nth-child(n+3) { display: none; }
     }
+
+    /* Tour page */
+    #tour-container {
+      position: fixed;
+      inset: 0;
+      background: #08080f;
+      overflow-y: auto;
+      display: none;
+      padding-top: 80px;
+      font-family: 'Work Sans', sans-serif;
+      color: #e8e8f0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tour-body {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .tour-header {
+      font-family: 'Gasoek One', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .tour-subheader {
+      text-align: center;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 40px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tour-date-row {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      gap: 16px;
+    }
+
+    .tour-date-row:first-child {
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .tour-date-col {
+      flex: 0 0 130px;
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.05em;
+    }
+
+    .tour-venue-col {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .tour-location-col {
+      flex: 0 0 180px;
+      text-align: right;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+
+    .tour-show-more {
+      display: block;
+      margin: 32px auto 0;
+      font-family: 'ChicagoFLF', sans-serif;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      color: #fff;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 12px 40px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.3s;
+      letter-spacing: 0.06em;
+    }
+
+    .tour-show-more:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.6);
+    }
+
+    .tour-count {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.25);
+    }
+
+    @media (max-width: 600px) {
+      .tour-date-row {
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .tour-date-col {
+        flex: 0 0 100%;
+        font-size: 0.7rem;
+      }
+      .tour-venue-col {
+        flex: 1;
+        font-size: 0.85rem;
+      }
+      .tour-location-col {
+        flex: 0 0 auto;
+        text-align: left;
+        font-size: 0.75rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1605,6 +1726,7 @@
     <button class="mode-btn" data-mode="opinions">Mode 6</button>
     <button class="mode-btn" data-mode="soap">Mode 7</button>
     <button class="mode-btn" data-mode="news">News</button>
+    <button class="mode-btn" data-mode="tour">Tour</button>
   </div>
 
   <!-- Bounce mode elements -->
@@ -1974,6 +2096,17 @@
 
   </div>
 
+  <!-- Tour page -->
+  <div id="tour-container">
+    <div class="tour-body">
+      <div class="tour-header">World Tour</div>
+      <div class="tour-subheader">2026 — 2030</div>
+      <div id="tour-dates-list"></div>
+      <button class="tour-show-more" id="tour-show-more" onclick="showMoreTourDates()">Show More</button>
+      <div class="tour-count" id="tour-count"></div>
+    </div>
+  </div>
+
   <script>
     // ========================
     // MODE SWITCHING
@@ -1990,6 +2123,7 @@
     const opinionsContainer = document.getElementById('opinions-container');
     const soapContainer = document.getElementById('soap-container');
     const newsContainer = document.getElementById('news-container');
+    const tourContainer = document.getElementById('tour-container');
     const modeBtns = document.querySelectorAll('.mode-btn');
 
     modeBtns.forEach(btn => {
@@ -2024,6 +2158,7 @@
       opinionsContainer.style.display = 'none';
       soapContainer.style.display = 'none';
       newsContainer.style.display = 'none';
+      tourContainer.style.display = 'none';
       document.getElementById('game-overlay').style.display = 'none';
       document.getElementById('score-display').style.display = 'none';
       easySteveBtn.style.display = 'none';
@@ -2057,6 +2192,9 @@
       } else if (mode === 'news') {
         newsContainer.style.display = 'block';
         loadNews();
+      } else if (mode === 'tour') {
+        tourContainer.style.display = 'block';
+        initTourDates();
       }
     }
 
@@ -3564,6 +3702,132 @@
         img.addEventListener('load', removeWhiteBG);
       }
     })();
+
+    // ========================
+    // TOUR DATES
+    // ========================
+    let tourDatesAll = [];
+    let tourDatesShown = 0;
+    const TOUR_BATCH = 30;
+    let tourInitialized = false;
+
+    const kidNames = [
+      'Timmy', 'Emma', 'Jayden', 'Olivia', 'Aiden', 'Sophia', 'Liam', 'Ava',
+      'Noah', 'Mia', 'Lucas', 'Isabella', 'Mason', 'Zoe', 'Ethan', 'Lily',
+      'Oliver', 'Chloe', 'Elijah', 'Harper', 'Logan', 'Ella', 'Brayden',
+      'Riley', 'Caleb', 'Nora', 'Jack', 'Luna', 'Owen', 'Grace', 'Henry',
+      'Violet', 'Wyatt', 'Hazel', 'Sebastian', 'Penelope', 'Max', 'Layla',
+      'Carter', 'Scarlett', 'Dylan', 'Aria', 'Leo', 'Ellie', 'Jaxon', 'Stella',
+      'Hunter', 'Paisley', 'Brody', 'Willow'
+    ];
+
+    const birthdayLocations = [
+      'Chuck E. Cheese, Topeka KS',
+      'Backyard Bouncy Castle, Reno NV',
+      'Dave & Buster\'s, Plano TX',
+      'Basement Rec Room, Akron OH',
+      'Pizza Hut Party Room, Fargo ND',
+      'Public Park Pavilion #3, Tulsa OK',
+      'Roller Rink, Boise ID',
+      'Suburban Garage, Naperville IL',
+      'McDonald\'s PlayPlace, Fresno CA',
+      'Community Pool, Fort Wayne IN',
+      'Laser Tag Arena, Scranton PA',
+      'Bowling Alley, Wichita KS',
+      'Trampoline Park, Mesa AZ',
+      'VFW Hall, Duluth MN',
+      'Skating Rink, Dayton OH',
+      'Fire Station #7 (by request), Baton Rouge LA',
+      'Cul-de-sac, Provo UT',
+      'Church Fellowship Hall, Little Rock AR',
+      'Above-Ground Pool, Mobile AL',
+      'Denny\'s Back Room, Spokane WA'
+    ];
+
+    function initTourDates() {
+      if (tourInitialized) return;
+      tourInitialized = true;
+
+      const start = new Date(2026, 2, 20); // March 20, 2026
+      const end = new Date(2030, 11, 31);   // December 31, 2030
+      let current = new Date(start);
+      let index = 0;
+
+      // Seed a simple pseudo-random so birthdays are consistent
+      let seed = 42;
+      function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+      }
+
+      while (current <= end) {
+        const isBirthday = index > 0 && index % (17 + Math.floor(seededRandom() * 8)) === 0;
+
+        if (isBirthday) {
+          const kid = kidNames[Math.floor(seededRandom() * kidNames.length)];
+          const age = Math.floor(seededRandom() * 10) + 3; // ages 3-12
+          const loc = birthdayLocations[Math.floor(seededRandom() * birthdayLocations.length)];
+          tourDatesAll.push({
+            date: new Date(current),
+            venue: kid + '\'s ' + ordinal(age) + ' Birthday Party',
+            location: loc,
+            birthday: true
+          });
+        } else {
+          tourDatesAll.push({
+            date: new Date(current),
+            venue: 'The Sphere',
+            location: 'Las Vegas, NV',
+            birthday: false
+          });
+        }
+
+        current.setDate(current.getDate() + 1);
+        index++;
+      }
+
+      tourDatesShown = 0;
+      document.getElementById('tour-dates-list').innerHTML = '';
+      showMoreTourDates();
+    }
+
+    function ordinal(n) {
+      const s = ['th','st','nd','rd'];
+      const v = n % 100;
+      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
+    function showMoreTourDates() {
+      const list = document.getElementById('tour-dates-list');
+      const end = Math.min(tourDatesShown + TOUR_BATCH, tourDatesAll.length);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+      for (let i = tourDatesShown; i < end; i++) {
+        const d = tourDatesAll[i];
+        const row = document.createElement('div');
+        row.className = 'tour-date-row' + (d.birthday ? ' birthday' : '');
+
+        const dateStr = days[d.date.getDay()] + ' ' + months[d.date.getMonth()] + ' ' + d.date.getDate() + ', ' + d.date.getFullYear();
+        row.innerHTML =
+          '<div class="tour-date-col">' + dateStr + '</div>' +
+          '<div class="tour-venue-col">' + d.venue + '</div>' +
+          '<div class="tour-location-col">' + d.location + '</div>';
+        list.appendChild(row);
+      }
+
+      tourDatesShown = end;
+
+      const btn = document.getElementById('tour-show-more');
+      const count = document.getElementById('tour-count');
+      if (tourDatesShown >= tourDatesAll.length) {
+        btn.style.display = 'none';
+        count.textContent = 'All ' + tourDatesAll.length + ' dates shown. No days off.';
+      } else {
+        btn.style.display = 'block';
+        count.textContent = 'Showing ' + tourDatesShown + ' of ' + tourDatesAll.length + ' dates';
+      }
+    }
   </script>
 </body>
 </html>

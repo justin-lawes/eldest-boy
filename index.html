@@ -3201,9 +3201,9 @@
         div.innerHTML = html;
         const articles = Array.from(div.querySelectorAll('.news-article'));
         const articleStrings = articles.map(a => a.outerHTML);
-        // Insert DJ James article at position 0, Eldest Boy at position 4
-        articleStrings.splice(8, 0, fakeArticles.djjames);
-        articleStrings.splice(14, 0, fakeArticles.eldestboy);
+        // DJ James = 2nd story (index 1), Eldest Boy = 4th story (index 3 after first splice)
+        articleStrings.splice(1, 0, fakeArticles.djjames);
+        articleStrings.splice(3, 0, fakeArticles.eldestboy);
         feed.innerHTML = articleStrings.join('');
         newsLoaded = true;
       } else {

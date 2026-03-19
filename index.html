@@ -1448,30 +1448,30 @@
 
     .vibe-meter-area {
       position: relative;
-      height: 180px;
+      height: 140px;
       margin-bottom: 12px;
       display: flex;
       align-items: flex-end;
       justify-content: center;
     }
 
+    /* Faces float over the entire vibe section, centered */
     .vibe-face {
       position: absolute;
-      bottom: 0;
+      top: 30px;
       left: 50%;
       transform: translateX(-50%);
-      width: 90%;
-      max-width: 260px;
+      width: 100%;
+      max-width: 300px;
       object-fit: contain;
       opacity: 0;
-      transition: opacity 2.4s ease;
+      transition: opacity 5s ease;
       mix-blend-mode: lighten;
-      z-index: 0;
+      z-index: 10;
+      pointer-events: none;
     }
 
-    .vibe-face.visible { opacity: 0.5; }
-
-    .vibe-gauge-wrap { z-index: 1; }
+    .vibe-face.visible { opacity: 0.3; }
 
     @media (max-width: 720px) {
       .news-columns {
@@ -1945,10 +1945,10 @@
 
         <!-- Right: Vibe Barometer -->
         <div class="news-vibe-section">
+          <img class="vibe-face" id="vibe-face-1" src="vibe1.png" alt="">
+          <img class="vibe-face" id="vibe-face-2" src="vibe2.png" alt="">
           <div class="news-section-label">Global Vibe Check</div>
           <div class="vibe-meter-area">
-            <img class="vibe-face" id="vibe-face-1" src="vibe1.png" alt="">
-            <img class="vibe-face" id="vibe-face-2" src="vibe2.png" alt="">
             <div class="vibe-gauge-wrap">
               <div class="vibe-gauge-track"></div>
               <div class="vibe-needle" id="vibe-needle"></div>

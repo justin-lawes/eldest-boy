@@ -1271,6 +1271,13 @@
       background: #000;
     }
 
+    /* Speed up TradingView ticker — override its internal animation duration */
+    .news-ticker-wrap [class*="item-set"],
+    .news-ticker-wrap [class*="track"],
+    .news-ticker-wrap [class*="ticker"] > div {
+      animation-duration: 12s !important;
+    }
+
     .news-body {
       max-width: 1060px;
       margin: 0 auto;
@@ -1468,13 +1475,13 @@
     .news-ad-tile {
       flex: 1;
       min-width: 0;
-      padding: 6px 8px 7px;
+      padding: 10px 12px 11px;
       cursor: pointer;
       position: relative;
       overflow: hidden;
       transition: opacity 0.5s ease;
       display: flex;
-      gap: 7px;
+      gap: 10px;
       align-items: flex-start;
       border-right: 1px solid #2a2a2a;
     }
@@ -1486,15 +1493,15 @@
     .news-ad-tile:nth-child(4) { background: #000d1a; }
 
     .ad-tile-thumb {
-      width: 46px;
-      height: 46px;
+      width: 58px;
+      height: 58px;
       flex-shrink: 0;
       background: #333;
       border: 1px solid #555;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: 1.8rem;
       image-rendering: pixelated;
       filter: contrast(1.2) saturate(0.7);
     }
@@ -1502,20 +1509,20 @@
     .ad-tile-right { min-width: 0; }
 
     .ad-tile-tag {
-      font-size: 0.48rem;
+      font-size: 0.52rem;
       font-family: Arial, sans-serif;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: #f90;
       font-weight: 700;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
 
     .ad-tile-headline {
-      font-size: 0.72rem;
+      font-size: 0.83rem;
       font-weight: bold;
       color: #e8d080;
-      line-height: 1.25;
+      line-height: 1.28;
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
@@ -1524,18 +1531,18 @@
     }
 
     .ad-tile-source {
-      font-size: 0.52rem;
+      font-size: 0.56rem;
       font-family: Arial, sans-serif;
       color: #666;
-      margin-top: 3px;
+      margin-top: 4px;
       font-style: italic;
     }
 
     .ad-tile-close {
       position: absolute;
-      top: 2px;
-      right: 4px;
-      font-size: 0.55rem;
+      top: 3px;
+      right: 5px;
+      font-size: 0.58rem;
       color: #444;
       font-family: Arial, sans-serif;
       line-height: 1;
@@ -3207,6 +3214,18 @@
         }, i * 2100); // stagger start times
       });
     })();
+
+    // Speed up TradingView ticker via JS after it renders (CSS selectors may not match obfuscated class names)
+    setTimeout(() => {
+      const wrap = document.querySelector('.news-ticker-wrap');
+      if (!wrap) return;
+      wrap.querySelectorAll('*').forEach(el => {
+        const dur = getComputedStyle(el).animationDuration;
+        if (dur && dur !== '0s' && parseFloat(dur) > 5) {
+          el.style.animationDuration = Math.max(8, parseFloat(dur) * 0.35) + 's';
+        }
+      });
+    }, 3500);
 
     // ========================
     const vibeOutcomes = [

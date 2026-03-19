@@ -1446,6 +1446,20 @@
 
     .vibe-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    .vibe-face {
+      display: block;
+      width: 100%;
+      max-width: 260px;
+      margin: 0 auto 10px;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 2.4s ease;
+      border-radius: 4px;
+      mix-blend-mode: lighten;
+    }
+
+    .vibe-face.visible { opacity: 0.5; }
+
     @media (max-width: 720px) {
       .news-columns {
         grid-template-columns: 1fr;
@@ -1924,6 +1938,8 @@
             <div class="vibe-needle" id="vibe-needle"></div>
             <div class="vibe-center-dot"></div>
           </div>
+          <img class="vibe-face" id="vibe-face-1" src="vibe1.png" alt="">
+          <img class="vibe-face" id="vibe-face-2" src="vibe2.png" alt="">
           <div class="vibe-result" id="vibe-result"></div>
           <button class="vibe-btn" id="vibe-btn">Check Global Vibe</button>
         </div>
@@ -3234,11 +3250,20 @@
       { text: '😐',                angle: -12 }
     ];
 
+    let vibeFaceIdx = 0;
+    const vibeFaces = [
+      document.getElementById('vibe-face-1'),
+      document.getElementById('vibe-face-2')
+    ];
+
     document.getElementById('vibe-btn').addEventListener('click', () => {
 
       const needle  = document.getElementById('vibe-needle');
       const result  = document.getElementById('vibe-result');
       const btn     = document.getElementById('vibe-btn');
+
+      // Hide all faces immediately when a new check starts
+      vibeFaces.forEach(f => f.classList.remove('visible'));
       const outcome = vibeOutcomes[Math.floor(Math.random() * vibeOutcomes.length)];
 
       btn.disabled = true;
@@ -3299,6 +3324,9 @@
               result.style.opacity = '1';
               btn.disabled = false;
               needle.style.transition = 'transform 0.7s cubic-bezier(0.34,1.4,0.64,1)';
+              // Fade in the next face, rotating between the two
+              vibeFaceIdx = (vibeFaceIdx + 1) % vibeFaces.length;
+              vibeFaces[vibeFaceIdx].classList.add('visible');
             }, 450);
             return;
           }

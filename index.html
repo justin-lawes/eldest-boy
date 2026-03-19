@@ -1454,97 +1454,59 @@
       .vibe-needle { height: 80px; }
     }
 
-    /* Fake banner ad */
-    .news-banner-ad {
-      margin: 0;
-      max-width: 728px;
-      border: 2px solid #f90;
-      background: linear-gradient(135deg, #fff8e1 0%, #fffde7 50%, #fff3e0 100%);
-      padding: 0;
-      text-align: center;
-      position: relative;
+    /* Rotating ad strip */
+    .news-ad-strip {
+      display: flex;
+      gap: 1px;
+      background: #222;
+      border-bottom: 2px solid #333;
+      overflow: hidden;
       font-family: Arial, sans-serif;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .news-ad-tile {
+      flex: 1;
+      min-width: 0;
+      background: #1a1a1a;
+      padding: 7px 10px 8px;
       cursor: pointer;
-      text-decoration: none;
-      display: block;
+      position: relative;
+      overflow: hidden;
+      transition: opacity 0.35s ease;
+    }
+
+    .news-ad-tile:hover { background: #222; }
+
+    .ad-tile-tag {
+      font-size: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #f90;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .ad-tile-headline {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #ddd;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
-    .news-banner-ad::before {
-      content: 'ADVERTISEMENT';
-      display: block;
-      background: #f90;
-      color: #fff;
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      padding: 3px 0;
-    }
-
-    .news-banner-ad-inner {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      padding: 14px 20px 16px;
-    }
-
-    .news-banner-ad-img {
-      font-size: 3rem;
-      line-height: 1;
-      flex-shrink: 0;
-      animation: adPulse 1.8s ease-in-out infinite;
-    }
-
-    @keyframes adPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.12); }
-    }
-
-    .news-banner-ad-text {
-      text-align: left;
-    }
-
-    .news-banner-ad-headline {
-      font-size: 1.35rem;
-      font-weight: 900;
-      color: #c0392b;
-      line-height: 1.1;
-      text-transform: uppercase;
-      letter-spacing: -0.01em;
-    }
-
-    .news-banner-ad-sub {
-      font-size: 0.82rem;
+    .ad-tile-source {
+      font-size: 0.58rem;
       color: #555;
-      margin-top: 3px;
+      margin-top: 4px;
     }
 
-    .news-banner-ad-cta {
-      display: inline-block;
-      margin-top: 8px;
-      background: #c0392b;
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 6px 14px;
-      border-radius: 2px;
-      animation: ctaBlink 1.1s step-start infinite;
-    }
+    .news-ad-tile.fading { opacity: 0; }
 
-    @keyframes ctaBlink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.55; }
-    }
-
-    .news-banner-ad-fine {
-      font-size: 0.55rem;
-      color: #aaa;
-      padding: 4px 12px 8px;
-      text-align: center;
+    @media (max-width: 720px) {
+      .news-ad-tile:nth-child(n+3) { display: none; }
     }
   </style>
 </head>
@@ -1860,18 +1822,28 @@
       </div>
     </div>
 
-    <!-- Banner Ad — immediately below the ticker -->
-    <div class="news-banner-ad" onclick="return false;">
-      <div class="news-banner-ad-inner">
-        <div class="news-banner-ad-img">💪</div>
-        <div class="news-banner-ad-text">
-          <div class="news-banner-ad-headline">Get the body of your dreams<br>with Body Juice!™</div>
-          <div class="news-banner-ad-sub">The #1 doctor-recommended<sup>*</sup> body solution. Results in as little as 2 weeks.<sup>**</sup></div>
-          <span class="news-banner-ad-cta">CLAIM YOUR FREE TRIAL →</span>
-        </div>
-        <div class="news-banner-ad-img">💪</div>
+    <!-- Rotating ad strip -->
+    <div class="news-ad-strip" id="news-ad-strip">
+      <div class="news-ad-tile" id="ad-slot-0">
+        <div class="ad-tile-tag">Sponsored</div>
+        <div class="ad-tile-headline"></div>
+        <div class="ad-tile-source"></div>
       </div>
-      <div class="news-banner-ad-fine">*Doctor not a licensed physician. **Results not typical. Body Juice LLC is not responsible for any bodily outcomes. Individual results may vary. Not evaluated by the FDA. Body Juice should not be consumed.</div>
+      <div class="news-ad-tile" id="ad-slot-1">
+        <div class="ad-tile-tag">Sponsored</div>
+        <div class="ad-tile-headline"></div>
+        <div class="ad-tile-source"></div>
+      </div>
+      <div class="news-ad-tile" id="ad-slot-2">
+        <div class="ad-tile-tag">Sponsored</div>
+        <div class="ad-tile-headline"></div>
+        <div class="ad-tile-source"></div>
+      </div>
+      <div class="news-ad-tile" id="ad-slot-3">
+        <div class="ad-tile-tag">Sponsored</div>
+        <div class="ad-tile-headline"></div>
+        <div class="ad-tile-source"></div>
+      </div>
     </div>
 
     <div class="news-body">
@@ -3138,6 +3110,49 @@
         newsLoaded = true;
       }
     }
+
+    // ========================
+    // ROTATING ADS
+    // ========================
+    const rotatingAds = [
+      { headline: 'Get the body of your dreams with Body Juice!™',                           source: 'BodyJuice.com' },
+      { headline: 'No one can believe what she looks like now!',                             source: 'CelebBuzzNow' },
+      { headline: 'How a new pill is minting studs over 70',                                 source: 'MensWellnessToday' },
+      { headline: 'Rock hard bowel movements — Leading BM doc is ripping the lid off of it', source: 'GutHealthInsider' },
+      { headline: 'Predict the exact date of your death!',                                   source: 'DeathWatchDaily' },
+      { headline: '10 signs you\'re probably dying and it\'s not just your imagination',     source: 'HealthFirst Media' },
+      { headline: 'How to check if your liver is a super organ or you\'re about to die',     source: 'LiverAlert.net' },
+      { headline: 'Yup, you\'re gonna die. Why that one weird pain is for sure not gas',     source: 'TopStories24' },
+    ];
+
+    (function initAds() {
+      const slots = [0, 1, 2, 3].map(i => document.getElementById('ad-slot-' + i));
+      // Start each slot at a different offset in the ad list
+      let indices = [0, 2, 4, 6];
+
+      function setSlot(slot, idx) {
+        const ad = rotatingAds[idx % rotatingAds.length];
+        slot.querySelector('.ad-tile-headline').textContent = ad.headline;
+        slot.querySelector('.ad-tile-source').textContent   = ad.source;
+      }
+
+      // Initial population
+      slots.forEach((slot, i) => setSlot(slot, indices[i]));
+
+      // Rotate each slot independently, staggered so they don't all flip at once
+      slots.forEach((slot, i) => {
+        setTimeout(() => {
+          setInterval(() => {
+            slot.classList.add('fading');
+            setTimeout(() => {
+              indices[i] = (indices[i] + 1) % rotatingAds.length;
+              setSlot(slot, indices[i]);
+              slot.classList.remove('fading');
+            }, 380);
+          }, 4000);
+        }, i * 900); // stagger start times
+      });
+    })();
 
     // ========================
     const vibeOutcomes = [

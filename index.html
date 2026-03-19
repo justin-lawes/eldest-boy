@@ -1457,50 +1457,88 @@
     /* Rotating ad strip */
     .news-ad-strip {
       display: flex;
-      gap: 1px;
-      background: #222;
-      border-bottom: 2px solid #333;
+      gap: 2px;
+      background: #111;
+      border-top: 3px solid #f90;
+      border-bottom: 3px solid #f90;
       overflow: hidden;
-      font-family: Arial, sans-serif;
+      font-family: 'Times New Roman', serif;
     }
 
     .news-ad-tile {
       flex: 1;
       min-width: 0;
-      background: #1a1a1a;
-      padding: 7px 10px 8px;
+      padding: 6px 8px 7px;
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      transition: opacity 0.35s ease;
+      transition: opacity 0.5s ease;
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+      border-right: 1px solid #2a2a2a;
     }
 
-    .news-ad-tile:hover { background: #222; }
+    /* Each tile gets a different garish background tint */
+    .news-ad-tile:nth-child(1) { background: #1a1200; }
+    .news-ad-tile:nth-child(2) { background: #0d1a00; }
+    .news-ad-tile:nth-child(3) { background: #1a000d; }
+    .news-ad-tile:nth-child(4) { background: #000d1a; }
+
+    .ad-tile-thumb {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      background: #333;
+      border: 1px solid #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      image-rendering: pixelated;
+      filter: contrast(1.2) saturate(0.7);
+    }
+
+    .ad-tile-right { min-width: 0; }
 
     .ad-tile-tag {
-      font-size: 0.5rem;
+      font-size: 0.48rem;
+      font-family: Arial, sans-serif;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
       color: #f90;
       font-weight: 700;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .ad-tile-headline {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #ddd;
-      line-height: 1.3;
+      font-size: 0.72rem;
+      font-weight: bold;
+      color: #e8d080;
+      line-height: 1.25;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      font-family: 'Times New Roman', serif;
     }
 
     .ad-tile-source {
-      font-size: 0.58rem;
-      color: #555;
-      margin-top: 4px;
+      font-size: 0.52rem;
+      font-family: Arial, sans-serif;
+      color: #666;
+      margin-top: 3px;
+      font-style: italic;
+    }
+
+    .ad-tile-close {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      font-size: 0.55rem;
+      color: #444;
+      font-family: Arial, sans-serif;
+      line-height: 1;
     }
 
     .news-ad-tile.fading { opacity: 0; }
@@ -1825,24 +1863,40 @@
     <!-- Rotating ad strip -->
     <div class="news-ad-strip" id="news-ad-strip">
       <div class="news-ad-tile" id="ad-slot-0">
-        <div class="ad-tile-tag">Sponsored</div>
-        <div class="ad-tile-headline"></div>
-        <div class="ad-tile-source"></div>
+        <div class="ad-tile-close">✕</div>
+        <div class="ad-tile-thumb" id="ad-thumb-0"></div>
+        <div class="ad-tile-right">
+          <div class="ad-tile-tag">Sponsored</div>
+          <div class="ad-tile-headline" id="ad-headline-0"></div>
+          <div class="ad-tile-source" id="ad-source-0"></div>
+        </div>
       </div>
       <div class="news-ad-tile" id="ad-slot-1">
-        <div class="ad-tile-tag">Sponsored</div>
-        <div class="ad-tile-headline"></div>
-        <div class="ad-tile-source"></div>
+        <div class="ad-tile-close">✕</div>
+        <div class="ad-tile-thumb" id="ad-thumb-1"></div>
+        <div class="ad-tile-right">
+          <div class="ad-tile-tag">Sponsored</div>
+          <div class="ad-tile-headline" id="ad-headline-1"></div>
+          <div class="ad-tile-source" id="ad-source-1"></div>
+        </div>
       </div>
       <div class="news-ad-tile" id="ad-slot-2">
-        <div class="ad-tile-tag">Sponsored</div>
-        <div class="ad-tile-headline"></div>
-        <div class="ad-tile-source"></div>
+        <div class="ad-tile-close">✕</div>
+        <div class="ad-tile-thumb" id="ad-thumb-2"></div>
+        <div class="ad-tile-right">
+          <div class="ad-tile-tag">Sponsored</div>
+          <div class="ad-tile-headline" id="ad-headline-2"></div>
+          <div class="ad-tile-source" id="ad-source-2"></div>
+        </div>
       </div>
       <div class="news-ad-tile" id="ad-slot-3">
-        <div class="ad-tile-tag">Sponsored</div>
-        <div class="ad-tile-headline"></div>
-        <div class="ad-tile-source"></div>
+        <div class="ad-tile-close">✕</div>
+        <div class="ad-tile-thumb" id="ad-thumb-3"></div>
+        <div class="ad-tile-right">
+          <div class="ad-tile-tag">Sponsored</div>
+          <div class="ad-tile-headline" id="ad-headline-3"></div>
+          <div class="ad-tile-source" id="ad-source-3"></div>
+        </div>
       </div>
     </div>
 
@@ -3115,42 +3169,42 @@
     // ROTATING ADS
     // ========================
     const rotatingAds = [
-      { headline: 'Get the body of your dreams with Body Juice!™',                           source: 'BodyJuice.com' },
-      { headline: 'No one can believe what she looks like now!',                             source: 'CelebBuzzNow' },
-      { headline: 'How a new pill is minting studs over 70',                                 source: 'MensWellnessToday' },
-      { headline: 'Rock hard bowel movements — Leading BM doc is ripping the lid off of it', source: 'GutHealthInsider' },
-      { headline: 'Predict the exact date of your death!',                                   source: 'DeathWatchDaily' },
-      { headline: '10 signs you\'re probably dying and it\'s not just your imagination',     source: 'HealthFirst Media' },
-      { headline: 'How to check if your liver is a super organ or you\'re about to die',     source: 'LiverAlert.net' },
-      { headline: 'Yup, you\'re gonna die. Why that one weird pain is for sure not gas',     source: 'TopStories24' },
+      { emoji: '💪', headline: 'Get the body of your dreams with Body Juice!™',                           source: 'BodyJuice.com' },
+      { emoji: '😱', headline: 'No one can believe what she looks like now!',                             source: 'CelebBuzzNow' },
+      { emoji: '💊', headline: 'How a new pill is minting studs over 70',                                 source: 'MensWellnessToday' },
+      { emoji: '💩', headline: 'Rock hard bowel movements — Leading BM doc is ripping the lid off of it', source: 'GutHealthInsider' },
+      { emoji: '☠️', headline: 'Predict the exact date of your death!',                                   source: 'DeathWatchDaily' },
+      { emoji: '🤒', headline: '10 signs you\'re probably dying and it\'s not just your imagination',     source: 'HealthFirst Media' },
+      { emoji: '🫀', headline: 'How to check if your liver is a super organ or you\'re about to die',     source: 'LiverAlert.net' },
+      { emoji: '😰', headline: 'Yup, you\'re gonna die. Why that one weird pain is for sure not gas',     source: 'TopStories24' },
     ];
 
     (function initAds() {
-      const slots = [0, 1, 2, 3].map(i => document.getElementById('ad-slot-' + i));
-      // Start each slot at a different offset in the ad list
       let indices = [0, 2, 4, 6];
 
-      function setSlot(slot, idx) {
+      function setSlot(i, idx) {
         const ad = rotatingAds[idx % rotatingAds.length];
-        slot.querySelector('.ad-tile-headline').textContent = ad.headline;
-        slot.querySelector('.ad-tile-source').textContent   = ad.source;
+        document.getElementById('ad-headline-' + i).textContent = ad.headline;
+        document.getElementById('ad-source-' + i).textContent   = ad.source;
+        document.getElementById('ad-thumb-' + i).textContent    = ad.emoji;
       }
 
       // Initial population
-      slots.forEach((slot, i) => setSlot(slot, indices[i]));
+      indices.forEach((idx, i) => setSlot(i, idx));
 
       // Rotate each slot independently, staggered so they don't all flip at once
-      slots.forEach((slot, i) => {
+      indices.forEach((_, i) => {
         setTimeout(() => {
           setInterval(() => {
+            const slot = document.getElementById('ad-slot-' + i);
             slot.classList.add('fading');
             setTimeout(() => {
               indices[i] = (indices[i] + 1) % rotatingAds.length;
-              setSlot(slot, indices[i]);
+              setSlot(i, indices[i]);
               slot.classList.remove('fading');
-            }, 380);
-          }, 4000);
-        }, i * 900); // stagger start times
+            }, 520);
+          }, 9000);
+        }, i * 2100); // stagger start times
       });
     })();
 

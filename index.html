@@ -1453,28 +1453,7 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      transition: opacity 3s ease;
     }
-
-    .vibe-meter-area.faded { opacity: 0; }
-
-    /* Faces float over the entire vibe section, bottom-anchored above the button */
-    .vibe-face {
-      position: absolute;
-      bottom: 68px; /* sits just above result text + button */
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 300px;
-      object-fit: contain;
-      opacity: 0;
-      transition: opacity 5s ease;
-      mix-blend-mode: lighten;
-      z-index: 20;
-      pointer-events: none;
-    }
-
-    .vibe-face.visible { opacity: 0.3; }
 
 
     @media (max-width: 720px) {
@@ -1949,8 +1928,6 @@
 
         <!-- Right: Vibe Barometer -->
         <div class="news-vibe-section">
-          <img class="vibe-face" id="vibe-face-1" src="vibe1.png" alt="">
-          <img class="vibe-face" id="vibe-face-2" src="vibe2.png" alt="">
           <div class="news-section-label">Global Vibe Check</div>
           <div class="vibe-meter-area">
             <div class="vibe-gauge-wrap">
@@ -3213,8 +3190,8 @@
     const rotatingAds = [
       { emoji: '💪', headline: 'Get the body of your dreams with Body Juice!™',                           source: 'BodyJuice.com' },
       { emoji: '😱', headline: 'No one can believe what she looks like now!',                             source: 'CelebBuzzNow' },
-      { emoji: '💊', headline: 'How a new pill is minting studs over 70',                                 source: 'MensWellnessToday' },
-      { emoji: '💩', headline: 'Rock hard bowel movements — Leading BM doc is ripping the lid off of it', source: 'GutHealthInsider' },
+      { img: 'vibe2.png', headline: 'How a new pill is minting studs over 70',                                 source: 'MensWellnessToday' },
+      { img: 'vibe1.png', headline: 'Rock hard bowel movements — Leading BM doc is ripping the lid off of it', source: 'GutHealthInsider' },
       { emoji: '☠️', headline: 'Predict the exact date of your death!',                                   source: 'DeathWatchDaily' },
       { emoji: '🤒', headline: '10 signs you\'re probably dying and it\'s not just your imagination',     source: 'HealthFirst Media' },
       { emoji: '🫀', headline: 'How to check if your liver is a super organ or you\'re about to die',     source: 'LiverAlert.net' },
@@ -3228,7 +3205,12 @@
         const ad = rotatingAds[idx % rotatingAds.length];
         document.getElementById('ad-headline-' + i).textContent = ad.headline;
         document.getElementById('ad-source-' + i).textContent   = ad.source;
-        document.getElementById('ad-thumb-' + i).textContent    = ad.emoji;
+        const thumb = document.getElementById('ad-thumb-' + i);
+        if (ad.img) {
+          thumb.innerHTML = `<img src="${ad.img}" style="width:100%;height:100%;object-fit:cover;mix-blend-mode:lighten;">`;
+        } else {
+          thumb.textContent = ad.emoji;
+        }
       }
 
       // Initial population
@@ -3269,21 +3251,11 @@
       { text: '😐',                angle: -12 }
     ];
 
-    let vibeFaceIdx = 0;
-    const vibeFaces = [
-      document.getElementById('vibe-face-1'),
-      document.getElementById('vibe-face-2')
-    ];
-
     document.getElementById('vibe-btn').addEventListener('click', () => {
 
       const needle  = document.getElementById('vibe-needle');
       const result  = document.getElementById('vibe-result');
       const btn     = document.getElementById('vibe-btn');
-
-      // Hide all faces and restore meter when a new check starts
-      vibeFaces.forEach(f => f.classList.remove('visible'));
-      document.querySelector('.vibe-meter-area').classList.remove('faded');
       const outcome = vibeOutcomes[Math.floor(Math.random() * vibeOutcomes.length)];
 
       btn.disabled = true;
@@ -3344,10 +3316,6 @@
               result.style.opacity = '1';
               btn.disabled = false;
               needle.style.transition = 'transform 0.7s cubic-bezier(0.34,1.4,0.64,1)';
-              // Fade meter out and face in simultaneously
-              document.querySelector('.vibe-meter-area').classList.add('faded');
-              vibeFaceIdx = (vibeFaceIdx + 1) % vibeFaces.length;
-              vibeFaces[vibeFaceIdx].classList.add('visible');
             }, 450);
             return;
           }

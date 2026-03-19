@@ -1345,7 +1345,7 @@
     }
 
     /* Vibe Barometer */
-    .news-vibe-section { position: sticky; top: 24px; }
+    .news-vibe-section { position: sticky; top: 24px; isolation: isolate; }
 
     .vibe-gauge-wrap {
       position: relative;
@@ -1453,12 +1453,15 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
+      transition: opacity 3s ease;
     }
 
-    /* Faces float over the entire vibe section, centered */
+    .vibe-meter-area.faded { opacity: 0; }
+
+    /* Faces float over the entire vibe section, bottom-anchored above the button */
     .vibe-face {
       position: absolute;
-      top: 30px;
+      bottom: 68px; /* sits just above result text + button */
       left: 50%;
       transform: translateX(-50%);
       width: 100%;
@@ -1467,11 +1470,12 @@
       opacity: 0;
       transition: opacity 5s ease;
       mix-blend-mode: lighten;
-      z-index: 10;
+      z-index: 20;
       pointer-events: none;
     }
 
     .vibe-face.visible { opacity: 0.3; }
+
 
     @media (max-width: 720px) {
       .news-columns {
@@ -3277,8 +3281,9 @@
       const result  = document.getElementById('vibe-result');
       const btn     = document.getElementById('vibe-btn');
 
-      // Hide all faces immediately when a new check starts
+      // Hide all faces and restore meter when a new check starts
       vibeFaces.forEach(f => f.classList.remove('visible'));
+      document.querySelector('.vibe-meter-area').classList.remove('faded');
       const outcome = vibeOutcomes[Math.floor(Math.random() * vibeOutcomes.length)];
 
       btn.disabled = true;
@@ -3339,7 +3344,8 @@
               result.style.opacity = '1';
               btn.disabled = false;
               needle.style.transition = 'transform 0.7s cubic-bezier(0.34,1.4,0.64,1)';
-              // Fade in the next face, rotating between the two
+              // Fade meter out and face in simultaneously
+              document.querySelector('.vibe-meter-area').classList.add('faded');
               vibeFaceIdx = (vibeFaceIdx + 1) % vibeFaces.length;
               vibeFaces[vibeFaceIdx].classList.add('visible');
             }, 450);

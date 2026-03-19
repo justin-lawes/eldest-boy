@@ -1446,19 +1446,32 @@
 
     .vibe-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    .vibe-meter-area {
+      position: relative;
+      height: 180px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
     .vibe-face {
-      display: block;
-      width: 100%;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
       max-width: 260px;
-      margin: 0 auto 10px;
       object-fit: contain;
       opacity: 0;
       transition: opacity 2.4s ease;
-      border-radius: 4px;
       mix-blend-mode: lighten;
+      z-index: 0;
     }
 
     .vibe-face.visible { opacity: 0.5; }
+
+    .vibe-gauge-wrap { z-index: 1; }
 
     @media (max-width: 720px) {
       .news-columns {
@@ -1933,13 +1946,15 @@
         <!-- Right: Vibe Barometer -->
         <div class="news-vibe-section">
           <div class="news-section-label">Global Vibe Check</div>
-          <div class="vibe-gauge-wrap">
-            <div class="vibe-gauge-track"></div>
-            <div class="vibe-needle" id="vibe-needle"></div>
-            <div class="vibe-center-dot"></div>
+          <div class="vibe-meter-area">
+            <img class="vibe-face" id="vibe-face-1" src="vibe1.png" alt="">
+            <img class="vibe-face" id="vibe-face-2" src="vibe2.png" alt="">
+            <div class="vibe-gauge-wrap">
+              <div class="vibe-gauge-track"></div>
+              <div class="vibe-needle" id="vibe-needle"></div>
+              <div class="vibe-center-dot"></div>
+            </div>
           </div>
-          <img class="vibe-face" id="vibe-face-1" src="vibe1.png" alt="">
-          <img class="vibe-face" id="vibe-face-2" src="vibe2.png" alt="">
           <div class="vibe-result" id="vibe-result"></div>
           <button class="vibe-btn" id="vibe-btn">Check Global Vibe</button>
         </div>

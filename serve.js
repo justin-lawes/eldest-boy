@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = process.env.PORT || 3457;
+const PORT = parseInt(process.env.PORT, 10) || 3457;
 const DIR = __dirname;
 
 const MIME = {
@@ -21,7 +21,7 @@ const MIME = {
 };
 
 http.createServer((req, res) => {
-  let filePath = path.join(DIR, req.url === '/' ? 'index.html' : req.url);
+  let filePath = path.join(DIR, req.url === '/' ? 'index.html' : decodeURIComponent(req.url));
   const ext = path.extname(filePath).toLowerCase();
   const mime = MIME[ext] || 'application/octet-stream';
 

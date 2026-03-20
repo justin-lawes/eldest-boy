@@ -53,11 +53,29 @@ const server = http.createServer((req, res) => {
 });
 
 // --- Chat WebSocket ---
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ noServer: true });
 const chatHistory = []; // keep last 100 messages
 const MAX_HISTORY = 100;
 
+// Explicit upgrade handling for Render's proxy
+server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit('connection', ws, request);
+  });
+});
+
+// Ping clients every 30s to keep connections alive through proxy
+setInterval(() => {
+  wss.clients.forEach(ws => {
+    if (ws.isAlive === false) return ws.terminate();
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000);
+
 wss.on('connection', (ws) => {
+  ws.isAlive = true;
+  ws.on('pong', () => { ws.isAlive = true; });
   let screenName = null;
 
   // Send chat history to new connection

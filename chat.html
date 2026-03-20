@@ -565,11 +565,18 @@
     document.getElementById('onlineCountToolbar').textContent = users.length + ' online';
   }
 
+  let reconnectDelay = 1000;
+  const MAX_RECONNECT = 10000;
+
   function connect() {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    ws = new WebSocket(proto + '://' + location.host);
+    const url = proto + '://' + location.host;
+    console.log('WebSocket connecting to:', url);
+    ws = new WebSocket(url);
 
     ws.onopen = () => {
+      console.log('WebSocket connected');
+      reconnectDelay = 1000;
       ws.send(JSON.stringify({ type: 'join', screenName: myName }));
     };
 
@@ -584,9 +591,15 @@
       }
     };
 
-    ws.onclose = () => {
+    ws.onerror = (e) => {
+      console.error('WebSocket error:', e);
+    };
+
+    ws.onclose = (e) => {
+      console.log('WebSocket closed, code:', e.code, 'reason:', e.reason);
       appendMessage({ type: 'system', text: 'Disconnected from server. Reconnecting...', ts: Date.now() });
-      setTimeout(connect, 2000);
+      setTimeout(connect, reconnectDelay);
+      reconnectDelay = Math.min(reconnectDelay * 1.5, MAX_RECONNECT);
     };
   }
 

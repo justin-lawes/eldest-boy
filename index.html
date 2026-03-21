@@ -4143,7 +4143,7 @@
       const OFFSET=12;
       ctx.save();
       if(under){
-        ctx.translate(x, y+BRANCH_THICKNESS);
+        ctx.translate(x, y+BRANCH_THICKNESS-OFFSET);
         if(facing===1) ctx.scale(-1,1);
         ctx.scale(1,-1);
       } else {

@@ -92,6 +92,45 @@
 
   // ---- CHRYSALIS SONG ----
   let chrysalisSong = null;
+  let forestAmb = null, music1 = null, music2 = null;
+  let music1FadingOut = false, music2Started = false, music1FadeTimer = 0;
+  const MUSIC1_FADE_DUR = 2.0;
+
+  function startAmbience() {
+    if (forestAmb) return;
+    forestAmb = new Audio('Caterpillar Sim_Forest Amb.mp3');
+    forestAmb.loop = true; forestAmb.volume = 1;
+    forestAmb.play().catch(()=>{});
+    setTimeout(() => {
+      if (!music1) {
+        music1 = new Audio('Caterpillar Sim_Music_1.mp3');
+        music1.loop = true; music1.volume = 1;
+        music1.play().catch(()=>{});
+      }
+    }, 2000);
+  }
+
+  function stopAmbience() {
+    if (forestAmb) { forestAmb.pause(); forestAmb.currentTime=0; forestAmb=null; }
+    if (music1)    { music1.pause();    music1.currentTime=0;    music1=null; }
+    if (music2)    { music2.pause();    music2.currentTime=0;    music2=null; }
+    music1FadingOut=false; music2Started=false; music1FadeTimer=0;
+  }
+
+  function beginChrysalisFade(dt) {
+    if (!music1FadingOut) { music1FadingOut=true; music1FadeTimer=0; }
+    music1FadeTimer += dt;
+    if (music1) {
+      music1.volume = Math.max(0, 1 - music1FadeTimer / MUSIC1_FADE_DUR);
+      if (music1.volume === 0) { music1.pause(); music1=null; }
+    }
+    if (!music2Started && music1FadeTimer >= MUSIC1_FADE_DUR / 2) {
+      music2Started=true;
+      music2 = new Audio('Caterpillar Sim_Music_2.mp3');
+      music2.loop=false; music2.volume=1;
+      music2.play().catch(()=>{});
+    }
+  }
 
   // ---- AUDIO ----
   let audioCtx = null;
@@ -293,14 +332,15 @@
     chrysalisMotes=[];winFadeProgress=0;chrysalisSoundPlayed=false;
     gameOverTimer=0;deathFlash=0;deathSoundPlayed=false;
     if(chrysalisSong){chrysalisSong.pause();chrysalisSong=null;}
+    music1FadingOut=false; music2Started=false; music1FadeTimer=0;
   }
 
   // ---- INPUT ----
   document.addEventListener('keydown',(e)=>{
     ensureAudio();keys[e.code]=true;
-    if(e.code==='KeyR'&&state==='GAMEOVER')resetGame();
+    if(e.code==='KeyR'&&state==='GAMEOVER'){stopAmbience();resetGame();startAmbience();}
     if(['Space','ArrowDown','ArrowUp','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
-    if((e.code==='Space'||e.code==='Enter')&&state==='TITLE'){resetGame();keys['Space']=false;}
+    if((e.code==='Space'||e.code==='Enter')&&state==='TITLE'){resetGame();startAmbience();keys['Space']=false;}
   });
   document.addEventListener('keyup',(e)=>{keys[e.code]=false;});
   document.querySelectorAll('#mode-8-container .touch-btn').forEach(btn=>{
@@ -438,6 +478,7 @@
       chrysalisMotes.forEach(m=>{m.y+=m.vy*dt;m.age+=dt;});
       chrysalisMotes=chrysalisMotes.filter(m=>m.age<m.life);
       timer+=dt;
+      beginChrysalisFade(dt);
       if(!chrysalisSoundPlayed){
         chrysalisSoundPlayed=true;
         chrysalisSong=new Audio('Eldest Boy_Polyphemus_End.wav');
@@ -608,7 +649,7 @@
 
   window.caterpillarGame={
     start:resetGame,
-    stop:function(){state='TITLE';if(chrysalisSong){chrysalisSong.pause();chrysalisSong=null;}}
+    stop:function(){state='TITLE';if(chrysalisSong){chrysalisSong.pause();chrysalisSong=null;}stopAmbience();}
   };
 
 })();

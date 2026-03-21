@@ -378,7 +378,7 @@
     const OFFSET=12;
     ctx.save();
     if(under){
-      ctx.translate(x, y+BRANCH_THICKNESS+OFFSET);
+      ctx.translate(x, y+BRANCH_THICKNESS);
       if(facing===1) ctx.scale(-1,1);
       ctx.scale(1,-1);
     } else {
@@ -512,7 +512,7 @@
         keys['Space']=false;poopCount--;
         const brY=catPhase===1?BRANCH_A_Y:BRANCH_B_Y;
         const py=catOnUnderside?brY+BRANCH_THICKNESS+SEG_SIZE+4:brY-SEG_SIZE-4;
-        poops.push({x:catX,y:py,vy:200,sparkle:0,landed:false});soundPoop();
+        poops.push({x:catX,y:py,vy:200,sparkle:0,landed:false,phase:catPhase});soundPoop();
       }
       if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-20&&keys['KeyC']){keys['KeyC']=false;state='CHRYSALIS';chrysalisProgress=0;return;}
       if(state==='PLAYING_PHASE1'&&catX<=BRANCH_A_START+15){state='CLIMBING';climbProgress=0;return;}
@@ -521,6 +521,8 @@
     }
     if(state==='CLIMBING'){
       climbProgress+=dt/1.5;
+      catFrameTimer+=dt;
+      if(catFrameTimer>=CAT_FRAME_RATE){catFrameTimer-=CAT_FRAME_RATE;catSpriteFrame=(catSpriteFrame+1)%4;}
       if(climbProgress>=1){state='PLAYING_PHASE2';catPhase=2;catX=BRANCH_B_START+15;catFacing=1;catOnUnderside=false;birdCooldown=randomBirdCD();}
     }
 
@@ -565,7 +567,7 @@
     poops.forEach(p=>{
       if(!p.landed){
         p.vy+=400*dt;p.y+=p.vy*dt;
-        if(!p.landed&&p.y>=BRANCH_A_Y&&p.x>=BRANCH_A_START&&p.x<=BRANCH_A_END){p.landed=true;p.y=BRANCH_A_Y-2;p.sparkle=0;}
+        if(!p.landed&&p.phase===2&&p.y>=BRANCH_A_Y&&p.x>=BRANCH_A_START&&p.x<=BRANCH_A_END){p.landed=true;p.y=BRANCH_A_Y-2;p.sparkle=0;}
         if(!p.landed&&p.y>H-10){p.landed=true;p.sparkle=0;}
       } else p.sparkle+=dt;
     });
@@ -601,7 +603,7 @@
       drawCaterpillar(catX,catPhase===1?BRANCH_A_Y:BRANCH_B_Y,catFacing,catOnUnderside);
     }else if(state==='CLIMBING'){
       const cy=BRANCH_A_Y+(BRANCH_B_Y-BRANCH_A_Y)*climbProgress;
-      for(let i=0;i<SEG_COUNT;i++){const bob=Math.sin(climbProgress*Math.PI*6+i*0.5)*2;ctx.fillStyle=i%2===0?'#5DBB47':'#4CAF3A';ctx.beginPath();ctx.arc(TRUNK_X-5+bob,cy+i*(SEG_SIZE+2),SEG_SIZE/2,0,Math.PI*2);ctx.fill();}
+      drawCaterpillar(TRUNK_X, cy, -1, false);
     }
     if(state==='CHRYSALIS'||state==='WIN'){
       drawChrysalis(BRANCH_B_END-5,BRANCH_B_Y+BRANCH_THICKNESS,chrysalisProgress,chrysalisSwayAngle);

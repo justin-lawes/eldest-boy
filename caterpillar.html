@@ -250,7 +250,8 @@
   // ---- CONSTANTS ----
   const TRUNK_X=75, BRANCH_A_Y=240, BRANCH_B_Y=140;
   const BRANCH_A_START=80, BRANCH_A_END=560, BRANCH_B_START=80, BRANCH_B_END=700;
-  const BRANCH_THICKNESS=28, CAT_SPEED=18, TOTAL_TIME=90;
+  const BRANCH_THICKNESS=28, TOTAL_TIME=90;
+  const CAT_STEP=10, CAT_FRAME_RATE=0.32;
   const SEG_COUNT=5, SEG_SIZE=12, SEG_GAP=4;
   const LEAVES_A=[220,430], LEAVES_B=[300,560];
 
@@ -264,8 +265,8 @@
   // ---- STATE ----
   let state='TITLE', timer=0, poopCount=3;
   let catX=0, catFacing=-1, catOnUnderside=false, catPhase=1;
-  let inchwormPhase=0, isMoving=false, moveSoundTimer=0;
-  let catSpriteFrame=0, catSpriteDist=0;
+  let isMoving=false;
+  let catSpriteFrame=0, catFrameTimer=CAT_FRAME_RATE;
   let leavesA=[], leavesB=[], leafParticles=[];
   let bird=null, birdCooldown=0, birdWarningShown=false;
   let poops=[], climbProgress=0;
@@ -280,8 +281,8 @@
   function resetGame(){
     state='PLAYING_PHASE1';timer=0;poopCount=3;
     catX=BRANCH_A_END-20;catFacing=-1;catOnUnderside=false;catPhase=1;
-    inchwormPhase=0;isMoving=false;moveSoundTimer=0;
-    catSpriteFrame=0;catSpriteDist=0;
+    isMoving=false;
+    catSpriteFrame=0;catFrameTimer=CAT_FRAME_RATE;
     leavesA=LEAVES_A.map(x=>({x,eaten:false}));
     leavesB=LEAVES_B.map(x=>({x,eaten:false}));
     leafParticles=[];bird=null;birdCooldown=randomBirdCD();birdWarningShown=false;
@@ -330,12 +331,17 @@
   function drawCaterpillar(x,y,facing,under){
     const img = catSprites[catSpriteFrame];
     if (!img.complete || !img.naturalWidth) return;
-    const bodyY = under ? y + BRANCH_THICKNESS + CAT_SPRITE_H/2 : y - CAT_SPRITE_H/2;
+    const OFFSET=12;
     ctx.save();
-    ctx.translate(x, bodyY);
-    if (facing === -1) ctx.scale(-1, 1);
-    if (under) ctx.scale(1, -1);
-    ctx.drawImage(img, -CAT_SPRITE_W/2, -CAT_SPRITE_H/2, CAT_SPRITE_W, CAT_SPRITE_H);
+    if(under){
+      ctx.translate(x, y+BRANCH_THICKNESS+OFFSET);
+      if(facing===-1) ctx.scale(-1,1);
+      ctx.scale(1,-1);
+    } else {
+      ctx.translate(x, y+OFFSET);
+      if(facing===-1) ctx.scale(-1,1);
+    }
+    ctx.drawImage(img, -CAT_SPRITE_W/2, -CAT_SPRITE_H, CAT_SPRITE_W, CAT_SPRITE_H);
     ctx.restore();
   }
   function drawBird(bx,by,bState){
@@ -432,16 +438,22 @@
     isMoving=false;
     const bStart=catPhase===1?BRANCH_A_START:BRANCH_B_START,bEnd=catPhase===1?BRANCH_A_END:BRANCH_B_END;
     if(state==='PLAYING_PHASE1'||state==='PLAYING_PHASE2'){
-      if(keys['ArrowLeft']){catX-=CAT_SPEED*dt;catFacing=-1;isMoving=true;}
-      if(keys['ArrowRight']){catX+=CAT_SPEED*dt;catFacing=1;isMoving=true;}
-      catX=Math.max(bStart+10,Math.min(bEnd-10,catX));
+      const wantLeft=keys['ArrowLeft']&&!keys['ArrowRight'];
+      const wantRight=keys['ArrowRight']&&!keys['ArrowLeft'];
+      if(wantLeft) catFacing=-1;
+      if(wantRight) catFacing=1;
       catOnUnderside=!!keys['ArrowDown'];
-      if(isMoving){
-        inchwormPhase+=dt*2.5;if(inchwormPhase>1)inchwormPhase-=1;
-        catSpriteDist+=CAT_SPEED*dt;
-        while(catSpriteDist>=15){catSpriteDist-=15;catSpriteFrame=(catSpriteFrame+1)%4;}
-        moveSoundTimer+=dt;if(moveSoundTimer>0.3){moveSoundTimer=0;soundMovement();}
-      } else { catSpriteFrame=0; catSpriteDist=0; }
+      if(wantLeft||wantRight){
+        isMoving=true;
+        catFrameTimer+=dt;
+        if(catFrameTimer>=CAT_FRAME_RATE){
+          catFrameTimer-=CAT_FRAME_RATE;
+          catSpriteFrame=(catSpriteFrame+1)%4;
+          if(wantLeft) catX-=CAT_STEP;
+          if(wantRight) catX+=CAT_STEP;
+          catX=Math.max(bStart+10,Math.min(bEnd-10,catX));
+        }
+      } else { isMoving=false; catSpriteFrame=0; catFrameTimer=CAT_FRAME_RATE; }
       if(keys['Space']&&poopCount>0){
         keys['Space']=false;poopCount--;
         const brY=catPhase===1?BRANCH_A_Y:BRANCH_B_Y;

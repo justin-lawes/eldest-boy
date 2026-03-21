@@ -3908,6 +3908,9 @@
     // ---- CATERPILLAR SPRITES ----
     const catSprites = [1,2,3,4].map(i => { const img = new Image(); img.src = `Position_${i}.png`; return img; });
     const CAT_SPRITE_W = 80, CAT_SPRITE_H = 50;
+    const poopFallImg = new Image(); poopFallImg.src = 'Poop_Fall.png';
+    const poopLandImg = new Image(); poopLandImg.src = 'Poop_Land.png';
+    const POOP_W = 20, POOP_H = 20;
 
     // ---- CHRYSALIS SONG ----
     let chrysalisSong = null;
@@ -4088,30 +4091,41 @@
       ctx.save();
       if(under){
         ctx.translate(x, y+BRANCH_THICKNESS+OFFSET);
-        if(facing===-1) ctx.scale(-1,1);
+        if(facing===1) ctx.scale(-1,1);
         ctx.scale(1,-1);
       } else {
         ctx.translate(x, y+OFFSET);
-        if(facing===-1) ctx.scale(-1,1);
+        if(facing===1) ctx.scale(-1,1);
       }
       ctx.drawImage(img, -CAT_SPRITE_W/2, -CAT_SPRITE_H, CAT_SPRITE_W, CAT_SPRITE_H);
       ctx.restore();
     }
-    function drawBird(bx,by,bState) {
-      ctx.fillStyle='#D8D8D8';ctx.fillRect(bx-6,by-3,12,8);
-      ctx.fillStyle='#E8E8E8';ctx.fillRect(bx+6,by-5,6,6);
-      ctx.fillStyle='#E8A030';ctx.fillRect(bx+12,by-3,4,2);
-      ctx.fillStyle='#111';ctx.fillRect(bx+9,by-4,2,2);
+    function drawBird(bx,by,bState,flipX) {
+      ctx.save();
+      ctx.translate(bx,by);
+      if(flipX) ctx.scale(-1,1);
+      ctx.fillStyle='#D8D8D8';ctx.fillRect(-6,-3,12,8);
+      ctx.fillStyle='#E8E8E8';ctx.fillRect(6,-5,6,6);
+      ctx.fillStyle='#E8A030';ctx.fillRect(12,-3,4,2);
+      ctx.fillStyle='#111';ctx.fillRect(9,-4,2,2);
       if(bState==='flying'){
         ctx.fillStyle='#888';
-        ctx.beginPath();ctx.moveTo(bx-4,by);ctx.lineTo(bx-12,by-10+Math.sin(timer*12)*4);ctx.lineTo(bx-2,by-2);ctx.fill();
-        ctx.beginPath();ctx.moveTo(bx+4,by);ctx.lineTo(bx,by-10+Math.sin(timer*12+1)*4);ctx.lineTo(bx+6,by-2);ctx.fill();
+        ctx.beginPath();ctx.moveTo(-4,0);ctx.lineTo(-12,-10+Math.sin(timer*12)*4);ctx.lineTo(-2,-2);ctx.fill();
+        ctx.beginPath();ctx.moveTo(4,0);ctx.lineTo(0,-10+Math.sin(timer*12+1)*4);ctx.lineTo(6,-2);ctx.fill();
       } else {
-        ctx.fillStyle='#999';ctx.fillRect(bx-6,by-2,4,6);ctx.fillRect(bx+2,by-2,4,6);
-        ctx.fillStyle='#E8A030';ctx.fillRect(bx-2,by+5,1,4);ctx.fillRect(bx+2,by+5,1,4);
+        ctx.fillStyle='#999';ctx.fillRect(-6,-2,4,6);ctx.fillRect(2,-2,4,6);
+        ctx.fillStyle='#E8A030';ctx.fillRect(-2,5,1,4);ctx.fillRect(2,5,1,4);
+      }
+      ctx.restore();
+    }
+    function drawPoop(px,py,landed){
+      const img = landed ? poopLandImg : poopFallImg;
+      if(img.complete&&img.naturalWidth>0){
+        ctx.drawImage(img, px-POOP_W/2, py-POOP_H/2, POOP_W, POOP_H);
+      } else {
+        ctx.fillStyle='#6B4226';ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
       }
     }
-    function drawPoop(px,py){ctx.fillStyle='#6B4226';ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8B5A3A';ctx.fillRect(px-1,py-1,2,2);}
     function drawSparkle(px,py,age){const a=Math.max(0,1-age);ctx.fillStyle=`rgba(255,255,100,${a})`;const s=3+age*4;ctx.fillRect(px-1,py-s,2,s*2);ctx.fillRect(px-s,py-1,s*2,2);}
     // Pixel font
     const PX={
@@ -4214,6 +4228,7 @@
           if(catFrameTimer>=CAT_FRAME_RATE){
             catFrameTimer-=CAT_FRAME_RATE;
             catSpriteFrame=(catSpriteFrame+1)%4;
+            soundMovement();
             if(wantLeft) catX-=CAT_STEP;
             if(wantRight) catX+=CAT_STEP;
             catX=Math.max(bStart+10,Math.min(bEnd-10,catX));
@@ -4339,10 +4354,10 @@
       }
 
       // 7. Bird
-      if(bird)drawBird(bird.x,bird.y,bird.state==='perched'?'perched':'flying');
+      if(bird)drawBird(bird.x,bird.y,bird.state==='perched'?'perched':'flying',bird.state!=='leaving');
 
       // 8. Poops
-      poops.forEach(p=>{drawPoop(p.x,p.y);if(p.landed&&p.sparkle<0.6)drawSparkle(p.x,p.y,p.sparkle);});
+      poops.forEach(p=>{drawPoop(p.x,p.y,p.landed);if(p.landed&&p.sparkle<0.6)drawSparkle(p.x,p.y,p.sparkle);});
 
       // 9. HUD — drawn after source-over reset, never tinted
       if(state==='PLAYING_PHASE1'||state==='PLAYING_PHASE2'){

@@ -4119,11 +4119,13 @@
       ctx.restore();
     }
     function drawPoop(px,py,landed){
+      // Always draw fallback shape (sprites may be transparent)
+      ctx.fillStyle=landed?'#5A3010':'#6B4226';
+      ctx.beginPath();ctx.arc(px,py,landed?6:4,0,Math.PI*2);ctx.fill();
+      // Draw sprite on top if loaded
       const img = landed ? poopLandImg : poopFallImg;
       if(img.complete&&img.naturalWidth>0){
         ctx.drawImage(img, px-POOP_W/2, py-POOP_H/2, POOP_W, POOP_H);
-      } else {
-        ctx.fillStyle='#6B4226';ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
       }
     }
     function drawSparkle(px,py,age){const a=Math.max(0,1-age);ctx.fillStyle=`rgba(255,255,100,${a})`;const s=3+age*4;ctx.fillRect(px-1,py-s,2,s*2);ctx.fillRect(px-s,py-1,s*2,2);}
@@ -4273,8 +4275,8 @@
           if(!bird.scared&&bird.state!=='leaving'){
             poops.forEach(p=>{
               if(bird.scared)return;
-              if(!p.landed&&Math.abs(p.x-bird.x)<70&&Math.abs(p.y-bird.y)<70){bird.scared=true;}
-              if(p.landed&&p.sparkle<0.2&&Math.abs(p.x-bird.x)<100){bird.scared=true;}
+              if(!p.landed&&Math.abs(p.x-bird.x)<120&&Math.abs(p.y-bird.y)<100){bird.scared=true;}
+              if(p.landed&&Math.abs(p.x-bird.x)<150){bird.scared=true;}
             });
             if(bird.scared){bird.state='leaving';bird.timer=0;}
           }
@@ -4298,10 +4300,14 @@
         }
       }
       poops.forEach(p=>{
-        if(!p.landed){p.vy+=400*dt;p.y+=p.vy*dt;if(p.y>H-10){p.landed=true;p.sparkle=0;}}
-        else p.sparkle+=dt;
+        if(!p.landed){
+          p.vy+=400*dt;p.y+=p.vy*dt;
+          // Land on branch A if poop crosses it from above (phase 2 caterpillar on branch B)
+          if(!p.landed&&p.y>=BRANCH_A_Y&&p.x>=BRANCH_A_START&&p.x<=BRANCH_A_END){p.landed=true;p.y=BRANCH_A_Y-2;p.sparkle=0;}
+          if(!p.landed&&p.y>H-10){p.landed=true;p.sparkle=0;}
+        } else p.sparkle+=dt;
       });
-      poops=poops.filter(p=>!p.landed||p.sparkle<0.6);
+      poops=poops.filter(p=>!p.landed||p.sparkle<3);
       leafParticles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=100*dt;p.age+=dt;});
       leafParticles=leafParticles.filter(p=>p.age<p.life);
     }
@@ -4357,7 +4363,7 @@
       if(bird)drawBird(bird.x,bird.y,bird.state==='perched'?'perched':'flying',bird.state!=='leaving');
 
       // 8. Poops
-      poops.forEach(p=>{drawPoop(p.x,p.y,p.landed);if(p.landed&&p.sparkle<0.6)drawSparkle(p.x,p.y,p.sparkle);});
+      poops.forEach(p=>{drawPoop(p.x,p.y,p.landed);if(p.landed&&p.sparkle<0.6)drawSparkle(p.x,p.y,p.sparkle/0.6);});
 
       // 9. HUD — drawn after source-over reset, never tinted
       if(state==='PLAYING_PHASE1'||state==='PLAYING_PHASE2'){

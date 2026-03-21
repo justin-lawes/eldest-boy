@@ -4003,6 +4003,7 @@
       o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.12);
     }
     function soundPoop() { playNoise(0.15, 0.12); playTone(120, 'sine', 0.15, 0.1); }
+    function soundReady() { playTone(220, 'sine', 0.1, 0.15); setTimeout(()=>playTone(330, 'sine', 0.1, 0.12), 120); }
     function soundBirdWarning() {
       const ac = ensureAudio();
       [440, 550, 660].forEach((f, i) => {
@@ -4043,10 +4044,11 @@
     // ---- CONSTANTS ----
     const TRUNK_X=75, BRANCH_A_Y=240, BRANCH_B_Y=140;
     const BRANCH_A_START=80, BRANCH_A_END=560, BRANCH_B_START=80, BRANCH_B_END=700;
-    const BRANCH_THICKNESS=28, TOTAL_TIME=90;
-    const CAT_STEP=10, CAT_FRAME_RATE=0.32;
+    const BRANCH_THICKNESS=28, TOTAL_TIME=55;
+    const CAT_SPEED=38, CAT_STEP=10, CAT_FRAME_RATE=CAT_STEP/CAT_SPEED;
     const SEG_COUNT=5, SEG_SIZE=12, SEG_GAP=4;
-    const LEAVES_A=[220,430], LEAVES_B=[300,560];
+    const LEAVES_A=[160,260,380,470], LEAVES_B=[200,380,550];
+    const DIGEST_TIME=8, BIRD_PERCH_DUR=6;
 
     // ---- PRE-GENERATED BARK ----
     function genBarkPts(sx, ex) {
@@ -4065,13 +4067,14 @@
     const barkTrunk=genTrunkBarkPts();
 
     // ---- STATE ----
-    let state='TITLE', timer=0, poopCount=3;
+    let state='TITLE', timer=0, poopCount=1;
     let catX=0, catFacing=-1, catOnUnderside=false, catPhase=1;
     let isMoving=false;
     let catSpriteFrame=0, catFrameTimer=CAT_FRAME_RATE;
     let leavesA=[], leavesB=[], leafParticles=[];
     let bird=null, birdCooldown=0, birdWarningShown=false;
     let poops=[], climbProgress=0;
+    let digestTimer=0, isDigesting=false;
     let chrysalisProgress=0, chrysalisSwayAngle=0, chrysalisMotes=[], winFadeProgress=0, chrysalisSoundPlayed=false;
     let gameOverTimer=0, deathFlash=0, deathSoundPlayed=false;
     const catKeys={};
@@ -4081,17 +4084,23 @@
       state='GAMEOVER'; gameOverTimer=0; deathFlash=1;
       if (!deathSoundPlayed) { deathSoundPlayed=true; soundDeath(); }
     }
-    function randomBirdCD() { return 4+Math.random()*4; }
+    function randomBirdCD() {
+      if(catPhase===1) return 5+Math.random()*3;
+      if(catX<300) return 5+Math.random()*2;
+      if(catX<500) return 3.5+Math.random()*2;
+      return 2.5+Math.random()*1.5;
+    }
 
     function resetCatGame() {
-      state='PLAYING_PHASE1'; timer=0; poopCount=3;
+      state='PLAYING_PHASE1'; timer=0; poopCount=1;
       catX=BRANCH_A_END-20; catFacing=-1;
       catOnUnderside=false; catPhase=1; isMoving=false;
       catSpriteFrame=0; catFrameTimer=CAT_FRAME_RATE;
       leavesA=LEAVES_A.map(x=>({x,eaten:false}));
       leavesB=LEAVES_B.map(x=>({x,eaten:false}));
       leafParticles=[]; bird=null; birdCooldown=randomBirdCD(); birdWarningShown=false;
-      poops=[]; climbProgress=0; chrysalisProgress=0; chrysalisSwayAngle=0;
+      poops=[]; climbProgress=0; digestTimer=0; isDigesting=false;
+      chrysalisProgress=0; chrysalisSwayAngle=0;
       chrysalisMotes=[]; winFadeProgress=0; chrysalisSoundPlayed=false;
       gameOverTimer=0; deathFlash=0; deathSoundPlayed=false;
       if (chrysalisSong) { chrysalisSong.pause(); chrysalisSong=null; }
@@ -4219,12 +4228,16 @@
       drawPxText(text,cx-Math.floor(pxTextWidth(text,sc)/2),y,sc,color);
     }
     function drawHUD() {
-      ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fillRect(0,0,230,28);
+      ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fillRect(0,0,180,28);
       drawPxText('POOP:',10,8,2,'#fff');
-      for(let i=0;i<5;i++){ctx.fillStyle=i<poopCount?'#6B4226':'#333';ctx.beginPath();ctx.arc(80+i*14,14,5,0,Math.PI*2);ctx.fill();}
-      const pt=state==='PLAYING_PHASE1'?'PHASE 1':'PHASE 2';
-      ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fillRect(W-120,0,120,24);
-      drawPxText(pt,W-108,6,2,'#fff');
+      for(let i=0;i<2;i++){ctx.fillStyle=i<poopCount?'#6B4226':'#333';ctx.beginPath();ctx.arc(80+i*14,14,5,0,Math.PI*2);ctx.fill();}
+      // Digestion progress indicator
+      if(isDigesting){
+        const prog=Math.min(digestTimer/DIGEST_TIME,1);
+        ctx.strokeStyle='#666';ctx.lineWidth=1;ctx.strokeRect(112,5,36,16);
+        ctx.fillStyle='#5DBB47';ctx.fillRect(113,6,34*prog,14);
+        ctx.fillStyle='#6B4226';ctx.beginPath();ctx.arc(156,13,4,0,Math.PI*2);ctx.fill();
+      }
     }
     function spawnLeafParts(x,y){for(let i=0;i<6;i++)leafParticles.push({x,y,vx:(Math.random()-0.5)*60,vy:-Math.random()*40-20,life:0.5+Math.random()*0.3,age:0,color:Math.random()>0.5?'#4CAF50':'#66BB6A'});}
     function drawChrysalis(x,y,prog,sway) {
@@ -4269,13 +4282,24 @@
 
       isMoving=false;
       const bStart=catPhase===1?BRANCH_A_START:BRANCH_B_START, bEnd=catPhase===1?BRANCH_A_END:BRANCH_B_END;
+
+      // ---- DIGESTION ----
+      if(isDigesting){
+        digestTimer+=dt;
+        if(digestTimer>=DIGEST_TIME){
+          isDigesting=false; digestTimer=0;
+          if(poopCount<2){poopCount++;soundReady();}
+        }
+      }
+
       if(state==='PLAYING_PHASE1'||state==='PLAYING_PHASE2'){
         const wantLeft=catKeys['ArrowLeft']&&!catKeys['ArrowRight'];
         const wantRight=catKeys['ArrowRight']&&!catKeys['ArrowLeft'];
         if(wantLeft) catFacing=-1;
         if(wantRight) catFacing=1;
         catOnUnderside=!!catKeys['ArrowDown'];
-        if(wantLeft||wantRight){
+        // Cannot move while on underside
+        if(!catOnUnderside&&(wantLeft||wantRight)){
           isMoving=true;
           catFrameTimer+=dt;
           if(catFrameTimer>=CAT_FRAME_RATE){
@@ -4287,21 +4311,35 @@
             catX=Math.max(bStart+10,Math.min(bEnd-10,catX));
           }
         } else { isMoving=false; catSpriteFrame=0; catFrameTimer=CAT_FRAME_RATE; }
+        // POOP — instant scare if bird is perched
         if(catKeys['Space']&&poopCount>0){
           catKeys['Space']=false;poopCount--;
           const brY=catPhase===1?BRANCH_A_Y:BRANCH_B_Y;
           const py=catOnUnderside?brY+BRANCH_THICKNESS+SEG_SIZE+4:brY-SEG_SIZE-4;
-          poops.push({x:catX,y:py,vy:200,sparkle:0,landed:false,phase:catPhase});soundPoop();
+          poops.push({x:catX,y:py,vy:200,sparkle:0,landed:false});soundPoop();
+          // Poop only scares a perched bird (instant, no distance check)
+          if(bird&&bird.state==='perched'){bird.scared=true;bird.state='leaving';bird.timer=0;}
         }
-        if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-20&&catKeys['KeyC']){
+        // Chrysalis — only when no bird active on screen
+        if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-10&&!bird&&catKeys['KeyC']){
           catKeys['KeyC']=false;state='CHRYSALIS';chrysalisProgress=0;return;
         }
         if(state==='PLAYING_PHASE1'&&catX<=BRANCH_A_START+15){state='CLIMBING';climbProgress=0;return;}
+        // Leaf eating — only on top, triggers digestion
         const lvs=catPhase===1?leavesA:leavesB;
-        if(!catOnUnderside)lvs.forEach(l=>{if(!l.eaten&&Math.abs(catX-l.x)<12){l.eaten=true;if(poopCount<5)poopCount++;soundMunch();spawnLeafParts(l.x,catPhase===1?BRANCH_A_Y:BRANCH_B_Y);}});
+        if(!catOnUnderside)lvs.forEach(l=>{
+          if(!l.eaten&&Math.abs(catX-l.x)<12){
+            l.eaten=true;soundMunch();spawnLeafParts(l.x,catPhase===1?BRANCH_A_Y:BRANCH_B_Y);
+            if(poopCount<2){
+              // Start or reset digestion timer
+              isDigesting=true; digestTimer=0;
+            }
+            // At max poop: leaf consumed but wasted (no digestion)
+          }
+        });
       }
       if(state==='CLIMBING'){
-        climbProgress+=dt/1.5;
+        climbProgress+=dt/2;
         catFrameTimer+=dt;
         if(catFrameTimer>=CAT_FRAME_RATE){catFrameTimer-=CAT_FRAME_RATE;catSpriteFrame=(catSpriteFrame+1)%4;}
         if(climbProgress>=1){state='PLAYING_PHASE2';catPhase=2;catX=BRANCH_B_START+15;catFacing=1;catOnUnderside=false;birdCooldown=randomBirdCD();}
@@ -4318,49 +4356,44 @@
           const bE=catPhase===1?BRANCH_A_END:BRANCH_B_END;
           bird={
             x:W+20, y:30+Math.random()*30, state:'flying', timer:0,
-            landX:Math.max(bS+60,Math.min(bE-60, catX+(Math.random()-0.5)*120)),
+            landX:Math.max(bS+60,Math.min(bE-60, catX)),
             targetY:targetBrY-10, scared:false
           };
         }
         if(bird){
           bird.timer+=dt;
-          // Universal poop scare (any state except already leaving)
-          if(!bird.scared&&bird.state!=='leaving'){
-            poops.forEach(p=>{
-              if(bird.scared)return;
-              if(!p.landed&&Math.abs(p.x-bird.x)<120&&Math.abs(p.y-bird.y)<100){bird.scared=true;}
-              if(p.landed&&Math.abs(p.x-bird.x)<150){bird.scared=true;}
-            });
-            if(bird.scared){bird.state='leaving';bird.timer=0;}
-          }
           if(bird.state==='flying'){
             bird.x-=180*dt;
             if(bird.x<=bird.landX){bird.state='landing';bird.timer=0;soundBirdSquawk();}
             else if(bird.x<-30){bird=null;birdCooldown=randomBirdCD();}
           } else if(bird.state==='landing'){
             bird.y+=(bird.targetY-bird.y)*dt*4;
+            // Death during descent if cat on top near locked landing x
+            if(!catOnUnderside&&Math.abs(catX-bird.landX)<20)triggerDeath();
             if(Math.abs(bird.y-bird.targetY)<2){
-              bird.y=bird.targetY;bird.state='perched';bird.timer=0;
-              if(!catOnUnderside&&Math.abs(catX-bird.x)<80)triggerDeath();
+              bird.y=bird.targetY;bird.x=bird.landX;bird.state='perched';bird.timer=0;
+              // Binary death: perched + cat on top = dead
+              if(!catOnUnderside)triggerDeath();
             }
           } else if(bird.state==='perched'){
-            if(!catOnUnderside&&Math.abs(catX-bird.x)<80)triggerDeath();
-            // Only leaves when scared by poop (no auto-leave)
+            // Binary death: perched + cat on top = dead (continuous check)
+            if(!catOnUnderside)triggerDeath();
+            // Auto-leave after BIRD_PERCH_DUR seconds
+            if(bird.timer>=BIRD_PERCH_DUR){bird.state='leaving';bird.timer=0;}
           } else if(bird.state==='leaving'){
             bird.y-=70*dt;bird.x+=80*dt;
             if(bird.y<-40||bird.x>W+40){bird=null;birdCooldown=randomBirdCD();}
           }
         }
       }
+      // Poop visuals (purely cosmetic — scare is instant on press)
       poops.forEach(p=>{
         if(!p.landed){
           p.vy+=400*dt;p.y+=p.vy*dt;
-          // Land on branch A if poop crosses it from above (phase 2 caterpillar on branch B)
-          if(!p.landed&&p.phase===2&&p.y>=BRANCH_A_Y&&p.x>=BRANCH_A_START&&p.x<=BRANCH_A_END){p.landed=true;p.y=BRANCH_A_Y-2;p.sparkle=0;}
-          if(!p.landed&&p.y>H-10){p.landed=true;p.sparkle=0;}
+          if(p.y>H-10){p.landed=true;p.sparkle=0;}
         } else p.sparkle+=dt;
       });
-      poops=poops.filter(p=>!p.landed||p.sparkle<3);
+      poops=poops.filter(p=>!p.landed||p.sparkle<2);
       leafParticles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=100*dt;p.age+=dt;});
       leafParticles=leafParticles.filter(p=>p.age<p.life);
     }
@@ -4371,13 +4404,25 @@
       if(bgImg.complete&&bgImg.naturalWidth>0){ctx.drawImage(bgImg,0,0,W,H);}
       else{ctx.fillStyle='#2A4A1A';ctx.fillRect(0,0,W,H);}
 
-      // 2. Time-of-day multiply overlay (BEFORE game elements, NEVER on HUD)
+      // 2. Time-of-day sky gradient overlay (sky IS the timer)
       const elapsed=timer;
-      if(elapsed>=40&&state!=='CHRYSALIS'&&state!=='WIN'){
+      if(elapsed>=15&&state!=='CHRYSALIS'&&state!=='WIN'){
         let color;
-        if(elapsed<65){color=`rgba(255,140,0,${(elapsed-40)/25*0.35})`;}
-        else if(elapsed<80){color=`rgba(180,60,120,${0.35+(elapsed-65)/15*0.20})`;}
-        else{color=`rgba(30,10,60,${0.55+Math.min((elapsed-80)/10,1)*0.20})`;}
+        if(elapsed<35){
+          // Subtle warm tint building
+          const t=(elapsed-15)/20;
+          color=`rgba(255,160,40,${t*0.22})`;
+        } else if(elapsed<45){
+          // Orange → purple transition
+          const t=(elapsed-35)/10;
+          const r=Math.round(255-75*t), g=Math.round(160-100*t), b=Math.round(40+80*t);
+          color=`rgba(${r},${g},${b},${0.22+t*0.23})`;
+        } else {
+          // Deep purple → near dark
+          const t=Math.min((elapsed-45)/10,1);
+          const r=Math.round(180-150*t), g=Math.round(60-50*t), b=Math.round(120-60*t);
+          color=`rgba(${r},${g},${b},${0.45+t*0.30})`;
+        }
         ctx.globalCompositeOperation='multiply';
         ctx.fillStyle=color;ctx.fillRect(0,0,W,H);
         ctx.globalCompositeOperation='source-over';
@@ -4418,7 +4463,7 @@
       if(state==='PLAYING_PHASE1'||state==='PLAYING_PHASE2'){
         drawHUD();
         if(birdCooldown<=2&&birdCooldown>0&&!bird)drawPxTextCentered('!',W-24,26,3,'#FF4444');
-        if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-20){
+        if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-10&&!bird){
           ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(W/2-130,H-38,260,26);
           drawPxTextCentered('PRESS C TO MAKE CHRYSALIS',W/2,H-30,2,'#FFD700');
         }
@@ -4434,10 +4479,10 @@
         ctx.fillStyle='rgba(255,255,255,0.08)';ctx.fillRect(130,118,540,1);
         const lines=[
           ['USE ARROW KEYS TO MOVE','#CCC'],
-          ['HIDE BELOW BRANCH BEFORE BIRD LANDS!','#FF9999'],
-          ['SPACEBAR TO POOP - DISTRACT THE BIRD','#CCC'],
-          ['EAT LEAVES TO MAKE MORE POOP!','#99FF99'],
-          ['REACH BRANCH TIP TO MAKE CHRYSALIS','#CCC'],
+          ['DOWN TO HIDE UNDER BRANCH','#FF9999'],
+          ['POOP AFTER BIRD LANDS TO SCARE IT','#CCC'],
+          ['EAT LEAVES - DIGEST FOR MORE POOP','#99FF99'],
+          ['REACH THE BRANCH TIP TO WIN','#CCC'],
         ];
         lines.forEach((l,i)=>drawPxTextCentered(l[0],W/2,132+i*24,2,l[1]));
         drawPxTextCentered('PRESS SPACE TO START',W/2,268,2,'#FFD700');

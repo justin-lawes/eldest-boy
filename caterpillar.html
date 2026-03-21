@@ -129,6 +129,7 @@
       music2 = new Audio('Caterpillar Sim_Music_2.mp3');
       music2.loop=false; music2.volume=1;
       music2.play().catch(()=>{});
+      music2.addEventListener('ended', () => { state = 'WIN'; winFadeProgress = 0; });
     }
   }
 
@@ -481,9 +482,6 @@
       beginChrysalisFade(dt);
       if(!chrysalisSoundPlayed){
         chrysalisSoundPlayed=true;
-        chrysalisSong=new Audio('Eldest Boy_Polyphemus_End.wav');
-        chrysalisSong.play().catch(()=>{});
-        chrysalisSong.addEventListener('ended',()=>{state='WIN';winFadeProgress=0;});
       }
       return;
     }

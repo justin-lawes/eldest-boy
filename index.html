@@ -4304,8 +4304,8 @@
         if(wantRight) catFacing=1;
         const wasUnder=catOnUnderside;
         catOnUnderside=!!catKeys['ArrowDown'];
-        // Bird return: emerging from underside while bird is leaving brings it back
-        if(wasUnder&&!catOnUnderside&&bird&&bird.state==='leaving'){
+        // Bird return: emerging while bird is leaving AND still visible on screen
+        if(wasUnder&&!catOnUnderside&&bird&&bird.state==='leaving'&&bird.x<W&&bird.y>-10){
           bird.state='flying';bird.timer=0;
         }
         // Stuck messages when trying to move while on underside
@@ -4342,7 +4342,7 @@
         if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-10&&!bird&&catKeys['KeyC']){
           catKeys['KeyC']=false;state='CHRYSALIS';chrysalisProgress=0;return;
         }
-        if(state==='PLAYING_PHASE1'&&catX<=BRANCH_A_START+15){state='CLIMBING';climbProgress=0;bird=null;return;}
+        if(state==='PLAYING_PHASE1'&&catX<=BRANCH_A_START+15){state='CLIMBING';climbProgress=0;return;}
         // Leaf eating — only on top, triggers digestion
         const lvs=catPhase===1?leavesA:leavesB;
         if(!catOnUnderside)lvs.forEach(l=>{
@@ -4360,7 +4360,16 @@
         climbProgress+=dt/2;
         catFrameTimer+=dt;
         if(catFrameTimer>=CAT_FRAME_RATE){catFrameTimer-=CAT_FRAME_RATE;catSpriteFrame=(catSpriteFrame+1)%4;}
-        if(climbProgress>=1){state='PLAYING_PHASE2';catPhase=2;catX=BRANCH_B_START+15;catFacing=1;catOnUnderside=false;birdFirstOfPhase=true;birdCooldown=randomBirdCD();}
+        // Bird keeps flying during climb (no descent until on Branch B)
+        if(bird&&bird.state==='flying'){
+          bird.x-=180*dt;
+          if(bird.x<-30){bird=null;}
+        }
+        if(climbProgress>=1){
+          state='PLAYING_PHASE2';catPhase=2;catX=BRANCH_B_START+15;catFacing=1;catOnUnderside=false;birdFirstOfPhase=true;birdCooldown=randomBirdCD();
+          // Retarget any active bird to Branch B
+          if(bird){bird.targetY=BRANCH_B_Y-10;}
+        }
       }
 
       // ---- BIRD ----

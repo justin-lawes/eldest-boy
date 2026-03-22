@@ -4047,7 +4047,7 @@
     const BRANCH_THICKNESS=28, TOTAL_TIME=55;
     const CAT_SPEED=38, CAT_STEP=10, CAT_FRAME_RATE=CAT_STEP/CAT_SPEED;
     const SEG_COUNT=5, SEG_SIZE=12, SEG_GAP=4;
-    const LEAVES_A=[160,260,380,470], LEAVES_B=[200,380,550];
+    const LEAVES_A=[300,160], LEAVES_B=[250,500];
     const DIGEST_TIME=8, BIRD_PERCH_DUR=6;
 
     // ---- PRE-GENERATED BARK ----
@@ -4072,7 +4072,7 @@
     let isMoving=false;
     let catSpriteFrame=0, catFrameTimer=CAT_FRAME_RATE;
     let leavesA=[], leavesB=[], leafParticles=[];
-    let bird=null, birdCooldown=0, birdWarningShown=false;
+    let bird=null, birdCooldown=0, birdWarningShown=false, birdFirstOfPhase=true;
     let poops=[], climbProgress=0;
     let digestTimer=0, isDigesting=false;
     let chrysalisProgress=0, chrysalisSwayAngle=0, chrysalisMotes=[], winFadeProgress=0, chrysalisSoundPlayed=false;
@@ -4085,10 +4085,11 @@
       if (!deathSoundPlayed) { deathSoundPlayed=true; soundDeath(); }
     }
     function randomBirdCD() {
-      if(catPhase===1) return 5+Math.random()*3;
-      if(catX<300) return 5+Math.random()*2;
-      if(catX<500) return 3.5+Math.random()*2;
-      return 2.5+Math.random()*1.5;
+      if(birdFirstOfPhase){birdFirstOfPhase=false;return 2+Math.random()*2;}
+      if(catPhase===1) return 3+Math.random()*2;
+      if(catX<300) return 3+Math.random()*2;
+      if(catX<500) return 2.5+Math.random()*1.5;
+      return 2+Math.random()*1;
     }
 
     function resetCatGame() {
@@ -4098,7 +4099,7 @@
       catSpriteFrame=0; catFrameTimer=CAT_FRAME_RATE;
       leavesA=LEAVES_A.map(x=>({x,eaten:false}));
       leavesB=LEAVES_B.map(x=>({x,eaten:false}));
-      leafParticles=[]; bird=null; birdCooldown=randomBirdCD(); birdWarningShown=false;
+      leafParticles=[]; bird=null; birdFirstOfPhase=true; birdCooldown=randomBirdCD(); birdWarningShown=false;
       poops=[]; climbProgress=0; digestTimer=0; isDigesting=false;
       chrysalisProgress=0; chrysalisSwayAngle=0;
       chrysalisMotes=[]; winFadeProgress=0; chrysalisSoundPlayed=false;
@@ -4342,7 +4343,7 @@
         climbProgress+=dt/2;
         catFrameTimer+=dt;
         if(catFrameTimer>=CAT_FRAME_RATE){catFrameTimer-=CAT_FRAME_RATE;catSpriteFrame=(catSpriteFrame+1)%4;}
-        if(climbProgress>=1){state='PLAYING_PHASE2';catPhase=2;catX=BRANCH_B_START+15;catFacing=1;catOnUnderside=false;birdCooldown=randomBirdCD();}
+        if(climbProgress>=1){state='PLAYING_PHASE2';catPhase=2;catX=BRANCH_B_START+15;catFacing=1;catOnUnderside=false;birdFirstOfPhase=true;birdCooldown=randomBirdCD();}
       }
 
       // ---- BIRD ----

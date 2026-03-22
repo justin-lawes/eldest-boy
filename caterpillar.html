@@ -317,6 +317,8 @@
   let poops=[], climbProgress=0;
   let digestTimer=0, isDigesting=false;
   let poopMsg='', poopMsgTimer=0;
+  let hidingLocked=false, stuckMsgIdx=0;
+  const STUCK_MSGS=["YOU'RE STUCK!","UGH!?","CAN'T MOVE YET!","FREAKIN BIRD!","SOB"];
   let chrysalisProgress=0, chrysalisSwayAngle=0, chrysalisMotes=[];
   let winFadeProgress=0, chrysalisSoundPlayed=false;
   let gameOverTimer=0, deathFlash=0, deathSoundPlayed=false;
@@ -339,7 +341,7 @@
     leavesA=LEAVES_A.map(x=>({x,eaten:false}));
     leavesB=LEAVES_B.map(x=>({x,eaten:false}));
     leafParticles=[];bird=null;birdFirstOfPhase=true;birdCooldown=randomBirdCD();birdWarningShown=false;
-    poops=[];climbProgress=0;digestTimer=0;isDigesting=false;poopMsg='';poopMsgTimer=0;
+    poops=[];climbProgress=0;digestTimer=0;isDigesting=false;poopMsg='';poopMsgTimer=0;hidingLocked=false;stuckMsgIdx=0;
     chrysalisProgress=0;chrysalisSwayAngle=0;
     chrysalisMotes=[];winFadeProgress=0;chrysalisSoundPlayed=false;
     gameOverTimer=0;deathFlash=0;deathSoundPlayed=false;
@@ -521,6 +523,16 @@
       if(wantLeft) catFacing=-1;
       if(wantRight) catFacing=1;
       catOnUnderside=!!keys['ArrowDown'];
+      // Lock on underside while bird is on screen
+      if(catOnUnderside&&bird) hidingLocked=true;
+      if(hidingLocked){
+        if(!bird) hidingLocked=false;
+        else catOnUnderside=true;
+      }
+      // Stuck messages when trying to move while hiding-locked
+      if(catOnUnderside&&hidingLocked&&(wantLeft||wantRight)&&poopMsgTimer<=0){
+        poopMsg=STUCK_MSGS[stuckMsgIdx%STUCK_MSGS.length];stuckMsgIdx++;poopMsgTimer=1.5;
+      }
       // Cannot move while on underside
       if(!catOnUnderside&&(wantLeft||wantRight)){
         isMoving=true;
@@ -681,8 +693,8 @@
       drawPxTextCentered('CATERPILLAR',W/2,60,3,'#5DBB47');
       drawPxTextCentered('SIMULATOR',W/2,90,3,'#4CAF3A');
       ctx.fillStyle='rgba(255,255,255,0.08)';ctx.fillRect(130,118,540,1);
-      const lines=[['USE ARROW KEYS TO MOVE','#CCC'],['DOWN TO HIDE UNDER BRANCH','#FF9999'],['POOP AFTER BIRD LANDS TO SCARE IT','#CCC'],['EAT LEAVES - DIGEST FOR MORE POOP','#99FF99'],['REACH THE BRANCH TIP TO WIN','#CCC']];
-      lines.forEach((l,i)=>drawPxTextCentered(l[0],W/2,132+i*24,2,l[1]));
+      const lines=[["DON'T GET EATEN!",'#FF9999'],['USE THE ARROWS TO MOVE','#CCC'],['PRESS DOWN TO HIDE','#CCC'],['EAT LEAVES TO MAKE POOP','#99FF99'],['POOP TO SCARE THE BIRD AFTER IT LANDS','#CCC'],['REACH THE END OF BRANCH 2 TO WIN','#CCC']];
+      lines.forEach((l,i)=>drawPxTextCentered(l[0],W/2,128+i*22,2,l[1]));
       drawPxTextCentered('PRESS SPACE TO START',W/2,268,2,'#FFD700');
     }
     if(state==='GAMEOVER'){

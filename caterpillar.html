@@ -321,7 +321,7 @@
   const STUCK_MSGS=["YOU'RE STUCK!","UGH!?","CAN'T MOVE YET!","FREAKIN BIRD!","SOB"];
   let chrysalisProgress=0, chrysalisSwayAngle=0, chrysalisMotes=[];
   let winFadeProgress=0, chrysalisSoundPlayed=false;
-  let gameOverTimer=0, deathFlash=0, deathSoundPlayed=false;
+  let gameOverTimer=0, deathFlash=0, deathSoundPlayed=false, nightDeath=false;
   const keys={};
 
   function triggerDeath(){if(state==='GAMEOVER')return;state='GAMEOVER';gameOverTimer=0;deathFlash=1;if(!deathSoundPlayed){deathSoundPlayed=true;soundDeath();}}
@@ -344,7 +344,7 @@
     poops=[];climbProgress=0;digestTimer=0;isDigesting=false;poopMsg='';poopMsgTimer=0;stuckMsgIdx=0;
     chrysalisProgress=0;chrysalisSwayAngle=0;
     chrysalisMotes=[];winFadeProgress=0;chrysalisSoundPlayed=false;
-    gameOverTimer=0;deathFlash=0;deathSoundPlayed=false;
+    gameOverTimer=0;deathFlash=0;deathSoundPlayed=false;nightDeath=false;
     if(chrysalisSong){chrysalisSong.pause();chrysalisSong=null;}
     music1FadingOut=false; music2Started=false; music1FadeTimer=0;
   }
@@ -502,7 +502,7 @@
       return;
     }
     timer+=dt;
-    if(timer>=TOTAL_TIME){state='GAMEOVER';gameOverTimer=0;deathFlash=1;if(!deathSoundPlayed){deathSoundPlayed=true;soundNightDrone();soundDeath();}return;}
+    if(timer>=TOTAL_TIME){nightDeath=true;state='GAMEOVER';gameOverTimer=0;deathFlash=1;if(!deathSoundPlayed){deathSoundPlayed=true;soundNightDrone();soundDeath();}return;}
 
     isMoving=false;
     const bStart=catPhase===1?BRANCH_A_START:BRANCH_B_START,bEnd=catPhase===1?BRANCH_A_END:BRANCH_B_END;
@@ -638,7 +638,7 @@
     else{ctx.fillStyle='#2A4A1A';ctx.fillRect(0,0,W,H);}
 
     const elapsed=timer;
-    if(elapsed>=15&&state!=='CHRYSALIS'&&state!=='WIN'){
+    if(elapsed>=15){
       let color;
       if(elapsed<35){
         const t=(elapsed-15)/20;
@@ -705,7 +705,22 @@
     }
     if(state==='GAMEOVER'){
       if(deathFlash>0){ctx.fillStyle=`rgba(255,0,0,${deathFlash*0.5})`;ctx.fillRect(0,0,W,H);}
-      if(gameOverTimer>1){ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,0,W,H);drawPxTextCentered('GAME OVER',W/2,H/2-20,3,'#FF4444');drawPxTextCentered('PRESS R TO RESTART',W/2,H/2+20,2,'#AAA');}
+      if(gameOverTimer>1){
+        ctx.fillStyle='rgba(0,0,0,0.85)';ctx.fillRect(0,0,W,H);
+        if(nightDeath){
+          drawPxTextCentered('NIGHT HAS FALLEN.',W/2,H/2-80,2,'#8888CC');
+          drawPxTextCentered('YOU ARE DEAD NOW.',W/2,H/2-56,2,'#FF6666');
+          drawPxTextCentered('BECAUSE ITS NIGHT TIME.',W/2,H/2-32,2,'#AAAACC');
+          drawPxTextCentered("DON'T WORRY ABOUT IT.",W/2,H/2-8,2,'#AAAACC');
+          drawPxTextCentered('THIS SPECIES OF CATERPILLAR',W/2,H/2+16,2,'#CCCCAA');
+          drawPxTextCentered('ONLY LIVES ONE DAY.',W/2,H/2+40,2,'#CCCCAA');
+          drawPxTextCentered('LOOK IT UP.',W/2,H/2+64,2,'#888888');
+          drawPxTextCentered('PRESS R TO TRY AGAIN',W/2,H/2+96,2,'#FFD700');
+        } else {
+          drawPxTextCentered('GAME OVER',W/2,H/2-20,3,'#FF4444');
+          drawPxTextCentered('PRESS R TO RESTART',W/2,H/2+20,2,'#AAA');
+        }
+      }
     }
     if(state==='WIN'){
       const fa=Math.min(winFadeProgress,1);ctx.fillStyle=`rgba(255,255,255,${fa})`;ctx.fillRect(0,0,W,H);

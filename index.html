@@ -4076,7 +4076,7 @@
     let poops=[], climbProgress=0;
     let digestTimer=0, isDigesting=false;
     let poopMsg='', poopMsgTimer=0;
-    let hidingLocked=false, stuckMsgIdx=0;
+    let stuckMsgIdx=0;
     const STUCK_MSGS=["YOU'RE STUCK!","UGH!?","CAN'T MOVE YET!","FREAKIN BIRD!","SOB"];
     let chrysalisProgress=0, chrysalisSwayAngle=0, chrysalisMotes=[], winFadeProgress=0, chrysalisSoundPlayed=false;
     let gameOverTimer=0, deathFlash=0, deathSoundPlayed=false;
@@ -4103,7 +4103,7 @@
       leavesA=LEAVES_A.map(x=>({x,eaten:false}));
       leavesB=LEAVES_B.map(x=>({x,eaten:false}));
       leafParticles=[]; bird=null; birdFirstOfPhase=true; birdCooldown=randomBirdCD(); birdWarningShown=false;
-      poops=[]; climbProgress=0; digestTimer=0; isDigesting=false; poopMsg=''; poopMsgTimer=0; hidingLocked=false; stuckMsgIdx=0;
+      poops=[]; climbProgress=0; digestTimer=0; isDigesting=false; poopMsg=''; poopMsgTimer=0; stuckMsgIdx=0;
       chrysalisProgress=0; chrysalisSwayAngle=0;
       chrysalisMotes=[]; winFadeProgress=0; chrysalisSoundPlayed=false;
       gameOverTimer=0; deathFlash=0; deathSoundPlayed=false;
@@ -4302,15 +4302,14 @@
         const wantRight=catKeys['ArrowRight']&&!catKeys['ArrowLeft'];
         if(wantLeft) catFacing=-1;
         if(wantRight) catFacing=1;
+        const wasUnder=catOnUnderside;
         catOnUnderside=!!catKeys['ArrowDown'];
-        // Lock on underside while bird is on screen
-        if(catOnUnderside&&bird) hidingLocked=true;
-        if(hidingLocked){
-          if(!bird) hidingLocked=false;
-          else catOnUnderside=true;
+        // Bird return: emerging from underside while bird is leaving brings it back
+        if(wasUnder&&!catOnUnderside&&bird&&bird.state==='leaving'){
+          bird.state='flying';bird.timer=0;
         }
-        // Stuck messages when trying to move while hiding-locked
-        if(catOnUnderside&&hidingLocked&&(wantLeft||wantRight)&&poopMsgTimer<=0){
+        // Stuck messages when trying to move while on underside
+        if(catOnUnderside&&(wantLeft||wantRight)&&poopMsgTimer<=0){
           poopMsg=STUCK_MSGS[stuckMsgIdx%STUCK_MSGS.length];stuckMsgIdx++;poopMsgTimer=1.5;
         }
         // Cannot move while on underside
@@ -4343,7 +4342,7 @@
         if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-10&&!bird&&catKeys['KeyC']){
           catKeys['KeyC']=false;state='CHRYSALIS';chrysalisProgress=0;return;
         }
-        if(state==='PLAYING_PHASE1'&&catX<=BRANCH_A_START+15){state='CLIMBING';climbProgress=0;return;}
+        if(state==='PLAYING_PHASE1'&&catX<=BRANCH_A_START+15){state='CLIMBING';climbProgress=0;bird=null;return;}
         // Leaf eating — only on top, triggers digestion
         const lvs=catPhase===1?leavesA:leavesB;
         if(!catOnUnderside)lvs.forEach(l=>{

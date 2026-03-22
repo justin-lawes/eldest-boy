@@ -590,9 +590,9 @@
           }
           else if(bird.x<-30){bird=null;birdCooldown=randomBirdCD();}
         }else if(bird.state==='landing'){
+          bird.x+=(bird.landX-bird.x)*dt*4;
           bird.y+=(bird.targetY-bird.y)*dt*4;
-          if(!catOnUnderside&&Math.abs(catX-bird.landX)<20)triggerDeath();
-          if(Math.abs(bird.y-bird.targetY)<2){bird.y=bird.targetY;bird.x=bird.landX;bird.state='perched';bird.timer=0;if(!catOnUnderside)triggerDeath();}
+          if(Math.abs(bird.y-bird.targetY)<2&&Math.abs(bird.x-bird.landX)<2){bird.y=bird.targetY;bird.x=bird.landX;bird.state='perched';bird.timer=0;if(!catOnUnderside)triggerDeath();}
         }else if(bird.state==='perched'){
           if(!catOnUnderside)triggerDeath();
           if(bird.timer>=BIRD_PERCH_DUR){bird.state='leaving';bird.timer=0;}

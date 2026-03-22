@@ -4379,12 +4379,12 @@
             }
             else if(bird.x<-30){bird=null;birdCooldown=randomBirdCD();}
           } else if(bird.state==='landing'){
+            // Diagonal swoop: lerp both x and y toward landing target
+            bird.x+=(bird.landX-bird.x)*dt*4;
             bird.y+=(bird.targetY-bird.y)*dt*4;
-            // Death during descent if cat on top near locked landing x
-            if(!catOnUnderside&&Math.abs(catX-bird.landX)<20)triggerDeath();
-            if(Math.abs(bird.y-bird.targetY)<2){
+            if(Math.abs(bird.y-bird.targetY)<2&&Math.abs(bird.x-bird.landX)<2){
               bird.y=bird.targetY;bird.x=bird.landX;bird.state='perched';bird.timer=0;
-              // Binary death: perched + cat on top = dead
+              // Death only on contact with branch (perched + cat on top)
               if(!catOnUnderside)triggerDeath();
             }
           } else if(bird.state==='perched'){

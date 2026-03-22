@@ -4338,9 +4338,9 @@
             poopMsg=isDigesting?'STILL DIGESTING!':'NO POOP!';poopMsgTimer=2;
           }
         }
-        // Chrysalis — only when no bird active on screen
-        if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-10&&!bird&&catKeys['KeyC']){
-          catKeys['KeyC']=false;state='CHRYSALIS';chrysalisProgress=0;return;
+        // Chrysalis — allowed when no bird threatening (leaving birds are fine)
+        if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-25&&(!bird||bird.state==='leaving')&&catKeys['KeyC']){
+          catKeys['KeyC']=false;bird=null;state='CHRYSALIS';chrysalisProgress=0;return;
         }
         if(state==='PLAYING_PHASE1'&&catX<=BRANCH_A_START+15){state='CLIMBING';climbProgress=0;return;}
         // Leaf eating — only on top, triggers digestion
@@ -4495,7 +4495,7 @@
       if(state==='PLAYING_PHASE1'||state==='PLAYING_PHASE2'){
         drawHUD();
         if(birdCooldown<=2&&birdCooldown>0&&!bird)drawPxTextCentered('!',W-24,26,3,'#FF4444');
-        if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-10&&!bird){
+        if(state==='PLAYING_PHASE2'&&catX>=BRANCH_B_END-25&&(!bird||bird.state==='leaving')){
           ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(W/2-130,H-38,260,26);
           drawPxTextCentered('PRESS C TO MAKE CHRYSALIS',W/2,H-30,2,'#FFD700');
         }

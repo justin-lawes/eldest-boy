@@ -1771,6 +1771,7 @@
     <button class="mode-btn" data-mode="news">News</button>
     <button class="mode-btn" data-mode="tour">Tour</button>
     <button class="mode-btn" data-mode="caterpillar">Mode 8</button>
+    <button class="mode-btn" data-mode="listen">Listen</button>
     <button class="mode-btn" onclick="window.location.href='https://eldest-boy.onrender.com/chat.html'">Chat</button>
   </div>
 
@@ -2152,6 +2153,20 @@
     </div>
   </div>
 
+  <!-- Listen page (password-gated Samply player) -->
+  <div id="listen-container" style="display:none;">
+    <div id="listen-gate" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="font-family:'Courier New',monospace;color:#aaa;font-size:14px;margin-bottom:12px;text-transform:uppercase;letter-spacing:2px;">Enter Password</div>
+      <input type="password" id="listen-password" autocomplete="off" spellcheck="false"
+        style="background:#111;border:1px solid #333;color:#fff;font-family:'Courier New',monospace;font-size:16px;padding:8px 14px;text-align:center;outline:none;width:180px;"
+        placeholder="">
+      <div id="listen-error" style="color:#ff4444;font-family:'Courier New',monospace;font-size:12px;margin-top:8px;visibility:hidden;">wrong</div>
+    </div>
+    <div id="listen-player" style="display:none;width:100%;max-width:800px;margin:40px auto;padding:0 16px;box-sizing:border-box;">
+      <iframe src="https://samply.app/embed/n4AHTVr4kWNQvr0NmEyx" width="100%" height="480" frameborder="0" allow="autoplay" style="border-radius:4px;"></iframe>
+    </div>
+  </div>
+
   <!-- Mode 8: Caterpillar Simulator -->
   <div id="caterpillar-container">
     <canvas id="caterpillar-canvas" width="800" height="340"></canvas>
@@ -2182,6 +2197,7 @@
     const newsContainer = document.getElementById('news-container');
     const tourContainer = document.getElementById('tour-container');
     const caterpillarContainer = document.getElementById('caterpillar-container');
+    const listenContainer = document.getElementById('listen-container');
     const modeBtns = document.querySelectorAll('.mode-btn');
 
     modeBtns.forEach(btn => {
@@ -2218,6 +2234,7 @@
       newsContainer.style.display = 'none';
       tourContainer.style.display = 'none';
       caterpillarContainer.style.display = 'none';
+      listenContainer.style.display = 'none';
       if (window.caterpillarGame) window.caterpillarGame.stop();
       document.getElementById('game-overlay').style.display = 'none';
       document.getElementById('score-display').style.display = 'none';
@@ -2257,8 +2274,31 @@
         initTourDates();
       } else if (mode === 'caterpillar') {
         caterpillarContainer.style.display = 'flex';
+      } else if (mode === 'listen') {
+        listenContainer.style.display = 'block';
+        const pwInput = document.getElementById('listen-password');
+        if (document.getElementById('listen-player').style.display === 'none') {
+          pwInput.value = '';
+          document.getElementById('listen-error').style.visibility = 'hidden';
+          setTimeout(() => pwInput.focus(), 50);
+        }
       }
     }
+
+    // Listen password gate
+    document.getElementById('listen-password').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        if (this.value.toLowerCase().trim() === 'yes') {
+          document.getElementById('listen-gate').style.display = 'none';
+          document.getElementById('listen-player').style.display = 'block';
+        } else {
+          const err = document.getElementById('listen-error');
+          err.style.visibility = 'visible';
+          this.value = '';
+          setTimeout(() => err.style.visibility = 'hidden', 1500);
+        }
+      }
+    });
 
     // ========================
     // BOUNCE MODE

@@ -2275,6 +2275,7 @@
         initTourDates();
       } else if (mode === 'caterpillar') {
         caterpillarContainer.style.display = 'flex';
+        if (window.caterpillarGame) window.caterpillarGame.loadAssets();
       } else if (mode === 'listen') {
         listenContainer.style.display = 'block';
         // Lazy-load Samply iframe on first visit
@@ -3952,14 +3953,24 @@
 
     // ---- BACKGROUND IMAGE ----
     const bgImg = new Image();
-    bgImg.src = 'background.png';
 
     // ---- CATERPILLAR SPRITES ----
-    const catSprites = [1,2,3,4].map(i => { const img = new Image(); img.src = `Position_${i}.png`; return img; });
+    const catSprites = [1,2,3,4].map(() => new Image());
     const CAT_SPRITE_W = 80, CAT_SPRITE_H = 50;
-    const poopFallImg = new Image(); poopFallImg.src = 'Poop_Fall.png';
-    const poopLandImg = new Image(); poopLandImg.src = 'Poop_Land.png';
+    const poopFallImg = new Image();
+    const poopLandImg = new Image();
     const POOP_W = 20, POOP_H = 20;
+
+    // Lazy-load caterpillar assets (~15MB) only when mode is activated
+    let catAssetsLoaded = false;
+    function loadCaterpillarAssets() {
+      if (catAssetsLoaded) return;
+      catAssetsLoaded = true;
+      bgImg.src = 'background.png';
+      catSprites.forEach((img, i) => { img.src = `Position_${i + 1}.png`; });
+      poopFallImg.src = 'Poop_Fall.png';
+      poopLandImg.src = 'Poop_Land.png';
+    }
 
     // ---- CHRYSALIS SONG ----
     let chrysalisSong = null;
@@ -4626,6 +4637,7 @@
     requestAnimationFrame(catLoop);
 
     window.caterpillarGame = {
+      loadAssets: loadCaterpillarAssets,
       start: function() { state = 'TITLE'; },
       stop: function() {
         state = 'TITLE';

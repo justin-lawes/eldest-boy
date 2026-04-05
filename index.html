@@ -1912,7 +1912,7 @@
         <div class="fun-counter"><span id="fun-score">0</span> <span class="bonus-indicator" id="bonus-indicator">2×</span></div>
       </div>
       <p class="opinions-text" id="opinions-text" style="display:none;">The internet was a mistake. We haven't evolved enough to be able to manage this level of connection, stimulation, or self importance. Imagine how amazing it would have felt to find some food or water after hours or days of hunger and thirst. Now we have rewards on demand. We eat and drink while we're pushing reward buttons. We need rewards while we're consuming rewards. The casino oozed out of the desert and into our hands.</p>
-      <audio id="fun-reward-audio" src="fun-reward.wav" preload="auto"></audio>
+      <audio id="fun-reward-audio" src="fun-reward.wav" preload="none"></audio>
     </div>
   </div>
 
@@ -2163,7 +2163,7 @@
       <div id="listen-error" style="color:#ff4444;font-family:'Courier New',monospace;font-size:12px;margin-top:8px;visibility:hidden;">wrong</div>
     </div>
     <div id="listen-player" style="display:none;width:100%;height:100vh;padding:80px 16px 16px;box-sizing:border-box;">
-      <iframe src="https://samply.app/embed/n4AHTVr4kWNQvr0NmEyx" width="100%" height="100%" frameborder="0" allow="autoplay" style="border:none;"></iframe>
+      <iframe data-src="https://samply.app/embed/n4AHTVr4kWNQvr0NmEyx" width="100%" height="100%" frameborder="0" allow="autoplay" style="border:none;"></iframe>
     </div>
   </div>
 
@@ -2261,6 +2261,7 @@
         legalContainer.style.display = 'block';
       } else if (mode === 'poll') {
         pollContainer.style.display = 'block';
+        initFirebase();
       } else if (mode === 'opinions') {
         opinionsContainer.style.display = 'block';
       } else if (mode === 'soap') {
@@ -2276,6 +2277,9 @@
         caterpillarContainer.style.display = 'flex';
       } else if (mode === 'listen') {
         listenContainer.style.display = 'block';
+        // Lazy-load Samply iframe on first visit
+        const listenIframe = document.querySelector('#listen-player iframe');
+        if (listenIframe && !listenIframe.src) listenIframe.src = listenIframe.dataset.src;
         const pwInput = document.getElementById('listen-password');
         if (document.getElementById('listen-player').style.display === 'none') {
           pwInput.value = '';
@@ -2915,15 +2919,20 @@
     const pollResultEl = document.getElementById('poll-result');
     let pollUserPick = localStorage.getItem('pollUserPick');
 
-    // Try to initialize Firebase; fall back to localStorage if config not set
-    try {
-      if (firebaseConfig.apiKey !== 'YOUR_API_KEY') {
-        firebase.initializeApp(firebaseConfig);
-        pollDb = firebase.database();
-        pollRef = pollDb.ref('poll/votes');
+    // Defer Firebase init until Poll mode is first activated
+    let firebaseInited = false;
+    function initFirebase() {
+      if (firebaseInited) return;
+      firebaseInited = true;
+      try {
+        if (firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+          firebase.initializeApp(firebaseConfig);
+          pollDb = firebase.database();
+          pollRef = pollDb.ref('poll/votes');
+        }
+      } catch (e) {
+        console.warn('Firebase init failed, using localStorage fallback', e);
       }
-    } catch (e) {
-      console.warn('Firebase init failed, using localStorage fallback', e);
     }
 
     function renderPollResults(votes, userVal) {

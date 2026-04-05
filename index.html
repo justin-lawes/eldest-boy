@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gasoek+One&family=Work+Sans:wght@300;400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/chicagoflf" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1777,8 +1777,8 @@
 
   <!-- Bounce mode elements -->
   <div id="bounce-container">
-    <video id="img1" class="bouncing-img" src="TwoPeople_PolyReduce_v03b.mp4" autoplay loop muted playsinline></video>
-    <video id="img2" class="bouncing-img" src="TwoPeople_PolyReduce_v03.mp4" autoplay loop muted playsinline></video>
+    <video id="img1" class="bouncing-img" src="TwoPeople_PolyReduce_v03b.mp4" loop muted playsinline></video>
+    <video id="img2" class="bouncing-img" src="TwoPeople_PolyReduce_v03.mp4" loop muted playsinline></video>
 
     <div class="center-text">
       <h1>Eldest Boy</h1>
@@ -2461,6 +2461,8 @@
     function startBounce() {
       if (bounceAnimId) return;
       if (bouncers.length === 0) initBounce();
+      document.getElementById('img1').play().catch(() => {});
+      document.getElementById('img2').play().catch(() => {});
       bounceAnimId = setInterval(animateBounce, 1000 / 60);
     }
 
@@ -2469,6 +2471,8 @@
         clearInterval(bounceAnimId);
         bounceAnimId = null;
       }
+      document.getElementById('img1').pause();
+      document.getElementById('img2').pause();
     }
 
     // Init bounce on load

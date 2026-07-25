@@ -10,6 +10,7 @@
   <link href="https://fonts.cdnfonts.com/css/chicagoflf" rel="stylesheet">
   <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script defer src="archive-data.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1772,6 +1773,7 @@
     <button class="mode-btn" data-mode="tour">Tour</button>
     <button class="mode-btn" data-mode="caterpillar">Mode 8</button>
     <button class="mode-btn" data-mode="listen">Listen</button>
+    <button class="mode-btn" data-mode="archive">Mode 9</button>
     <button class="mode-btn" onclick="window.location.href='https://eldest-boy.onrender.com/chat.html'">Chat</button>
   </div>
 
@@ -2179,6 +2181,111 @@
     </div>
   </div>
 
+  <!-- Mode 9: The Archive -->
+  <div id="archive-container">
+    <style>
+      #archive-container {
+        position: fixed; inset: 0; background: #07070b; color: #e8e8ea;
+        overflow-y: auto; z-index: 10; display: none;
+        padding: 76px 20px 60px; font-family: 'Work Sans', sans-serif;
+      }
+      #archive-container .ar-wrap { max-width: 1000px; margin: 0 auto; }
+      #archive-container h1 {
+        font-family: 'Gasoek One', sans-serif; font-size: clamp(2rem, 7vw, 4.2rem);
+        line-height: .95; color: #f2ff5e; letter-spacing: -.01em; margin-bottom: 6px;
+      }
+      #archive-container .ar-sub {
+        font-family: 'ChicagoFLF', sans-serif; font-size: .78rem; color: #8b8b96;
+        margin-bottom: 34px; line-height: 1.6;
+      }
+      #archive-container h2 {
+        font-family: 'ChicagoFLF', sans-serif; font-size: .95rem; color: #f2ff5e;
+        margin: 46px 0 4px; text-transform: uppercase; letter-spacing: .06em;
+      }
+      #archive-container .ar-note { font-size: .8rem; color: #7d7d88; margin-bottom: 16px; }
+      #archive-container .ar-stats {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+        gap: 10px; margin-bottom: 8px;
+      }
+      #archive-container .ar-stat {
+        background: #101018; border: 1px solid #22222e; border-radius: 5px; padding: 14px 12px;
+      }
+      #archive-container .ar-stat b {
+        display: block; font-family: 'Gasoek One', sans-serif; font-size: 1.85rem;
+        color: #fff; line-height: 1; margin-bottom: 6px;
+      }
+      #archive-container .ar-stat span {
+        font-family: 'ChicagoFLF', sans-serif; font-size: .68rem; color: #8b8b96;
+        text-transform: uppercase; letter-spacing: .04em;
+      }
+      #archive-container .ar-stat.zero b { color: #ff5e5e; }
+      #archive-container svg { width: 100%; height: auto; display: block; overflow: visible; }
+      #archive-container .ar-legend {
+        font-family: 'ChicagoFLF', sans-serif; font-size: .7rem; color: #8b8b96;
+        display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px;
+      }
+      #archive-container .ar-legend i { display: inline-block; width: 9px; height: 9px; margin-right: 5px; }
+      #archive-container .ar-idea {
+        background: #101018; border: 1px solid #22222e; border-left: 3px solid #f2ff5e;
+        border-radius: 5px; padding: 20px 22px; min-height: 118px;
+      }
+      #archive-container .ar-idea p { font-size: 1.08rem; line-height: 1.5; margin-bottom: 10px; }
+      #archive-container .ar-idea small {
+        font-family: 'ChicagoFLF', sans-serif; font-size: .7rem; color: #8b8b96;
+      }
+      #archive-container button.ar-btn {
+        font-family: 'ChicagoFLF', sans-serif; font-size: .78rem; margin-top: 12px;
+        background: #f2ff5e; color: #000; border: 0; border-radius: 4px;
+        padding: 9px 16px; cursor: pointer;
+      }
+      #archive-container button.ar-btn:hover { opacity: .85; }
+      #archive-container .ar-foot {
+        margin-top: 54px; padding-top: 18px; border-top: 1px solid #22222e;
+        font-family: 'ChicagoFLF', sans-serif; font-size: .7rem; color: #5f5f6b; line-height: 1.7;
+      }
+      #archive-container text { font-family: 'ChicagoFLF', sans-serif; }
+      @media (max-width: 640px) {
+        #archive-container { padding: 108px 12px 50px; }
+        #archive-container .ar-stat b { font-size: 1.4rem; }
+      }
+    </style>
+
+    <div class="ar-wrap">
+      <h1>THE ARCHIVE</h1>
+      <div class="ar-sub" id="ar-sub"></div>
+
+      <div class="ar-stats" id="ar-stats"></div>
+
+      <h2>Volume over time</h2>
+      <div class="ar-note">Every message, by week. Height is how much was said. Nothing was released.</div>
+      <div id="ar-timeline"></div>
+      <div class="ar-legend">
+        <span><i style="background:#f2ff5e"></i>Justin</span>
+        <span><i style="background:#5ec8ff"></i>Steve</span>
+        <span><i style="background:#ff5e5e"></i>Milestone</span>
+      </div>
+
+      <h2>What we talked about</h2>
+      <div class="ar-note">Messages matching each subject. Making things beats releasing them.</div>
+      <div id="ar-themes"></div>
+
+      <h2>Songs, and when they were alive</h2>
+      <div class="ar-note">Each mark is a day a song came up. Gaps are the months nobody mentioned it.</div>
+      <div id="ar-lanes"></div>
+
+      <h2>When ideas happen</h2>
+      <div class="ar-note">Messages by hour of day.</div>
+      <div id="ar-clock"></div>
+
+      <h2>A real idea, picked at random</h2>
+      <div class="ar-note">Pulled from actual proposals in the thread.</div>
+      <div class="ar-idea" id="ar-idea"></div>
+      <button class="ar-btn" id="ar-idea-btn">Another one</button>
+
+      <div class="ar-foot" id="ar-foot"></div>
+    </div>
+  </div>
+
   <script>
     // ========================
     // MODE SWITCHING
@@ -2198,6 +2305,7 @@
     const tourContainer = document.getElementById('tour-container');
     const caterpillarContainer = document.getElementById('caterpillar-container');
     const listenContainer = document.getElementById('listen-container');
+    const archiveContainer = document.getElementById('archive-container');
     const modeBtns = document.querySelectorAll('.mode-btn');
 
     modeBtns.forEach(btn => {
@@ -2235,6 +2343,7 @@
       tourContainer.style.display = 'none';
       caterpillarContainer.style.display = 'none';
       listenContainer.style.display = 'none';
+      archiveContainer.style.display = 'none';
       if (window.caterpillarGame) window.caterpillarGame.stop();
       document.getElementById('game-overlay').style.display = 'none';
       document.getElementById('score-display').style.display = 'none';
@@ -2270,6 +2379,9 @@
       } else if (mode === 'news') {
         newsContainer.style.display = 'block';
         loadNews();
+      } else if (mode === 'archive') {
+        archiveContainer.style.display = 'block';
+        initArchive();
       } else if (mode === 'tour') {
         tourContainer.style.display = 'block';
         initTourDates();
@@ -4650,6 +4762,175 @@
       }
     };
   })();
+    // ========================
+    // MODE 9: THE ARCHIVE
+    // ========================
+    let archiveDrawn = false;
+
+    function initArchive() {
+      if (archiveDrawn) return;
+      const D = window.ARCHIVE_DATA;
+      if (!D) { document.getElementById('ar-sub').textContent = 'Archive data failed to load.'; return; }
+      archiveDrawn = true;
+
+      const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      const T = D.totals;
+      const fmt = n => n.toLocaleString('en-US');
+      const nice = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+      document.getElementById('ar-sub').innerHTML =
+        'Everything Justin and Steve have said to each other about this band.<br>' +
+        esc(nice(T.first)) + ' &ndash; ' + esc(nice(T.last)) +
+        ' &middot; the direct thread and the TAARG&Uuml;S group chat &middot; nothing else.';
+
+      // ---------- stats ----------
+      const stats = [
+        [fmt(T.messages), 'messages'],
+        [fmt(T.words), 'words'],
+        [fmt(T.attachments), 'photos &amp; videos'],
+        [fmt(T.band_days), 'days as a band'],
+        [fmt(Object.keys(D.lanes).length), 'songs discussed'],
+        [T.releases === 0 ? 'NONE' : String(T.releases), 'songs released', 'zero'],
+      ];
+      document.getElementById('ar-stats').innerHTML = stats.map(s =>
+        '<div class="ar-stat' + (s[2] ? ' ' + s[2] : '') + '"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'
+      ).join('');
+
+      // ---------- timeline ----------
+      (function () {
+        const W = 1000, H = 230, PAD = { l: 34, r: 10, t: 14, b: 26 };
+        const w = D.weekly, n = w.length;
+        const max = Math.max(...w.map(d => d.n));
+        const bw = (W - PAD.l - PAD.r) / n;
+        const x = i => PAD.l + i * bw;
+        const y = v => PAD.t + (H - PAD.t - PAD.b) * (1 - v / max);
+        const base = H - PAD.b;
+        let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Messages per week">';
+        for (const gv of [max, max / 2]) {
+          s += '<line x1="' + PAD.l + '" x2="' + (W - PAD.r) + '" y1="' + y(gv) + '" y2="' + y(gv) +
+               '" stroke="#22222e"/><text x="0" y="' + (y(gv) + 4) + '" fill="#5f5f6b" font-size="10">' +
+               Math.round(gv) + '</text>';
+        }
+        s += '<line x1="' + PAD.l + '" x2="' + (W - PAD.r) + '" y1="' + base + '" y2="' + base + '" stroke="#33333f"/>';
+        w.forEach((d, i) => {
+          const hj = (H - PAD.t - PAD.b) * (d.j / max), hs = (H - PAD.t - PAD.b) * (d.s / max);
+          const bx = x(i), bwv = Math.max(bw - 0.6, 0.6);
+          s += '<rect x="' + bx.toFixed(2) + '" y="' + (base - hs).toFixed(2) + '" width="' + bwv.toFixed(2) +
+               '" height="' + hs.toFixed(2) + '" fill="#5ec8ff"><title>' + d.w + ' — Steve ' + d.s + '</title></rect>';
+          s += '<rect x="' + bx.toFixed(2) + '" y="' + (base - hs - hj).toFixed(2) + '" width="' + bwv.toFixed(2) +
+               '" height="' + hj.toFixed(2) + '" fill="#f2ff5e"><title>' + d.w + ' — Justin ' + d.j + '</title></rect>';
+        });
+        const idxFor = iso => {
+          let best = 0, bd = Infinity;
+          w.forEach((d, i) => { const diff = Math.abs(new Date(d.w) - new Date(iso)); if (diff < bd) { bd = diff; best = i; } });
+          return best;
+        };
+        D.milestones.forEach((m, k) => {
+          const bx = x(idxFor(m[0])) + bw / 2;
+          const ty = PAD.t + (k % 3) * 15;
+          const flip = bx > W * 0.72;
+          s += '<line x1="' + bx.toFixed(1) + '" x2="' + bx.toFixed(1) + '" y1="' + ty + '" y2="' + base +
+               '" stroke="#ff5e5e" stroke-width="1" stroke-dasharray="2,3"/>' +
+               '<circle cx="' + bx.toFixed(1) + '" cy="' + ty + '" r="2.6" fill="#ff5e5e"/>' +
+               '<text x="' + (flip ? (bx - 5) : (bx + 5)).toFixed(1) + '" y="' + (ty + 4) +
+               '" fill="#ff9b9b" font-size="9.5" text-anchor="' + (flip ? 'end' : 'start') + '">' +
+               esc(m[1]) + '</text>';
+        });
+        const ticks = [0, Math.floor(n / 4), Math.floor(n / 2), Math.floor(3 * n / 4), n - 1];
+        ticks.forEach(i => {
+          s += '<text x="' + (x(i) + bw / 2).toFixed(1) + '" y="' + (H - 8) +
+               '" fill="#5f5f6b" font-size="10" text-anchor="middle">' + esc(nice(w[i].w)) + '</text>';
+        });
+        s += '</svg>';
+        document.getElementById('ar-timeline').innerHTML = s;
+      })();
+
+      // ---------- themes ----------
+      (function () {
+        const t = D.themes, max = Math.max(...t.map(x => x.n));
+        const rowH = 30, W = 1000, L = 210, H = t.length * rowH + 10;
+        let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Subjects by message count">';
+        t.forEach((th, i) => {
+          const yy = i * rowH + 6, bw = (W - L - 60) * (th.n / max);
+          s += '<text x="0" y="' + (yy + 14) + '" fill="#c9c9d2" font-size="12">' + esc(th.name) + '</text>';
+          s += '<rect x="' + L + '" y="' + yy + '" width="' + bw.toFixed(1) + '" height="18" rx="2" fill="#f2ff5e" opacity="' +
+               (0.45 + 0.55 * (th.n / max)).toFixed(2) + '"/>';
+          s += '<text x="' + (L + bw + 8).toFixed(1) + '" y="' + (yy + 14) + '" fill="#8b8b96" font-size="11">' + th.n + '</text>';
+        });
+        s += '</svg>';
+        document.getElementById('ar-themes').innerHTML = s;
+      })();
+
+      // ---------- song lanes ----------
+      (function () {
+        const names = Object.keys(D.lanes).sort((a, b) => new Date(D.lanes[a].first) - new Date(D.lanes[b].first));
+        const t0 = new Date(D.weekly[0].w).getTime();
+        const t1 = new Date(D.weekly[D.weekly.length - 1].w).getTime();
+        const rowH = 26, W = 1000, L = 190, H = names.length * rowH + 26;
+        const px = iso => L + (W - L - 20) * ((new Date(iso).getTime() - t0) / (t1 - t0));
+        let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Song mentions over time">';
+        names.forEach((nm, i) => {
+          const L2 = D.lanes[nm], yy = i * rowH + 14;
+          s += '<text x="0" y="' + (yy + 4) + '" fill="#c9c9d2" font-size="12">' + esc(nm) + '</text>';
+          s += '<line x1="' + L + '" x2="' + (W - 20) + '" y1="' + yy + '" y2="' + yy + '" stroke="#1c1c26"/>';
+          s += '<line x1="' + px(L2.first).toFixed(1) + '" x2="' + px(L2.last).toFixed(1) + '" y1="' + yy +
+               '" y2="' + yy + '" stroke="#3a3a4a" stroke-width="2"/>';
+          L2.days.forEach(d => {
+            s += '<circle cx="' + px(d).toFixed(1) + '" cy="' + yy + '" r="3.4" fill="#5ec8ff" opacity=".9"><title>' +
+                 esc(nm) + ' — ' + d + '</title></circle>';
+          });
+        });
+        const yb = names.length * rowH + 14;
+        [0, .25, .5, .75, 1].forEach(f => {
+          const xx = L + (W - L - 20) * f, d = new Date(t0 + (t1 - t0) * f);
+          s += '<text x="' + xx.toFixed(1) + '" y="' + yb + '" fill="#5f5f6b" font-size="10" text-anchor="middle">' +
+               esc(d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })) + '</text>';
+        });
+        s += '</svg>';
+        document.getElementById('ar-lanes').innerHTML = s;
+      })();
+
+      // ---------- clock ----------
+      (function () {
+        const h = D.hours, max = Math.max(...h), W = 1000, H = 150, PAD = 30;
+        const bw = (W - PAD * 2) / 24;
+        let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Messages by hour of day">';
+        h.forEach((v, i) => {
+          const bh = (H - 46) * (v / max), xx = PAD + i * bw;
+          const late = (i >= 22 || i <= 3);
+          s += '<rect x="' + (xx + 2).toFixed(1) + '" y="' + (H - 26 - bh).toFixed(1) + '" width="' + (bw - 4).toFixed(1) +
+               '" height="' + bh.toFixed(1) + '" rx="2" fill="' + (late ? '#ff5e5e' : '#f2ff5e') + '" opacity="' +
+               (late ? '.95' : '.8') + '"><title>' + i + ':00 — ' + v + ' messages</title></rect>';
+          if (i % 3 === 0) s += '<text x="' + (xx + bw / 2).toFixed(1) + '" y="' + (H - 10) +
+            '" fill="#5f5f6b" font-size="10" text-anchor="middle">' + (i % 12 === 0 ? 12 : i % 12) + (i < 12 ? 'a' : 'p') + '</text>';
+        });
+        s += '</svg>';
+        document.getElementById('ar-clock').innerHTML = s;
+      })();
+
+      // ---------- random idea ----------
+      const ideaEl = document.getElementById('ar-idea');
+      let lastIdea = -1;
+      function pickIdea() {
+        if (!D.ideas.length) { ideaEl.innerHTML = '<p>No ideas found. Suspicious.</p>'; return; }
+        let i = lastIdea;
+        while (i === lastIdea && D.ideas.length > 1) i = Math.floor(Math.random() * D.ideas.length);
+        lastIdea = i;
+        const it = D.ideas[i];
+        ideaEl.innerHTML = '<p>&ldquo;' + esc(it.t) + '&rdquo;</p><small>' +
+          (it.w === 'J' ? 'Justin' : 'Steve') + ' &middot; ' +
+          esc(new Date(it.d + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })) +
+          '</small>';
+      }
+      document.getElementById('ar-idea-btn').onclick = pickIdea;
+      pickIdea();
+
+      document.getElementById('ar-foot').innerHTML =
+        'Source: ' + fmt(T.messages) + ' messages &mdash; ' + fmt(T.from_j) + ' from Justin, ' +
+        fmt(T.from_s) + ' from Steve, ' + fmt(T.taargus) + ' in the TAARG&Uuml;S group chat.<br>' +
+        'Counted through ' + esc(nice(T.last)) + '. Songs released to date: ' + T.releases + '.';
+    }
+
   </script>
 </body>
 </html>

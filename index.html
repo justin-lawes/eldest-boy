@@ -44,9 +44,26 @@
       z-index: 100;
       display: flex;
       gap: 0;
+      /* With 14 buttons the row outgrew the window between ~600px and ~1100px,
+         pushing the last modes (and Mode 1/2) off both edges where they could
+         not be clicked. Scroll rather than clip, so nothing is unreachable at
+         any width; the bar stays one row tall, so no mode's layout shifts.
+         Below 600px the rule further down wraps it and this never engages.
+         width:max-content is required because left:50% otherwise makes this
+         shrink-to-fit against half the viewport and collapse to min-content. */
+      width: max-content;
+      max-width: calc(100vw - 16px);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      overscroll-behavior-x: contain;
     }
 
+    .mode-selector::-webkit-scrollbar { display: none; }
+
     .mode-btn {
+      flex: 0 0 auto;
       font-family: 'ChicagoFLF', sans-serif;
       font-size: 0.85rem;
       text-transform: uppercase;
@@ -73,6 +90,14 @@
     .mode-selector.soap-active .mode-btn {
       color: #8a6a3a;
       border-color: rgba(138,106,58,0.3);
+    }
+
+    /* Laptop / tablet-landscape range: tighten the buttons so all 14 fit on one
+       row, rather than relying on the scroll above — which works, but gives no
+       hint that there is anything further right. Must sit after the .mode-btn
+       base rule to win. */
+    @media (min-width: 601px) and (max-width: 1150px) {
+      .mode-btn { font-size: 0.68rem; padding: 5px 9px; }
     }
 
     @media (max-width: 600px) {

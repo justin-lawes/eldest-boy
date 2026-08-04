@@ -11,6 +11,16 @@
   <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <script defer src="archive-data.js"></script>
+  <!-- Mode 10 (museum) only. Inert JSON — nothing is fetched until museum.js
+       is dynamically imported on first activation. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.185.1/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.185.1/examples/jsm/"
+    }
+  }
+  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1757,6 +1767,142 @@
     @media (hover: none) and (pointer: coarse) {
       .caterpillar-touch-controls { display: flex !important; }
     }
+
+    /* Mode 10: The Museum */
+    #museum-container {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #120c0a;
+      overflow: hidden;
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #museum-canvas {
+      display: block;
+      width: 100%; height: 100%;
+    }
+    #museum-loading {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'ChicagoFLF', monospace;
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
+      color: #c9a227;
+      text-align: center;
+      padding: 20px;
+    }
+    #museum-enter {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: none; /* museum.js shows this once the gallery is built */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: rgba(10,6,4,0.72);
+      cursor: pointer;
+      text-align: center;
+      padding: 24px;
+    }
+    #museum-enter .me-title {
+      font-family: 'Gasoek One', sans-serif;
+      font-size: clamp(1.4rem, 5vw, 2.6rem);
+      color: #e8d9b8;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+    #museum-enter .me-sub {
+      font-family: 'ChicagoFLF', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      color: #c9a227;
+    }
+    #museum-enter .me-keys {
+      font-family: 'Work Sans', sans-serif;
+      font-size: 0.8rem;
+      color: rgba(232,217,184,0.65);
+      max-width: 30ch;
+      line-height: 1.6;
+      margin-top: 6px;
+    }
+    #museum-crosshair {
+      display: none;
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 5px; height: 5px;
+      margin: -2.5px 0 0 -2.5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      pointer-events: none;
+    }
+    #museum-caption {
+      position: absolute;
+      left: 50%;
+      bottom: 12%;
+      transform: translate(-50%, 18px);
+      max-width: min(680px, 88vw);
+      padding: 14px 24px;
+      background: rgba(12,8,6,0.88);
+      border: 1px solid rgba(201,162,39,0.55);
+      border-radius: 3px;
+      font-family: 'ChicagoFLF', monospace;
+      font-size: clamp(0.75rem, 2.4vw, 1.05rem);
+      letter-spacing: 0.06em;
+      color: #f3e6c4;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.14s ease-out, transform 0.14s ease-out;
+    }
+    #museum-caption.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    #museum-mute {
+      position: absolute;
+      right: 14px; bottom: 14px;
+      padding: 7px 12px;
+      background: rgba(12,8,6,0.75);
+      border: 1px solid rgba(201,162,39,0.4);
+      border-radius: 3px;
+      color: #c9a227;
+      font-family: 'ChicagoFLF', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      cursor: pointer;
+      z-index: 3;
+    }
+    #museum-mute.muted { opacity: 0.55; }
+    #museum-joystick {
+      display: none;
+      position: absolute;
+      width: 112px; height: 112px;
+      margin: -56px 0 0 -56px;
+      border-radius: 50%;
+      border: 2px solid rgba(201,162,39,0.35);
+      background: rgba(12,8,6,0.35);
+      pointer-events: none;
+      z-index: 2;
+    }
+    #museum-joystick-thumb {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 46px; height: 46px;
+      margin: 0;
+      transform: translate(-50%,-50%);
+      border-radius: 50%;
+      background: rgba(201,162,39,0.5);
+    }
+    @media (max-width: 600px) {
+      #museum-caption { bottom: 22%; padding: 10px 16px; }
+      #museum-mute { right: 10px; bottom: 10px; font-size: 0.55rem; }
+      #museum-enter { padding-top: 100px; }
+    }
   </style>
 </head>
 <body>
@@ -1774,6 +1920,7 @@
     <button class="mode-btn" data-mode="caterpillar">Mode 8</button>
     <button class="mode-btn" data-mode="listen">Listen</button>
     <button class="mode-btn" data-mode="archive">Mode 9</button>
+    <button class="mode-btn" data-mode="museum">Mode 10</button>
     <button class="mode-btn" onclick="window.location.href='https://eldest-boy.onrender.com/chat.html'">Chat</button>
   </div>
 
@@ -2286,6 +2433,21 @@
     </div>
   </div>
 
+  <!-- Mode 10: The Museum -->
+  <div id="museum-container">
+    <div id="museum-loading">ENTERING THE GALLERY&hellip;</div>
+    <div id="museum-crosshair"></div>
+    <div id="museum-enter">
+      <div class="me-sub">THE ELDEST BOY COLLECTION</div>
+      <div class="me-title">GALLERY 19<br>BROTHERS AND OTHER BROTHERS</div>
+      <div class="me-sub">CLICK TO ENTER</div>
+      <div class="me-keys">WASD or arrows to walk &middot; shift to hurry &middot; mouse (or drag) to look &middot; esc to leave. Read the wall labels. Do not get close.</div>
+    </div>
+    <div id="museum-caption"></div>
+    <div id="museum-joystick"><div id="museum-joystick-thumb"></div></div>
+    <button id="museum-mute">GUARD: ON</button>
+  </div>
+
   <script>
     // ========================
     // MODE SWITCHING
@@ -2293,6 +2455,7 @@
     let currentMode = 'bounce';
     let bounceAnimId = null;
     let gameRunning = false;
+    let museumLoading = false;
 
     const bounceContainer = document.getElementById('bounce-container');
     const invadersContainer = document.getElementById('invaders-container');
@@ -2306,6 +2469,7 @@
     const caterpillarContainer = document.getElementById('caterpillar-container');
     const listenContainer = document.getElementById('listen-container');
     const archiveContainer = document.getElementById('archive-container');
+    const museumContainer = document.getElementById('museum-container');
     const modeBtns = document.querySelectorAll('.mode-btn');
 
     modeBtns.forEach(btn => {
@@ -2344,7 +2508,9 @@
       caterpillarContainer.style.display = 'none';
       listenContainer.style.display = 'none';
       archiveContainer.style.display = 'none';
+      museumContainer.style.display = 'none';
       if (window.caterpillarGame) window.caterpillarGame.stop();
+      if (window.museum) window.museum.stop();
       document.getElementById('game-overlay').style.display = 'none';
       document.getElementById('score-display').style.display = 'none';
       easySteveBtn.style.display = 'none';
@@ -2385,6 +2551,27 @@
       } else if (mode === 'tour') {
         tourContainer.style.display = 'block';
         initTourDates();
+      } else if (mode === 'museum') {
+        museumContainer.style.display = 'block';
+        // three.js + museum.js are fetched here and nowhere else, so this mode
+        // costs nothing until someone actually clicks it.
+        if (window.museum) {
+          window.museum.start();
+        } else if (!museumLoading) {
+          museumLoading = true;
+          document.getElementById('museum-loading').style.display = 'flex';
+          import('./museum.js')
+            .then(m => {
+              window.museum = m.default;
+              if (currentMode === 'museum') window.museum.start();
+            })
+            .catch(err => {
+              museumLoading = false;
+              console.error('Museum failed to load', err);
+              document.getElementById('museum-loading').textContent =
+                'THE GALLERY IS CLOSED (COULD NOT LOAD). TRY A DIFFERENT BROWSER.';
+            });
+        }
       } else if (mode === 'caterpillar') {
         caterpillarContainer.style.display = 'flex';
         if (window.caterpillarGame) window.caterpillarGame.loadAssets();
@@ -2583,8 +2770,11 @@
         clearInterval(bounceAnimId);
         bounceAnimId = null;
       }
-      document.getElementById('img1').pause();
-      document.getElementById('img2').pause();
+      // animateBounce() removes bouncers that leave the viewport, so these can
+      // legitimately be gone by now. Without the guard this throws inside
+      // hideAll() and kills mode switching for the rest of the session.
+      document.getElementById('img1')?.pause();
+      document.getElementById('img2')?.pause();
     }
 
     // Init bounce on load

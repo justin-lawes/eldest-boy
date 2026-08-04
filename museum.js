@@ -33,6 +33,7 @@ const pos = new THREE.Vector3(0, EYE, 5.2);
 const obstacles = { circles: [], boxes: [] };   // collision
 const zones = [];                                // guard trigger volumes
 let guardLevel = 0, lastShout = 0, muted = false, guardVoice = null, speechPrimed = false;
+let guardAudio = null;   // recorded VO handle, so stop()/mute can kill it
 let captionTimer = null;
 
 const listeners = [];   // [target, type, fn, opts] — all removed on stop()
@@ -54,6 +55,15 @@ function on(target, type, fn, opts) {
 function offAll() {
   for (const [t, ty, fn, o] of listeners) t.removeEventListener(ty, fn, o);
   listeners.length = 0;
+}
+
+// The scene is static, so matrix and shadow updates are switched off after the
+// build. Anything that lands later (GLTF models, painting textures) must call
+// this or it will render unlit, unshadowed, and at the wrong transform.
+function sceneChanged() {
+  if (!scene) return;
+  scene.updateMatrixWorld(true);
+  if (renderer) renderer.shadowMap.needsUpdate = true;
 }
 
 // Deterministic RNG so the placeholder paintings don't reshuffle on reload.
@@ -491,8 +501,19 @@ function buildFramedPainting(item, goldMat, idx) {
     // Real file supplied — load it and swap in when it lands.
     new THREE.TextureLoader().load(item.image, (t) => {
       t.colorSpace = THREE.SRGBColorSpace;
+      // These are the textures most often seen at a grazing angle, and they
+      // were the only ones not getting anisotropic filtering.
+      if (renderer) t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
       disposables.push(t);
       applyArt(t);
+      sceneChanged();
+    }, undefined, () => {
+      // Without this a 404 — or a filename case mismatch, which is exactly what
+      // GitHub Pages punishes — leaves a black rectangle in a gilt frame
+      // forever, and the ~130-line procedural painting fallback never runs.
+      console.warn('[museum] painting failed to load:', item.image);
+      applyArt(texFrom(paintingTexture(item.seed || (idx + 1) * 137, w, h)));
+      sceneChanged();
     });
   }
   const artGeo = new THREE.PlaneGeometry(w, h);
@@ -1017,8 +1038,16 @@ function buildGallery() {
         o.position.set(-centre.x * s, 0.95 - box.min.y * s, -centre.z * s);
         o.traverse(m => { if (m.isMesh) { m.castShadow = !IS_TOUCH; m.receiveShadow = !IS_TOUCH; } });
         g.add(o);
+        sceneChanged();
       }, undefined, () => {
-        g.add(Object.assign(poseStatue(st.pose, marble), { position: new THREE.Vector3(0, 0.95, 0) }));
+        // Object3D.position is a non-writable accessor, so Object.assign on it
+        // throws a TypeError in strict mode (modules are always strict) —
+        // meaning the fallback statue never appeared at all.
+        const fig = poseStatue(st.pose, marble);
+        fig.position.y = 0.95;
+        fig.rotation.y = (i % 2 ? 1 : -1) * 0.35;
+        g.add(fig);
+        sceneChanged();
       });
     } else {
       const fig = poseStatue(st.pose, marble);
@@ -1097,9 +1126,12 @@ function shout(kind) {
 
   if (muted) return;
   if (audio) {
-    const a = new Audio(audio);
-    a.volume = 1;
-    a.play().catch(() => {});
+    // Held on a module handle so stop() can silence it — otherwise a line that
+    // starts just before a mode switch plays on over whatever comes next.
+    if (guardAudio) { guardAudio.pause(); guardAudio = null; }
+    guardAudio = new Audio(audio);
+    guardAudio.volume = 1;
+    guardAudio.play().catch(() => {});
   } else if (window.speechSynthesis) {
     try {
       speechSynthesis.cancel();
@@ -1117,11 +1149,19 @@ function checkZones(now) {
   for (const z of zones) {
     const dx = pos.x - z.x, dz = pos.z - z.z;
     const inside = (dx * dx + dz * dz) < z.r * z.r;
-    if (inside && !z.inside && now - lastShout > DATA.guard.cooldown) {
-      lastShout = now;
-      shout(z.kind);
+    if (inside && !z.inside) {
+      // Only latch once the shout actually happens. Latching unconditionally
+      // burned the edge trigger whenever you entered during the 4s cooldown —
+      // and north-wall paintings are 6.7m apart, i.e. ~2s at walking pace, so
+      // the guard went silent for every other painting.
+      if (now - lastShout > DATA.guard.cooldown) {
+        lastShout = now;
+        shout(z.kind);
+        z.inside = true;
+      }
+    } else {
+      z.inside = inside;
     }
-    z.inside = inside;
   }
 }
 
@@ -1241,12 +1281,23 @@ function onCanvasClick() {
   if (elEnter) elEnter.style.display = 'none';
   if (elCrosshair) elCrosshair.style.display = 'block';
   if (!IS_TOUCH && document.pointerLockElement !== canvas) {
-    try { canvas.requestPointerLock(); } catch { /* drag fallback covers it */ }
+    // Modern Chrome returns a Promise here, so a denial (sandboxed iframe, no
+    // user gesture) escapes try/catch as an unhandled rejection.
+    try {
+      const p = canvas.requestPointerLock();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch { /* drag fallback covers it */ }
   }
 }
 
 // --- Touch -------------------------------------------------------------------
 function onTouchStart(e) {
+  // The mute button is a child of the container this is bound to, and the
+  // preventDefault() below suppresses its synthesized click. Worse, it sits on
+  // the right half of the screen, so tapping mute was swinging the camera.
+  // touch-action:none on #museum-container is what actually blocks scrolling,
+  // so bailing here costs nothing.
+  if (elMute && e.target && elMute.contains(e.target)) return;
   primeSpeech();
   if (elEnter) elEnter.style.display = 'none';
   for (const t of e.changedTouches) {
@@ -1318,6 +1369,10 @@ function loop(now) {
 }
 
 function start() {
+  // The host currently guarantees stop() runs first, but nothing in here
+  // enforced it: a second start() would double every listener and leave two
+  // rAF loops rendering.
+  if (running) return;
   container = document.getElementById('museum-container');
   elCaption = document.getElementById('museum-caption');
   elEnter = document.getElementById('museum-enter');
@@ -1342,12 +1397,27 @@ function start() {
     camera = new THREE.PerspectiveCamera(66, window.innerWidth / window.innerHeight, 0.1, 120);
 
     buildGallery();
+
+    // Nothing in this scene moves except the camera, so re-rendering the
+    // 2048² shadow map every frame was drawing the entire object set twice
+    // per frame for an identical result.
+    renderer.shadowMap.autoUpdate = false;
+    renderer.shadowMap.needsUpdate = true;
+
+    // NOT doing `scene.matrixWorldAutoUpdate = false` as well. It's valid by the
+    // same "nothing moves" argument and would skip the per-frame matrix walk,
+    // but the payoff is small next to the shadow fix and the failure mode if
+    // anything ever does animate is corrupted geometry rather than a stale
+    // shadow. Revisit with a visual A/B.
   }
 
   // Reset the visit. Seed each zone with whether we're already standing in it,
   // so arriving in the gallery never counts as a violation.
   pos.set(0, EYE, DATA.room.depth / 2 - 3.5);
   yaw = 0; pitch = 0; bobT = 0;
+  // Without this the guard's escalation restarts at the punchline on a second
+  // visit — the build-up is the entire joke.
+  guardLevel = 0; lastShout = 0;
   for (const z of zones) {
     const dx = pos.x - z.x, dz = pos.z - z.z;
     z.inside = (dx * dx + dz * dz) < z.r * z.r;
@@ -1374,12 +1444,23 @@ function start() {
   on(container, 'touchmove', onTouchMove, { passive: false });
   on(container, 'touchend', onTouchEnd);
   on(container, 'touchcancel', onTouchEnd);
+  // In the drag-fallback path wasLocked is never true, so onPointerLockChange
+  // never clears keys — alt-tab while holding W and you walk into a wall until
+  // you come back.
+  on(window, 'blur', () => {
+    keys.clear();
+    dragging = false; joyActive = false; joyId = null; lookId = null;
+    joyVec.x = 0; joyVec.y = 0;
+  });
   on(elMute, 'click', (e) => {
     e.stopPropagation();
     muted = !muted;
     elMute.textContent = muted ? 'GUARD: MUTED' : 'GUARD: ON';
     elMute.classList.toggle('muted', muted);
-    if (muted && window.speechSynthesis) speechSynthesis.cancel();
+    if (muted) {
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      if (guardAudio) { guardAudio.pause(); guardAudio = null; }
+    }
   });
   if (window.speechSynthesis) {
     on(window.speechSynthesis, 'voiceschanged', pickVoice);
@@ -1397,6 +1478,7 @@ function stop() {
   if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
   if (document.pointerLockElement === canvas) document.exitPointerLock();
   if (window.speechSynthesis) speechSynthesis.cancel();
+  if (guardAudio) { guardAudio.pause(); guardAudio = null; }
   clearTimeout(captionTimer);
   if (elCaption) elCaption.classList.remove('show');
   keys.clear();

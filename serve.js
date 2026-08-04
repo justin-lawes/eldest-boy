@@ -20,10 +20,39 @@ const MIME = {
   '.webp': 'image/webp',
   '.wav': 'audio/wav',
   '.mp3': 'audio/mpeg',
+  '.m4a': 'audio/mp4',
+  '.gif': 'image/gif',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.txt': 'text/plain',
+  '.glb': 'model/gltf-binary',
 };
 
 const server = http.createServer((req, res) => {
-  let filePath = path.join(DIR, req.url === '/' ? 'index.html' : decodeURIComponent(req.url.split('?')[0]));
+  // Strip the query BEFORE anything else — `/?utm_source=x` used to fall into
+  // the non-root branch and 404, which broke every link shared from Instagram.
+  const rawPath = req.url.split('?')[0].split('#')[0];
+
+  let urlPath;
+  try {
+    urlPath = decodeURIComponent(rawPath);
+  } catch {
+    // A malformed escape (`/%zz`) throws URIError. Uncaught, that killed the
+    // whole process — one bad request took the site down.
+    res.writeHead(400);
+    return res.end('Bad request');
+  }
+
+  if (urlPath === '/' || urlPath.endsWith('/')) urlPath += 'index.html';
+
+  // Resolve, then confirm the result is still inside DIR. `%2e%2e%2f` survives
+  // browser normalization and only becomes `../` after decodeURIComponent.
+  const filePath = path.resolve(DIR, '.' + path.posix.normalize(urlPath));
+  if (filePath !== DIR && !filePath.startsWith(DIR + path.sep)) {
+    res.writeHead(403);
+    return res.end('Forbidden');
+  }
+
   const ext = path.extname(filePath).toLowerCase();
   const mime = MIME[ext] || 'application/octet-stream';
 
@@ -34,11 +63,19 @@ const server = http.createServer((req, res) => {
   }
 
   const range = req.headers.range;
-  if (range && ext === '.mp4') {
+  // Range must be honored for audio too, not just .mp4 — Safari refuses to
+  // play media when the server answers a Range request with a plain 200.
+  if (range) {
     const size = stat.size;
     const parts = range.replace(/bytes=/, '').split('-');
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : size - 1;
+    let start = parseInt(parts[0], 10);
+    let end = parts[1] ? parseInt(parts[1], 10) : size - 1;
+    if (Number.isNaN(start)) start = 0;
+    if (Number.isNaN(end) || end >= size) end = size - 1;
+    if (start > end) {
+      res.writeHead(416, { 'Content-Range': `bytes */${size}` });
+      return res.end();
+    }
     res.writeHead(206, {
       'Content-Range': `bytes ${start}-${end}/${size}`,
       'Accept-Ranges': 'bytes',
@@ -47,10 +84,20 @@ const server = http.createServer((req, res) => {
     });
     fs.createReadStream(filePath, { start, end }).pipe(res);
   } else {
-    res.writeHead(200, { 'Content-Type': mime, 'Content-Length': stat.size });
+    res.writeHead(200, {
+      'Content-Type': mime,
+      'Content-Length': stat.size,
+      'Accept-Ranges': 'bytes',
+      'Last-Modified': stat.mtime.toUTCString(),
+      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
+    });
     fs.createReadStream(filePath).pipe(res);
   }
 });
+
+// The static handler is defensive now, but a stray throw anywhere in the
+// request path shouldn't take the chat server down with it.
+process.on('uncaughtException', (err) => console.error('uncaught:', err));
 
 // --- Chat WebSocket ---
 const wss = new WebSocketServer({ noServer: true });

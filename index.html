@@ -3905,19 +3905,20 @@
     const rotatingAds = [
       { emoji: '💪', headline: 'Get the body of your dreams with Body Juice!™',                           source: 'BodyJuice.com' },
       { emoji: '😱', headline: 'No one can believe what she looks like now!',                             source: 'CelebBuzzNow' },
-      { img: 'vibe2.png', headline: 'How a new pill is minting studs over 70',                                 source: 'MensWellnessToday' },
-      { img: 'vibe1.png', headline: 'Rock hard bowel movements — Leading BM doc is ripping the lid off of it', source: 'GutHealthInsider' },
+      { img: 'vibe2.webp', headline: 'How a new pill is minting studs over 70',                                 source: 'MensWellnessToday' },
+      { img: 'vibe1.webp', headline: 'Rock hard bowel movements — Leading BM doc is ripping the lid off of it', source: 'GutHealthInsider' },
       { emoji: '☠️', headline: 'Predict the exact date of your death!',                                   source: 'DeathWatchDaily' },
       { emoji: '🤒', headline: '10 signs you\'re probably dying and it\'s not just your imagination',     source: 'HealthFirst Media' },
       { emoji: '🫀', headline: 'How to check if your liver is a super organ or you\'re about to die',     source: 'LiverAlert.net' },
       { emoji: '😰', headline: 'Yup, you\'re gonna die. Why that one weird pain is for sure not gas',     source: 'TopStories24' },
     ];
 
-    // Deliberately NOT an IIFE. Running at parse time populated slots with
-    // vibe2.png (1.6MB) and, 11s later, vibe1.png (888KB) — downloaded on every
-    // visit for a display:none mode, then rendered into a 58x58 thumbnail.
-    // switchMode('news') calls this on first entry; the ad intervals live and
-    // die with the mode too, instead of ticking for the whole session.
+    // Deliberately NOT an IIFE. Running at parse time pulled the ad thumbnails
+    // on every visit for a display:none mode. switchMode('news') calls this on
+    // first entry; the ad intervals live and die with the mode too, instead of
+    // ticking for the whole session.
+    // The thumbs are .webp sized for the 58px tile — the .png sources are kept
+    // in the repo as source art but are never served.
     let adsInited = false, adTimers = [];
     function initAds() {
       if (adsInited) return;

@@ -2,3 +2,8 @@ node_modules/
 .env
 .DS_Store
 Thumbs.db
+
+# Audio masters/stems: not used by the site, and GitHub Pages deploys the whole
+# repo (path: .), so anything tracked here ships in the artifact. Keep these on
+# disk (Dropbox) but out of the deploy. Recover old ones from git history.
+*.wav

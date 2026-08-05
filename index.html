@@ -7,9 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gasoek+One&family=Work+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin>
   <link href="https://fonts.cdnfonts.com/css/chicagoflf" rel="stylesheet">
-  <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <!-- Firebase (198KB) is loaded by initFirebase() on first entry to Poll mode,
+       not here — it was downloading on every visit for a mode behind a click. -->
   <script defer src="archive-data.js"></script>
   <!-- Mode 10 (museum) only. Inert JSON — nothing is fetched until museum.js
        is dynamically imported on first activation. -->
@@ -1928,6 +1929,21 @@
       #museum-mute { right: 10px; bottom: 10px; font-size: 0.55rem; }
       #museum-enter { padding-top: 100px; }
     }
+
+    /* This site is spinning video, rising bubbles, a rotating god-ray gradient,
+       a pulsing glow and a shimmer sweep — all at once, on the landing page.
+       Honour the OS setting. The JS side also skips bounce/bubbles/needle. */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* Continuous animators — promote them so the compositor owns the work. */
+    .bouncing-img, .soap-bubble, .soap-god-rays { will-change: transform; }
   </style>
 </head>
 <body>
@@ -2224,7 +2240,10 @@
     <div class="news-ticker-wrap">
       <div class="tradingview-widget-container" style="height:46px;overflow:hidden">
         <div class="tradingview-widget-container__widget"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        <!-- Injected by initTicker() on first entry to News mode. When this was
+             a live script tag it ran on every visit, pulling its own bundle into
+             an iframe and opening a market-data WebSocket for a hidden ticker. -->
+        <script type="application/json" id="tv-ticker-config">
         {
           "symbols": [
             {"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},
@@ -2542,6 +2561,8 @@
       stopBounce();
       stopGame();
       stopSoapPopupCycle();
+      stopWiggle();
+      stopAds();
     }
 
     function switchMode(mode) {
@@ -2569,6 +2590,8 @@
         startSoapPopupCycle();
       } else if (mode === 'news') {
         newsContainer.style.display = 'block';
+        initAds();
+        initTicker();
         loadNews();
       } else if (mode === 'archive') {
         archiveContainer.style.display = 'block';
@@ -2599,7 +2622,10 @@
         }
       } else if (mode === 'caterpillar') {
         caterpillarContainer.style.display = 'flex';
-        if (window.caterpillarGame) window.caterpillarGame.loadAssets();
+        if (window.caterpillarGame) {
+          window.caterpillarGame.loadAssets();
+          window.caterpillarGame.start();
+        }
       } else if (mode === 'listen') {
         listenContainer.style.display = 'block';
         // Lazy-load Samply iframe on first visit
@@ -2785,8 +2811,13 @@
     function startBounce() {
       if (bounceAnimId) return;
       if (bouncers.length === 0) initBounce();
-      document.getElementById('img1').play().catch(() => {});
-      document.getElementById('img2').play().catch(() => {});
+      // Same reason stopBounce() guards: splitVideo() and the off-screen cull
+      // both remove #img1/#img2, so these are routinely gone. Unguarded, this
+      // threw before the interval was set and left bounce mode permanently dead.
+      document.getElementById('img1')?.play().catch(() => {});
+      document.getElementById('img2')?.play().catch(() => {});
+      // Resume any clones that stopBounce() paused.
+      for (const b of bouncers) if (b.el.tagName === 'VIDEO') b.el.play?.().catch(() => {});
       bounceAnimId = setInterval(animateBounce, 1000 / 60);
     }
 
@@ -2800,6 +2831,10 @@
       // hideAll() and kills mode switching for the rest of the session.
       document.getElementById('img1')?.pause();
       document.getElementById('img2')?.pause();
+      // splitVideo() clones are unbounded and loop at up to 16x playbackRate.
+      // Without this they keep decoding inside the hidden container, forever,
+      // across every other mode.
+      for (const b of bouncers) if (b.el.tagName === 'VIDEO') b.el.pause?.();
     }
 
     // Init bounce on load
@@ -2807,9 +2842,12 @@
       img1.readyState >= 1 ? Promise.resolve() : new Promise(r => img1.addEventListener('loadedmetadata', r, { once: true })),
       img2.readyState >= 1 ? Promise.resolve() : new Promise(r => img2.addEventListener('loadedmetadata', r, { once: true })),
     ]).then(() => {
-      img2.currentTime = img2.duration / 2;
-      startBounce();
-    });
+      if (isFinite(img2.duration)) img2.currentTime = img2.duration / 2;
+      // Only start if we're still in bounce mode — otherwise this fires after a
+      // mode switch, measuring every bouncer against a display:none container
+      // (offsetWidth 0) and orphaning a 60Hz interval for the session.
+      if (currentMode === 'bounce') startBounce();
+    }).catch(() => { if (currentMode === 'bounce') startBounce(); });
 
     window.addEventListener('resize', () => {
       for (const b of bouncers) {
@@ -3252,17 +3290,46 @@
     let pollUserPick = localStorage.getItem('pollUserPick');
 
     // Defer Firebase init until Poll mode is first activated
-    let firebaseInited = false;
-    function initFirebase() {
-      if (firebaseInited) return;
-      firebaseInited = true;
+    const FIREBASE_SDK = [
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js',
+    ];
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src; s.async = false;   // async:false preserves execution order
+        s.onload = resolve; s.onerror = () => reject(new Error('failed: ' + src));
+        document.head.appendChild(s);
+      });
+    }
+
+    let firebaseInited = false, firebaseLoading = false;
+    async function initFirebase() {
+      if (firebaseInited || firebaseLoading) return;
+      if (typeof firebase === 'undefined') {
+        firebaseLoading = true;
+        try {
+          for (const src of FIREBASE_SDK) await loadScript(src);
+        } catch (e) {
+          firebaseLoading = false;
+          console.warn('Firebase SDK failed to load, using localStorage fallback', e);
+          return;   // leave firebaseInited false so the next poll visit retries
+        }
+        firebaseLoading = false;
+      }
       try {
         if (firebaseConfig.apiKey !== 'YOUR_API_KEY') {
           firebase.initializeApp(firebaseConfig);
           pollDb = firebase.database();
           pollRef = pollDb.ref('poll/votes');
         }
+        firebaseInited = true;
+        // Must run AFTER pollRef exists. The parse-time call below always saw
+        // pollRef === null, so the realtime subscription was never created and
+        // voters never saw a result bar.
+        loadAndRenderPoll();
       } catch (e) {
+        firebaseInited = true;   // real failure — stay on the localStorage path
         console.warn('Firebase init failed, using localStorage fallback', e);
       }
     }
@@ -3690,13 +3757,27 @@
     // ========================
     // NEWS MODE
     // ========================
-    let newsLoaded = false;
+    let newsLoaded = false, newsLoading = false;
 
     function fetchWithTimeout(url, ms) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), ms);
       return fetch(url, { signal: controller.signal })
         .finally(() => clearTimeout(timer));
+    }
+
+    // This content arrives via third-party CORS proxies (allorigins, corsproxy,
+    // codetabs), so treat every field as hostile. The old code interpolated it
+    // straight into innerHTML.
+    function newsEsc(s) {
+      return String(s).replace(/[&<>"']/g, c =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function safeHttpUrl(raw) {
+      try {
+        const u = new URL(String(raw).trim(), location.href);
+        return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '#';
+      } catch { return '#'; }
     }
 
     function parseNewsXml(xmlText) {
@@ -3726,16 +3807,24 @@
           month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
         }) : '';
 
-        return `<a class="news-article" href="${link.trim()}" target="_blank" rel="noopener noreferrer">
-          <div class="news-article-title">${title}</div>
-          ${desc ? `<div class="news-article-desc">${desc}</div>` : ''}
-          <div class="news-article-meta">BBC World News${date ? ' &middot; ' + date : ''}</div>
+        return `<a class="news-article" href="${newsEsc(safeHttpUrl(link))}" target="_blank" rel="noopener noreferrer">
+          <div class="news-article-title">${newsEsc(title)}</div>
+          ${desc ? `<div class="news-article-desc">${newsEsc(desc)}</div>` : ''}
+          <div class="news-article-meta">BBC World News${date ? ' &middot; ' + newsEsc(date) : ''}</div>
         </a>`;
       }).join('');
     }
 
     async function loadNews() {
-      if (newsLoaded) return;
+      // newsLoaded is only set after up to four 9s-timeout proxy attempts, so
+      // re-entering the mode during that ~36s window used to start a second
+      // pipeline racing the first for the same innerHTML.
+      if (newsLoaded || newsLoading) return;
+      newsLoading = true;
+      try { await loadNewsInner(); } finally { newsLoading = false; }
+    }
+
+    async function loadNewsInner() {
       const feed = document.getElementById('news-feed');
       feed.innerHTML = '<div class="news-loading">Loading headlines…</div>';
 
@@ -3814,7 +3903,15 @@
       { emoji: '😰', headline: 'Yup, you\'re gonna die. Why that one weird pain is for sure not gas',     source: 'TopStories24' },
     ];
 
-    (function initAds() {
+    // Deliberately NOT an IIFE. Running at parse time populated slots with
+    // vibe2.png (1.6MB) and, 11s later, vibe1.png (888KB) — downloaded on every
+    // visit for a display:none mode, then rendered into a 58x58 thumbnail.
+    // switchMode('news') calls this on first entry; the ad intervals live and
+    // die with the mode too, instead of ticking for the whole session.
+    let adsInited = false, adTimers = [];
+    function initAds() {
+      if (adsInited) return;
+      adsInited = true;
       let indices = [0, 2, 4, 6];
 
       function setSlot(i, idx) {
@@ -3823,7 +3920,11 @@
         document.getElementById('ad-source-' + i).textContent   = ad.source;
         const thumb = document.getElementById('ad-thumb-' + i);
         if (ad.img) {
-          thumb.innerHTML = `<img src="${ad.img}" style="width:100%;height:100%;object-fit:cover;mix-blend-mode:lighten;">`;
+          // No loading="lazy" here: these nodes are injected into a container
+          // that was display:none, and Chrome never resolves the lazy load for
+          // them — the thumbnails just stay blank. initAds() being gated behind
+          // News mode is what actually keeps these off the first-load path.
+          thumb.innerHTML = `<img src="${ad.img}" alt="" decoding="async" style="width:100%;height:100%;object-fit:cover;mix-blend-mode:lighten;">`;
         } else {
           thumb.textContent = ad.emoji;
         }
@@ -3834,31 +3935,41 @@
 
       // Rotate each slot independently, staggered so they don't all flip at once
       indices.forEach((_, i) => {
-        setTimeout(() => {
-          setInterval(() => {
-            const slot = document.getElementById('ad-slot-' + i);
+        const slot = document.getElementById('ad-slot-' + i);   // hoisted out of the tick
+        adTimers.push(setTimeout(() => {
+          adTimers.push(setInterval(() => {
             slot.classList.add('fading');
-            setTimeout(() => {
+            adTimers.push(setTimeout(() => {
               indices[i] = (indices[i] + 1) % rotatingAds.length;
               setSlot(i, indices[i]);
               slot.classList.remove('fading');
-            }, 520);
-          }, 9000);
-        }, i * 2100); // stagger start times
+            }, 520));
+          }, 9000));
+        }, i * 2100)); // stagger start times
       });
-    })();
+    }
 
-    // Speed up TradingView ticker via JS after it renders (CSS selectors may not match obfuscated class names)
-    setTimeout(() => {
-      const wrap = document.querySelector('.news-ticker-wrap');
-      if (!wrap) return;
-      wrap.querySelectorAll('*').forEach(el => {
-        const dur = getComputedStyle(el).animationDuration;
-        if (dur && dur !== '0s' && parseFloat(dur) > 5) {
-          el.style.animationDuration = Math.max(8, parseFloat(dur) * 0.35) + 's';
-        }
-      });
-    }, 3500);
+    function stopAds() {
+      for (const t of adTimers) { clearTimeout(t); clearInterval(t); }
+      adTimers = [];
+      adsInited = false;
+    }
+
+    // TradingView, deferred to first News entry (see the JSON block in markup).
+    let tickerInited = false;
+    function initTicker() {
+      if (tickerInited) return;
+      tickerInited = true;
+      const cfg = document.getElementById('tv-ticker-config');
+      const host = document.querySelector('.tradingview-widget-container');
+      if (!cfg || !host) return;
+      const s = document.createElement('script');
+      s.type = 'text/javascript';
+      s.async = true;
+      s.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      s.textContent = cfg.textContent;
+      host.appendChild(s);
+    }
 
     // ========================
     const vibeOutcomes = [
@@ -4142,7 +4253,10 @@
       if (img.complete && img.naturalWidth > 0) {
         removeWhiteBG();
       } else {
-        img.addEventListener('load', removeWhiteBG);
+        // once:true is load-bearing — removeWhiteBG reassigns img.src, which
+        // re-fires 'load'. Without it this recurses forever, re-encoding a
+        // ~586KB PNG every pass and pegging a core for the whole session.
+        img.addEventListener('load', removeWhiteBG, { once: true });
       }
     })();
 
@@ -4310,6 +4424,7 @@
     let forestAmb = null, music1 = null, music2 = null;
     let music1FadingOut = false, music2Started = false;
     let music1FadeTimer = 0;
+    let music1Timer = null;
     const MUSIC1_FADE_DUR = 2.0; // seconds
 
     function startAmbience() {
@@ -4319,7 +4434,10 @@
       forestAmb.volume = 1;
       forestAmb.play().catch(()=>{});
 
-      setTimeout(() => {
+      // Held so stopAmbience can cancel it — otherwise leaving the mode within
+      // 2s lets this fire afterwards and start a 6.5MB loop over another mode.
+      music1Timer = setTimeout(() => {
+        music1Timer = null;
         if (!music1) {
           music1 = new Audio('Caterpillar Sim_Music_1.mp3');
           music1.loop = true;
@@ -4330,6 +4448,7 @@
     }
 
     function stopAmbience() {
+      if (music1Timer !== null) { clearTimeout(music1Timer); music1Timer = null; }
       if (forestAmb) { forestAmb.pause(); forestAmb.currentTime = 0; forestAmb = null; }
       if (music1)    { music1.pause();    music1.currentTime = 0;    music1 = null; }
       if (music2)    { music2.pause();    music2.currentTime = 0;    music2 = null; }
@@ -4459,6 +4578,7 @@
 
     // ---- STATE ----
     let state='TITLE', timer=0, poopCount=0;
+    let catActive=false, catRafId=null;   // lifecycle: only true while Mode 8 is open
     let catX=0, catFacing=-1, catOnUnderside=false, catPhase=1;
     let isMoving=false;
     let catSpriteFrame=0, catFrameTimer=CAT_FRAME_RATE;
@@ -4504,7 +4624,11 @@
 
     // ---- INPUT ----
     document.addEventListener('keydown', (e) => {
-      if (document.getElementById('caterpillar-container').style.display === 'none') return;
+      // Gate on the lifecycle flag, not `.style.display`. The container is
+      // hidden by CSS, so its inline style is '' until the first mode switch —
+      // this guard used to fall through and let a stray Space on the landing
+      // page start ~17MB of invisible ambience.
+      if (!catActive) return;
       ensureAudio(); catKeys[e.code] = true;
       if (e.code==='KeyR' && state==='GAMEOVER') { stopAmbience(); resetCatGame(); startAmbience(); }
       if (e.code==='Space'||e.code==='ArrowDown'||e.code==='ArrowUp'||e.code==='ArrowLeft'||e.code==='ArrowRight') e.preventDefault();
@@ -4957,21 +5081,34 @@
     }
 
     // ---- GAME LOOP ----
+    // The loop only exists while the mode is open. It used to run from page
+    // load, gated on `.style.display`, which reads the *inline* attribute —
+    // the container is hidden by the stylesheet, so that test was always false
+    // and the whole game rendered at 60fps behind the landing page.
     function catLoop(ts) {
+      if (!catActive) { catRafId = null; return; }
       const dt=Math.min((ts-lastTime)/1000,0.05);lastTime=ts;
-      if(document.getElementById('caterpillar-container').style.display!=='none'){update(dt);render();}
-      requestAnimationFrame(catLoop);
+      update(dt); render();
+      catRafId = requestAnimationFrame(catLoop);
     }
     lastTime=performance.now();
     leavesA=LEAVES_A.map(x=>({x,eaten:false}));
     leavesB=LEAVES_B.map(x=>({x,eaten:false}));
-    requestAnimationFrame(catLoop);
 
     window.caterpillarGame = {
       loadAssets: loadCaterpillarAssets,
-      start: function() { state = 'TITLE'; },
+      start: function() {
+        state = 'TITLE';
+        if (catActive) return;
+        catActive = true;
+        lastTime = performance.now();
+        catRafId = requestAnimationFrame(catLoop);
+      },
       stop: function() {
         state = 'TITLE';
+        catActive = false;
+        if (catRafId !== null) { cancelAnimationFrame(catRafId); catRafId = null; }
+        for (const k in catKeys) catKeys[k] = false;
         if (chrysalisSong) { chrysalisSong.pause(); chrysalisSong = null; }
         stopAmbience();
       }

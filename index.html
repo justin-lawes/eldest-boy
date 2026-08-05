@@ -2866,14 +2866,23 @@
     const overlayText = document.getElementById('overlay-text');
     const scoreVal = document.getElementById('score-val');
 
-    // Preload video frames as drawable sources
+    // Drawable video sources for the invader sprites. The elements exist from
+    // the start because six drawImage() call sites reference them, but `src` is
+    // assigned in initGame() — setting it here fetched both MP4s a SECOND time
+    // on every page load (the bounce videos are the same two files), for a mode
+    // nobody had opened. Worth ~1.1MB of the first-load budget.
     const playerVideo = document.createElement('video');
-    playerVideo.src = 'TwoPeople_PolyReduce_v03b.mp4';
     playerVideo.loop = true; playerVideo.muted = true; playerVideo.playsInline = true;
 
     const alienVideo = document.createElement('video');
-    alienVideo.src = 'TwoPeople_PolyReduce_v03.mp4';
     alienVideo.loop = true; alienVideo.muted = true; alienVideo.playsInline = true;
+
+    function ensureInvaderSprites() {
+      // Same URLs the bounce videos use, so by the time anyone opens Invaders
+      // these are almost always already in the HTTP cache.
+      if (!playerVideo.src) playerVideo.src = 'TwoPeople_PolyReduce_v03b.mp4';
+      if (!alienVideo.src)  alienVideo.src  = 'TwoPeople_PolyReduce_v03.mp4';
+    }
 
     let game = null;
     let gameAnimId = null;
@@ -2892,6 +2901,7 @@
 
     function initGame() {
       resizeCanvas();
+      ensureInvaderSprites();
       playerVideo.play().catch(() => {});
       alienVideo.play().catch(() => {});
       gameState = 'idle';

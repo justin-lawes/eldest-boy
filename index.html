@@ -2518,11 +2518,10 @@
 
     modeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
+        // The Chat button is styled as a mode button but has no data-mode —
+        // it navigates away via its own inline onclick.
         const mode = btn.dataset.mode;
-        if (mode === currentMode) return;
-        currentMode = mode;
-        modeBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        if (!mode) return;
         switchMode(mode);
       });
     });
@@ -2566,6 +2565,14 @@
     }
 
     function switchMode(mode) {
+      if (mode === currentMode) return;
+      // currentMode and the button highlight are owned by switchMode, not by
+      // the click handler. Three code paths gate on currentMode — the museum's
+      // deferred start(), the bounce autoplay guard, and startBubbles() — and
+      // any caller that bypassed the handler used to leave them stale, so the
+      // mode would open visually while its init silently declined to run.
+      currentMode = mode;
+      modeBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
       hideAll();
       document.querySelector('.mode-selector').classList.toggle('soap-active', mode === 'soap');
       if (mode === 'bounce') {
